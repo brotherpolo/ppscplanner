@@ -571,13 +571,19 @@
       }, 2200);
     }
 
-    function setSaveStatus(status) {
+    function formatTime(timestamp) {
+      const d = timestamp ? new Date(timestamp) : new Date();
+      return d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit' });
+    }
+
+    function setSaveStatus(status, timestamp = null) {
       if (status === 'saving') {
         saveStatusDot.className = "w-2 h-2 rounded-full bg-amber-500 animate-pulse";
         saveStatusText.textContent = "Syncing...";
       } else if (status === 'synced') {
         saveStatusDot.className = "w-2 h-2 rounded-full bg-emerald-500";
-        saveStatusText.textContent = "Cloud Synced";
+        const timeStr = formatTime(timestamp || state.lastModified);
+        saveStatusText.textContent = `Synced ${timeStr}`;
       } else if (status === 'offline') {
         saveStatusDot.className = "w-2 h-2 rounded-full bg-slate-400";
         saveStatusText.textContent = "Offline";
@@ -613,13 +619,13 @@
           edges: state.edges,
           lastModified: now
         }).then(() => {
-          setSaveStatus('synced');
+          setSaveStatus('synced', now);
         }).catch(err => {
           console.error("Firebase write error:", err);
           setSaveStatus('error');
         });
       } else {
-        setTimeout(() => setSaveStatus('synced'), 100);
+        setTimeout(() => setSaveStatus('synced', now), 100);
       }
     }
 
@@ -1307,9 +1313,7 @@
       showToast(`Added "${text}"`);
     });
 
-    // --- 2. CLOUD-FIRST HYGIENE ON INITIALIZATION ---
     window.onload = function() {
-      // 1. Initial draw identical to your original flow
       renderBoard();
       applyTransform();
 
@@ -1317,7 +1321,7 @@
         centerDiagram();
       }
 
-      // 2. Realtime Database hygiene listener
+      // Realtime Database listener
       if (window.boardRef) {
         // Track network connectivity
         const connectedRef = db.ref(".info/connected");
@@ -1325,11 +1329,10 @@
           if (snap.val() === false) {
             setSaveStatus('offline');
           } else {
-            setSaveStatus('synced');
+            setSaveStatus('synced', state.lastModified);
           }
         });
 
-        // Pull remote state safely without UI flicker
         window.boardRef.on('value', (snapshot) => {
           const cloudData = snapshot.val();
           if (cloudData && Array.isArray(cloudData.nodes) && Array.isArray(cloudData.edges)) {
@@ -1357,10 +1360,10 @@
 
               renderBoard();
               isIncomingSync = false;
-              setSaveStatus('synced');
+              setSaveStatus('synced', cloudTimestamp);
             }
           } else {
-            // Seed initial state if cloud is fresh/empty
+            // First time setup: push the full diagram to Firebase
             commitState(true);
           }
         }, (err) => {
