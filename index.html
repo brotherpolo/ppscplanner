@@ -110,12 +110,15 @@
     }
 
     /* Node Styling matching original diagram */
+   /* Node Styling matching original diagram */
     .node {
       position: absolute;
       transform: translate(-50%, -50%);
       background: #ffffff;
       border-radius: 9999px;
       min-width: 96px;
+      max-width: 190px;             /* Keeps the pill from stretching into a long thin noodle */
+      width: max-content;            /* Allows the pill to grow naturally with text */
       min-height: 48px;
       padding: 10px 18px;
       display: flex;
@@ -129,8 +132,10 @@
       cursor: grab;
       border: 2.25px solid;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03);
-      transition: box-shadow 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
-      white-space: pre-line;
+      transition: box-shadow 0.15s ease, border-color 0.15s ease;
+      white-space: normal;           /* Allows natural word wrapping */
+      word-break: normal;
+      overflow-wrap: break-word;     /* Wraps long phrases neatly across lines */
       line-height: 1.25;
       z-index: 10;
       touch-action: none;
@@ -946,7 +951,7 @@
         
         const bgColorClass = `node-bg-${nodeData.bgColor || 'none'}`;
         nodeEl.className = `node node-${nodeData.color} ${bgColorClass} ${nodeData.isHub ? 'node-hub' : ''}`;
-        nodeEl.innerText = nodeData.label;
+nodeEl.innerHTML = nodeData.label.replace(/\n/g, '<br/>');
         nodeEl.style.left = `${nodeData.x}px`;
         nodeEl.style.top = `${nodeData.y}px`;
 
