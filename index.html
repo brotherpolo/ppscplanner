@@ -446,6 +446,39 @@
       firebase.initializeApp(firebaseConfig);
     }
     const db = firebase.database();
+
+    const auth = firebase.auth();
+    const authModal = document.getElementById('auth-modal');
+    const loginEmail = document.getElementById('login-email');
+    const loginPassword = document.getElementById('login-password');
+    const loginBtn = document.getElementById('btn-login-submit');
+    const authErrorMsg = document.getElementById('auth-error-msg');
+
+    // Handle Login submission
+    loginBtn.addEventListener('click', () => {
+      const email = loginEmail.value.trim();
+      const password = loginPassword.value.trim();
+      if (!email || !password) return;
+
+      auth.signInWithEmailAndPassword(email, password)
+        .then(() => {
+          authErrorMsg.classList.add('hidden');
+        })
+        .catch(err => {
+          authErrorMsg.textContent = err.message;
+          authErrorMsg.classList.remove('hidden');
+        });
+    });
+
+    // Listen for Auth State changes
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        authModal.classList.add('hidden');
+      } else {
+        authModal.classList.remove('hidden');
+      }
+    });
+    
     window.boardRef = db.ref("mindmap/board");
 
     const LOCAL_STORAGE_KEY = 'mindmap_whiteboard_state_v2';
@@ -1509,5 +1542,26 @@
       }
     };
   </script>
+  <!-- Login Modal for 2 Allowed Users -->
+  <div id="auth-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl p-6 sm:p-7 w-full max-w-sm shadow-2xl border border-slate-100 flex flex-col gap-4">
+      <div class="flex items-center gap-2">
+        <i class="fa-solid fa-lock text-indigo-600 text-lg"></i>
+        <h3 class="font-bold text-slate-800 text-base">Authorized Sign In</h3>
+      </div>
+      <p class="text-xs text-slate-500">Sign in with an authorized account to access and edit the whiteboard.</p>
+      
+      <div class="flex flex-col gap-2.5">
+        <input type="email" id="login-email" placeholder="Email" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        <input type="password" id="login-password" placeholder="Password" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+      </div>
+
+      <p id="auth-error-msg" class="text-xs text-rose-600 hidden font-medium"></p>
+
+      <button id="btn-login-submit" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow transition-all">
+        Sign In
+      </button>
+    </div>
+  </div>
 </body>
 </html>
