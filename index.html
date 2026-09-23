@@ -15,6 +15,9 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 
+  <!-- jsPDF for direct PDF export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
 
   <style>
@@ -126,7 +129,7 @@
       cursor: grab;
       border: 2.25px solid;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03);
-      transition: box-shadow 0.15s ease, border-color 0.15s ease;
+      transition: box-shadow 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
       white-space: pre-line;
       line-height: 1.25;
       z-index: 10;
@@ -207,12 +210,21 @@
       transform: scale(1.15);
     }
 
-    /* Diagram cluster colors */
+    /* Diagram cluster border & text colors */
     .node-red { border-color: #dc2626; color: #991b1b; }
     .node-green { border-color: #16a34a; color: #166534; }
     .node-blue { border-color: #2563eb; color: #1e40af; }
     .node-purple { border-color: #7c3aed; color: #5b21b6; }
     .node-gray { border-color: #374151; color: #1f2937; }
+
+    /* Diagram custom background fills */
+    .node-bg-none { background-color: #ffffff; }
+    .node-bg-red { background-color: #fee2e2; }
+    .node-bg-green { background-color: #dcfce7; }
+    .node-bg-blue { background-color: #dbeafe; }
+    .node-bg-purple { background-color: #f3e8ff; }
+    .node-bg-yellow { background-color: #fef9c3; }
+    .node-bg-gray { background-color: #f1f5f9; }
 
     .node-hub {
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
@@ -241,7 +253,7 @@
       display: none;
       flex-direction: column;
       gap: 8px;
-      min-width: 220px;
+      min-width: 250px;
     }
 
     #node-inline-textarea {
@@ -259,6 +271,22 @@
       padding: 6px 8px;
       user-select: text;
       -webkit-user-select: text;
+    }
+
+    .color-swatch {
+      width: 18px;
+      height: 18px;
+      border-radius: 9999px;
+      border: 1px solid rgba(0,0,0,0.1);
+      transition: transform 0.15s ease;
+      cursor: pointer;
+    }
+    .color-swatch:hover {
+      transform: scale(1.25);
+    }
+    .color-swatch.active {
+      outline: 2px solid #2563eb;
+      outline-offset: 1px;
     }
 
     /* Custom scrollbar hiding for top toolbar */
@@ -314,6 +342,12 @@
       <span class="hidden lg:inline">Delete</span>
     </button>
 
+    <!-- Export PDF Button -->
+    <button id="btn-export-pdf" title="Export as Scaled PDF" class="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-all shrink-0">
+      <i class="fa-solid fa-file-pdf"></i>
+      <span class="hidden sm:inline">Export PDF</span>
+    </button>
+
     <button id="btn-reset-default" title="Reset Diagram to Original Template" class="hidden items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-700 hover:bg-amber-50 rounded-xl transition-all shrink-0">
       <i class="fa-solid fa-rotate-left"></i> Reset
     </button>
@@ -347,21 +381,43 @@
       <!-- In-place Direct Node Editor -->
       <div id="node-inline-editor">
         <div class="flex items-center justify-between pb-1 border-b border-slate-100 text-[11px] font-semibold text-slate-500">
-          <span>Edit Node Label</span>
+          <span>Edit Node</span>
           <button id="btn-inline-delete-node" class="text-rose-500 hover:text-rose-700 p-1" title="Delete Node">
             <i class="fa-solid fa-trash-can text-xs"></i>
           </button>
         </div>
         <textarea id="node-inline-textarea" rows="2" placeholder="Node title..."></textarea>
-        <div class="flex items-center justify-between border-t border-slate-100 pt-2 gap-1.5">
-          <div class="flex items-center gap-1.5" id="inline-color-pickers">
-            <button data-color="red" class="w-5 h-5 rounded-full bg-red-500 hover:scale-125 transition-transform" title="Red"></button>
-            <button data-color="green" class="w-5 h-5 rounded-full bg-green-500 hover:scale-125 transition-transform" title="Green"></button>
-            <button data-color="blue" class="w-5 h-5 rounded-full bg-blue-500 hover:scale-125 transition-transform" title="Blue"></button>
-            <button data-color="purple" class="w-5 h-5 rounded-full bg-purple-500 hover:scale-125 transition-transform" title="Purple"></button>
-            <button data-color="gray" class="w-5 h-5 rounded-full bg-gray-600 hover:scale-125 transition-transform" title="Gray"></button>
+        
+        <!-- Border/Text Theme Options -->
+        <div class="flex flex-col gap-1 text-[11px] text-slate-500 font-medium">
+          <div class="flex items-center justify-between">
+            <span>Border / Text:</span>
+            <div class="flex items-center gap-1.5" id="inline-color-pickers">
+              <button data-color="red" class="color-swatch bg-red-500" title="Red"></button>
+              <button data-color="green" class="color-swatch bg-green-500" title="Green"></button>
+              <button data-color="blue" class="color-swatch bg-blue-500" title="Blue"></button>
+              <button data-color="purple" class="color-swatch bg-purple-500" title="Purple"></button>
+              <button data-color="gray" class="color-swatch bg-gray-600" title="Gray"></button>
+            </div>
           </div>
-          <button id="btn-inline-save" class="px-3 py-1 bg-indigo-600 text-white rounded-lg text-xs font-semibold hover:bg-indigo-700 shadow-sm">
+
+          <!-- Highlight / Fill Options -->
+          <div class="flex items-center justify-between mt-1">
+            <span>Highlight Fill:</span>
+            <div class="flex items-center gap-1.5" id="inline-bg-color-pickers">
+              <button data-bg="none" class="color-swatch bg-white border-2 border-slate-300" title="None / White"></button>
+              <button data-bg="yellow" class="color-swatch bg-yellow-200" title="Yellow"></button>
+              <button data-bg="red" class="color-swatch bg-red-200" title="Red"></button>
+              <button data-bg="green" class="color-swatch bg-green-200" title="Green"></button>
+              <button data-bg="blue" class="color-swatch bg-blue-200" title="Blue"></button>
+              <button data-bg="purple" class="color-swatch bg-purple-200" title="Purple"></button>
+              <button data-bg="gray" class="color-swatch bg-slate-200" title="Gray"></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end border-t border-slate-100 pt-2">
+          <button id="btn-inline-save" class="px-3.5 py-1 bg-indigo-600 text-white rounded-lg text-xs font-semibold hover:bg-indigo-700 shadow-sm">
             Done
           </button>
         </div>
@@ -409,14 +465,29 @@
         <textarea id="node-label-input" rows="2" class="w-full border border-slate-200 rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800" placeholder="e.g. Solution Architect"></textarea>
       </div>
 
+      <!-- Border Color Options -->
       <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-semibold text-slate-600">Category Color</label>
+        <label class="text-xs font-semibold text-slate-600">Category Outline Color</label>
         <div class="grid grid-cols-5 gap-2" id="color-options">
-          <button type="button" data-color="red" class="color-choice h-9 rounded-xl border-2 border-red-500 bg-red-50 flex items-center justify-center text-red-600 font-bold text-xs ring-2 ring-indigo-600">Red</button>
-          <button type="button" data-color="green" class="color-choice h-9 rounded-xl border-2 border-green-500 bg-green-50 flex items-center justify-center text-green-600 font-bold text-xs">Green</button>
-          <button type="button" data-color="blue" class="color-choice h-9 rounded-xl border-2 border-blue-500 bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-xs">Blue</button>
-          <button type="button" data-color="purple" class="color-choice h-9 rounded-xl border-2 border-purple-500 bg-purple-50 flex items-center justify-center text-purple-600 font-bold text-xs">Purple</button>
-          <button type="button" data-color="gray" class="color-choice h-9 rounded-xl border-2 border-gray-600 bg-gray-50 flex items-center justify-center text-gray-700 font-bold text-xs">Gray</button>
+          <button type="button" data-color="red" class="color-choice h-8 rounded-xl border-2 border-red-500 bg-red-50 flex items-center justify-center text-red-600 font-bold text-xs ring-2 ring-indigo-600">Red</button>
+          <button type="button" data-color="green" class="color-choice h-8 rounded-xl border-2 border-green-500 bg-green-50 flex items-center justify-center text-green-600 font-bold text-xs">Green</button>
+          <button type="button" data-color="blue" class="color-choice h-8 rounded-xl border-2 border-blue-500 bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-xs">Blue</button>
+          <button type="button" data-color="purple" class="color-choice h-8 rounded-xl border-2 border-purple-500 bg-purple-50 flex items-center justify-center text-purple-600 font-bold text-xs">Purple</button>
+          <button type="button" data-color="gray" class="color-choice h-8 rounded-xl border-2 border-gray-600 bg-gray-50 flex items-center justify-center text-gray-700 font-bold text-xs">Gray</button>
+        </div>
+      </div>
+
+      <!-- Background Highlight Fill Options -->
+      <div class="flex flex-col gap-1.5">
+        <label class="text-xs font-semibold text-slate-600">Background Highlight (Optional)</label>
+        <div class="grid grid-cols-7 gap-1.5" id="modal-bg-color-options">
+          <button type="button" data-bg="none" class="modal-bg-choice h-8 rounded-xl border border-slate-300 bg-white flex items-center justify-center text-slate-700 font-medium text-[11px] ring-2 ring-indigo-600">None</button>
+          <button type="button" data-bg="yellow" class="modal-bg-choice h-8 rounded-xl border border-yellow-300 bg-yellow-200 flex items-center justify-center text-yellow-800 font-medium text-[11px]">Yel</button>
+          <button type="button" data-bg="red" class="modal-bg-choice h-8 rounded-xl border border-red-300 bg-red-200 flex items-center justify-center text-red-800 font-medium text-[11px]">Red</button>
+          <button type="button" data-bg="green" class="modal-bg-choice h-8 rounded-xl border border-green-300 bg-green-200 flex items-center justify-center text-green-800 font-medium text-[11px]">Grn</button>
+          <button type="button" data-bg="blue" class="modal-bg-choice h-8 rounded-xl border border-blue-300 bg-blue-200 flex items-center justify-center text-blue-800 font-medium text-[11px]">Blu</button>
+          <button type="button" data-bg="purple" class="modal-bg-choice h-8 rounded-xl border border-purple-300 bg-purple-200 flex items-center justify-center text-purple-800 font-medium text-[11px]">Pur</button>
+          <button type="button" data-bg="gray" class="modal-bg-choice h-8 rounded-xl border border-slate-300 bg-slate-200 flex items-center justify-center text-slate-800 font-medium text-[11px]">Gry</button>
         </div>
       </div>
 
@@ -432,7 +503,7 @@
     Notice
   </div>
 
-  <!-- Login Modal for Authorized Users (Positioned before script execution) -->
+  <!-- Login Modal for Authorized Users -->
   <div id="auth-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[100] flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-2xl p-6 sm:p-7 w-full max-w-sm shadow-2xl border border-slate-100 flex flex-col gap-4">
       <div class="flex items-center gap-2">
@@ -478,35 +549,35 @@
     // Original 5 Handwritten Clusters
     const defaultNodes = [
       // Central Hub
-      { id: "adam", label: "Adam\nPollack", x: 420, y: 460, color: "red", isHub: true },
+      { id: "adam", label: "Adam\nPollack", x: 420, y: 460, color: "red", bgColor: "none", isHub: true },
 
       // Product Team Cluster (Top Right)
-      { id: "product", label: "Product\nTeam", x: 800, y: 220, color: "gray" },
-      { id: "shawn", label: "Shawn", x: 720, y: 110, color: "red" },
-      { id: "albert", label: "Albert", x: 890, y: 110, color: "red" },
-      { id: "grant", label: "Grant", x: 730, y: 320, color: "red" },
-      { id: "jon", label: "Jon", x: 885, y: 290, color: "red" },
+      { id: "product", label: "Product\nTeam", x: 800, y: 220, color: "gray", bgColor: "none" },
+      { id: "shawn", label: "Shawn", x: 720, y: 110, color: "red", bgColor: "none" },
+      { id: "albert", label: "Albert", x: 890, y: 110, color: "red", bgColor: "none" },
+      { id: "grant", label: "Grant", x: 730, y: 320, color: "red", bgColor: "none" },
+      { id: "jon", label: "Jon", x: 885, y: 290, color: "red", bgColor: "none" },
 
       // Sales Engineers Cluster (Top Left)
-      { id: "se", label: "Sales\nEngineers", x: 380, y: 240, color: "gray" },
-      { id: "demo_shadows", label: "Demo\nShadows", x: 340, y: 110, color: "green" },
-      { id: "se_config", label: "Config", x: 500, y: 145, color: "green" },
-      { id: "ensogo", label: "ensogo\ntraining", x: 550, y: 265, color: "green" },
-      { id: "demo_prep", label: "Demo\nPrep", x: 215, y: 315, color: "green" },
-      { id: "profiles", label: "Profiles", x: 215, y: 220, color: "green" },
+      { id: "se", label: "Sales\nEngineers", x: 380, y: 240, color: "gray", bgColor: "none" },
+      { id: "demo_shadows", label: "Demo\nShadows", x: 340, y: 110, color: "green", bgColor: "none" },
+      { id: "se_config", label: "Config", x: 500, y: 145, color: "green", bgColor: "none" },
+      { id: "ensogo", label: "ensogo\ntraining", x: 550, y: 265, color: "green", bgColor: "none" },
+      { id: "demo_prep", label: "Demo\nPrep", x: 215, y: 315, color: "green", bgColor: "none" },
+      { id: "profiles", label: "Profiles", x: 215, y: 220, color: "green", bgColor: "none" },
 
       // Flex Cluster (Middle Right)
-      { id: "flex", label: "Flex", x: 740, y: 520, color: "gray" },
-      { id: "templates", label: "Templates", x: 730, y: 420, color: "blue" },
-      { id: "flex_config", label: "Config", x: 870, y: 460, color: "blue" },
-      { id: "learning", label: "Learning", x: 870, y: 560, color: "blue" },
-      { id: "demo_excl", label: "Demo!", x: 700, y: 610, color: "blue" },
+      { id: "flex", label: "Flex", x: 740, y: 520, color: "gray", bgColor: "none" },
+      { id: "templates", label: "Templates", x: 730, y: 420, color: "blue", bgColor: "none" },
+      { id: "flex_config", label: "Config", x: 870, y: 460, color: "blue", bgColor: "none" },
+      { id: "learning", label: "Learning", x: 870, y: 560, color: "blue", bgColor: "none" },
+      { id: "demo_excl", label: "Demo!", x: 700, y: 610, color: "blue", bgColor: "none" },
 
       // RFP Cluster (Bottom Left)
-      { id: "rfp", label: "RFP", x: 350, y: 730, color: "purple" },
-      { id: "kb", label: "knowledge\nbase", x: 495, y: 730, color: "purple" },
-      { id: "process", label: "Process", x: 410, y: 825, color: "purple" },
-      { id: "inventive", label: "Inventive", x: 240, y: 800, color: "purple" }
+      { id: "rfp", label: "RFP", x: 350, y: 730, color: "purple", bgColor: "none" },
+      { id: "kb", label: "knowledge\nbase", x: 495, y: 730, color: "purple", bgColor: "none" },
+      { id: "process", label: "Process", x: 410, y: 825, color: "purple", bgColor: "none" },
+      { id: "inventive", label: "Inventive", x: 240, y: 800, color: "purple", bgColor: "none" }
     ];
 
     const defaultEdges = [
@@ -543,7 +614,12 @@
           const parsed = JSON.parse(raw);
           if (Array.isArray(parsed.nodes) && Array.isArray(parsed.edges)) {
             return {
-              nodes: parsed.nodes.map(n => ({ ...n, x: Number(n.x), y: Number(n.y) })),
+              nodes: parsed.nodes.map(n => ({ 
+                ...n, 
+                x: Number(n.x), 
+                y: Number(n.y),
+                bgColor: n.bgColor || 'none'
+              })),
               edges: parsed.edges,
               view: parsed.view || { x: 0, y: 0, zoom: 1 },
               lastModified: parsed.lastModified || 0
@@ -568,7 +644,7 @@
       edges: initial.edges,
       selectedNodeIds: new Set(),
       selectedEdgeId: null,
-      mode: 'select', // 'select' | 'connect' | 'pan'
+      mode: 'select',
       connectSourceId: null,
       view: initial.view,
       lastModified: initial.lastModified,
@@ -580,6 +656,7 @@
       dragStartWorld: { x: 0, y: 0 },
       nodeInitialPositions: new Map(),
       selectedModalColor: 'red',
+      selectedModalBgColor: 'none',
       editingNodeId: null
     };
 
@@ -602,6 +679,7 @@
     const btnInlineSave = document.getElementById('btn-inline-save');
     const btnInlineDelete = document.getElementById('btn-inline-delete-node');
     const inlineColorPickers = document.getElementById('inline-color-pickers');
+    const inlineBgColorPickers = document.getElementById('inline-bg-color-pickers');
 
     // Toolbar buttons
     const btnSelectMode = document.getElementById('btn-select-mode');
@@ -609,6 +687,7 @@
     const btnPanMode = document.getElementById('btn-pan-mode');
     const btnSelectAll = document.getElementById('btn-select-all');
     const btnDeleteSelected = document.getElementById('btn-delete-selected');
+    const btnExportPdf = document.getElementById('btn-export-pdf');
     const btnResetDefault = document.getElementById('btn-reset-default');
     const btnResetView = document.getElementById('btn-reset-view');
     const btnCenterDiagram = document.getElementById('btn-center-diagram');
@@ -742,6 +821,14 @@
       };
       inlineEditorEl.style.boxShadow = `0 18px 40px -6px rgba(0, 0, 0, 0.25), 0 0 0 2px ${colorMap[node.color] || '#3b82f6'}`;
 
+      inlineColorPickers.querySelectorAll('button').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.color === (node.color || 'red'));
+      });
+
+      inlineBgColorPickers.querySelectorAll('button').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.bg === (node.bgColor || 'none'));
+      });
+
       setTimeout(() => {
         inlineTextareaEl.focus();
         inlineTextareaEl.select();
@@ -804,6 +891,20 @@
       });
     });
 
+    inlineBgColorPickers.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (!state.editingNodeId) return;
+        const node = state.nodes.find(n => n.id === state.editingNodeId);
+        if (node) {
+          node.bgColor = btn.dataset.bg;
+          commitState(true);
+          openInlineEditor(node.id);
+          renderBoard();
+        }
+      });
+    });
+
     function renderBoard() {
       edgesGroupEl.innerHTML = '';
       state.edges.forEach(edge => {
@@ -842,7 +943,9 @@
       state.nodes.forEach(nodeData => {
         const nodeEl = document.createElement('div');
         nodeEl.id = `node-${nodeData.id}`;
-        nodeEl.className = `node node-${nodeData.color} ${nodeData.isHub ? 'node-hub' : ''}`;
+        
+        const bgColorClass = `node-bg-${nodeData.bgColor || 'none'}`;
+        nodeEl.className = `node node-${nodeData.color} ${bgColorClass} ${nodeData.isHub ? 'node-hub' : ''}`;
         nodeEl.innerText = nodeData.label;
         nodeEl.style.left = `${nodeData.x}px`;
         nodeEl.style.top = `${nodeData.y}px`;
@@ -1140,6 +1243,205 @@
       }
     }
 
+    // --- AUTO-SCALED PDF EXPORT ---
+    async function exportMindmapToPdf() {
+      if (state.nodes.length === 0) {
+        showToast("No nodes to export.");
+        return;
+      }
+
+      showToast("Generating scaled PDF...");
+
+      // 1. Calculate the bounding box of the mindmap
+      const bounds = { minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity };
+      const nodeDims = new Map();
+
+      state.nodes.forEach(node => {
+        const el = document.getElementById(`node-${node.id}`);
+        const w = el ? el.offsetWidth : 120;
+        const h = el ? el.offsetHeight : 54;
+        nodeDims.set(node.id, { w, h });
+
+        const left = node.x - w / 2;
+        const right = node.x + w / 2;
+        const top = node.y - h / 2;
+        const bottom = node.y + h / 2;
+
+        if (left < bounds.minX) bounds.minX = left;
+        if (right > bounds.maxX) bounds.maxX = right;
+        if (top < bounds.minY) bounds.minY = top;
+        if (bottom > bounds.maxY) bounds.maxY = bottom;
+      });
+
+      const padding = 60;
+      const contentWidth = (bounds.maxX - bounds.minX) + padding * 2;
+      const contentHeight = (bounds.maxY - bounds.minY) + padding * 2;
+
+      // 2. Render mindmap to high-res offscreen canvas
+      const scaleFactor = 2; // retina clarity
+      const canvas = document.createElement('canvas');
+      canvas.width = contentWidth * scaleFactor;
+      canvas.height = contentHeight * scaleFactor;
+      const ctx = canvas.getContext('2d');
+
+      ctx.scale(scaleFactor, scaleFactor);
+
+      // Background
+      ctx.fillStyle = "#fafaf9";
+      ctx.fillRect(0, 0, contentWidth, contentHeight);
+
+      // Subtle dot grid in export
+      ctx.fillStyle = "#cbd5e1";
+      for (let gx = 0; gx < contentWidth; gx += 26) {
+        for (let gy = 0; gy < contentHeight; gy += 26) {
+          ctx.beginPath();
+          ctx.arc(gx, gy, 1.2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      const offsetX = bounds.minX - padding;
+      const offsetY = bounds.minY - padding;
+
+      // Draw Edges
+      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = "#64748b";
+      ctx.lineCap = "round";
+
+      state.edges.forEach(edge => {
+        const s = state.nodes.find(n => n.id === edge.source);
+        const t = state.nodes.find(n => n.id === edge.target);
+        if (!s || !t) return;
+
+        const x1 = s.x - offsetX;
+        const y1 = s.y - offsetY;
+        const x2 = t.x - offsetX;
+        const y2 = t.y - offsetY;
+
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const dist = Math.hypot(dx, dy);
+        const curvature = Math.min(30, dist * 0.12);
+        const nx = -dy / (dist || 1);
+        const ny = dx / (dist || 1);
+        const cx = (x1 + x2) / 2 + nx * curvature;
+        const cy = (y1 + y2) / 2 + ny * curvature;
+
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.quadraticCurveTo(cx, cy, x2, y2);
+        ctx.stroke();
+      });
+
+      // Color scheme map for drawing nodes
+      const borderTextColors = {
+        red: { border: '#dc2626', text: '#991b1b' },
+        green: { border: '#16a34a', text: '#166534' },
+        blue: { border: '#2563eb', text: '#1e40af' },
+        purple: { border: '#7c3aed', text: '#5b21b6' },
+        gray: { border: '#374151', text: '#1f2937' }
+      };
+
+      const bgFillColors = {
+        none: '#ffffff',
+        yellow: '#fef9c3',
+        red: '#fee2e2',
+        green: '#dcfce7',
+        blue: '#dbeafe',
+        purple: '#f3e8ff',
+        gray: '#f1f5f9'
+      };
+
+      // Helper function for rounded rectangle
+      function drawRoundedRect(ctx, x, y, width, height, radius) {
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + width - radius, y);
+        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+        ctx.lineTo(x + width, y + height - radius);
+        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        ctx.lineTo(x + radius, y + height);
+        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+      }
+
+      // Draw Nodes
+      state.nodes.forEach(node => {
+        const dims = nodeDims.get(node.id) || { w: 110, h: 48 };
+        const w = dims.w;
+        const h = dims.h;
+        const x = (node.x - offsetX) - w / 2;
+        const y = (node.y - offsetY) - h / 2;
+        const radius = h / 2;
+
+        const colors = borderTextColors[node.color] || borderTextColors.gray;
+        const bgColor = bgFillColors[node.bgColor] || '#ffffff';
+
+        // Shadow
+        ctx.save();
+        ctx.shadowColor = "rgba(0, 0, 0, 0.08)";
+        ctx.shadowBlur = 8;
+        ctx.shadowOffsetY = 3;
+
+        // Fill background
+        drawRoundedRect(ctx, x, y, w, h, radius);
+        ctx.fillStyle = bgColor;
+        ctx.fill();
+        ctx.restore();
+
+        // Stroke border
+        ctx.lineWidth = 2.25;
+        ctx.strokeStyle = colors.border;
+        drawRoundedRect(ctx, x, y, w, h, radius);
+        ctx.stroke();
+
+        // Node text
+        ctx.fillStyle = colors.text;
+        ctx.font = node.isHub ? "700 15px 'Inter', sans-serif" : "600 13px 'Inter', sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        const lines = (node.label || '').split('\n');
+        const lineHeight = 16;
+        const textCenterY = y + h / 2;
+        const startY = textCenterY - ((lines.length - 1) * lineHeight) / 2;
+
+        lines.forEach((line, index) => {
+          ctx.fillText(line, x + w / 2, startY + (index * lineHeight));
+        });
+      });
+
+      // 3. Scale and fit into a PDF page
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({
+        orientation: contentWidth > contentHeight ? 'landscape' : 'portrait',
+        unit: 'pt',
+        format: 'a4'
+      });
+
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 36; // 0.5 inch margins
+
+      const availableWidth = pageWidth - margin * 2;
+      const availableHeight = pageHeight - margin * 2;
+
+      const scale = Math.min(availableWidth / contentWidth, availableHeight / contentHeight);
+      const renderedWidth = contentWidth * scale;
+      const renderedHeight = contentHeight * scale;
+
+      const destX = margin + (availableWidth - renderedWidth) / 2;
+      const destY = margin + (availableHeight - renderedHeight) / 2;
+
+      const imgData = canvas.toDataURL('image/png');
+      pdf.addImage(imgData, 'PNG', destX, destY, renderedWidth, renderedHeight, undefined, 'FAST');
+      pdf.save(`mindmap-${new Date().toISOString().slice(0, 10)}.pdf`);
+
+      showToast("PDF exported successfully!");
+    }
+
     // --- VIEWPORT MOUSE LISTENERS ---
     viewportEl.addEventListener('mousedown', (e) => {
       if (state.editingNodeId && !e.target.closest('#node-inline-editor')) {
@@ -1416,6 +1718,7 @@
     btnPanMode.addEventListener('click', () => setAppMode('pan'));
     btnSelectAll.addEventListener('click', selectEntireDiagram);
     btnDeleteSelected.addEventListener('click', deleteSelected);
+    btnExportPdf.addEventListener('click', exportMindmapToPdf);
     btnResetDefault.addEventListener('click', resetToDefaultDiagram);
     btnResetView.addEventListener('click', resetView);
     btnCenterDiagram.addEventListener('click', centerDiagram);
@@ -1433,6 +1736,7 @@
     const modalEl = document.getElementById('add-node-modal');
     const labelInput = document.getElementById('node-label-input');
     const colorButtons = document.querySelectorAll('.color-choice');
+    const modalBgButtons = document.querySelectorAll('.modal-bg-choice');
 
     btnOpenAddModal.addEventListener('click', () => {
       modalEl.classList.remove('hidden');
@@ -1451,6 +1755,14 @@
       });
     });
 
+    modalBgButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        modalBgButtons.forEach(b => b.classList.remove('ring-2', 'ring-indigo-600'));
+        btn.classList.add('ring-2', 'ring-indigo-600');
+        state.selectedModalBgColor = btn.dataset.bg;
+      });
+    });
+
     document.getElementById('btn-confirm-add').addEventListener('click', () => {
       const text = labelInput.value.trim();
       if (!text) {
@@ -1464,7 +1776,8 @@
         label: text,
         x: Math.round(centerScreen.x + (Math.random() * 40 - 20)),
         y: Math.round(centerScreen.y + (Math.random() * 40 - 20)),
-        color: state.selectedModalColor || 'red'
+        color: state.selectedModalColor || 'red',
+        bgColor: state.selectedModalBgColor || 'none'
       };
 
       state.nodes.push(newNode);
@@ -1517,7 +1830,6 @@
       });
     }
 
-    // Attach sync only when authenticated to prevent unauthorized crash
     function initDatabaseSync() {
       if (dbSyncAttached || !window.boardRef) return;
       dbSyncAttached = true;
@@ -1542,7 +1854,8 @@
             state.nodes = cloudData.nodes.map(n => ({ 
               ...n, 
               x: Number(n.x) || 0, 
-              y: Number(n.y) || 0 
+              y: Number(n.y) || 0,
+              bgColor: n.bgColor || 'none'
             }));
             state.edges = cloudData.edges;
             state.lastModified = cloudTimestamp;
