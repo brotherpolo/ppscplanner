@@ -368,7 +368,7 @@
     <div id="marquee-box"></div>
   </div>
 
-  <!-- Bottom Helper Bar (auto-hides on very small screens to avoid occlusion) -->
+  <!-- Bottom Helper Bar -->
   <div class="hidden sm:flex absolute bottom-5 left-5 z-40 glass-panel px-3.5 py-2 rounded-xl text-xs text-slate-600 items-center gap-3">
     <span class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded font-mono text-[10px]">Double-tap</kbd> edit label</span>
     <span class="text-slate-300">•</span>
@@ -430,6 +430,28 @@
     Notice
   </div>
 
+  <!-- Login Modal for Authorized Users (Positioned before script execution) -->
+  <div id="auth-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[100] flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl p-6 sm:p-7 w-full max-w-sm shadow-2xl border border-slate-100 flex flex-col gap-4">
+      <div class="flex items-center gap-2">
+        <i class="fa-solid fa-lock text-indigo-600 text-lg"></i>
+        <h3 class="font-bold text-slate-800 text-base">Authorized Sign In</h3>
+      </div>
+      <p class="text-xs text-slate-500">Sign in with an authorized account to access and edit the whiteboard.</p>
+      
+      <div class="flex flex-col gap-2.5">
+        <input type="email" id="login-email" placeholder="Email" autocomplete="username" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        <input type="password" id="login-password" placeholder="Password" autocomplete="current-password" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+      </div>
+
+      <p id="auth-error-msg" class="text-xs text-rose-600 hidden font-medium"></p>
+
+      <button id="btn-login-submit" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow transition-all">
+        Sign In
+      </button>
+    </div>
+  </div>
+
   <script>
     // --- 1. VERIFIED USER FIREBASE CONFIGURATION ---
     const firebaseConfig = {
@@ -446,39 +468,7 @@
       firebase.initializeApp(firebaseConfig);
     }
     const db = firebase.database();
-
     const auth = firebase.auth();
-    const authModal = document.getElementById('auth-modal');
-    const loginEmail = document.getElementById('login-email');
-    const loginPassword = document.getElementById('login-password');
-    const loginBtn = document.getElementById('btn-login-submit');
-    const authErrorMsg = document.getElementById('auth-error-msg');
-
-    // Handle Login submission
-    loginBtn.addEventListener('click', () => {
-      const email = loginEmail.value.trim();
-      const password = loginPassword.value.trim();
-      if (!email || !password) return;
-
-      auth.signInWithEmailAndPassword(email, password)
-        .then(() => {
-          authErrorMsg.classList.add('hidden');
-        })
-        .catch(err => {
-          authErrorMsg.textContent = err.message;
-          authErrorMsg.classList.remove('hidden');
-        });
-    });
-
-    // Listen for Auth State changes
-    auth.onAuthStateChanged((user) => {
-      if (user) {
-        authModal.classList.add('hidden');
-      } else {
-        authModal.classList.remove('hidden');
-      }
-    });
-    
     window.boardRef = db.ref("mindmap/board");
 
     const LOCAL_STORAGE_KEY = 'mindmap_whiteboard_state_v2';
@@ -624,6 +614,13 @@
     const btnZoomOut = document.getElementById('btn-zoom-out');
     const btnOpenAddModal = document.getElementById('btn-open-add-modal');
 
+    // Auth Elements
+    const authModal = document.getElementById('auth-modal');
+    const loginEmail = document.getElementById('login-email');
+    const loginPassword = document.getElementById('login-password');
+    const loginBtn = document.getElementById('btn-login-submit');
+    const authErrorMsg = document.getElementById('auth-error-msg');
+
     let toastTimeout;
     function showToast(msg) {
       const toast = document.getElementById('toast');
@@ -674,7 +671,7 @@
 
       setSaveStatus('saving');
 
-      if (window.boardRef && !isIncomingSync) {
+      if (window.boardRef && !isIncomingSync && auth.currentUser) {
         window.boardRef.set({
           nodes: state.nodes,
           edges: state.edges,
@@ -806,7 +803,6 @@
     });
 
     function renderBoard() {
-      // 1. Render Curved Edges
       edgesGroupEl.innerHTML = '';
       state.edges.forEach(edge => {
         const sourceNode = state.nodes.find(n => n.id === edge.source);
@@ -840,7 +836,6 @@
         edgesGroupEl.appendChild(g);
       });
 
-      // 2. Render Nodes
       nodesContainerEl.innerHTML = '';
       state.nodes.forEach(nodeData => {
         const nodeEl = document.createElement('div');
@@ -857,7 +852,6 @@
           nodeEl.classList.add('connect-source');
         }
 
-        // Quick edit pencil icon
         const editBtn = document.createElement('button');
         editBtn.className = 'node-action-btn btn-edit-node';
         editBtn.title = 'Edit node title';
@@ -869,7 +863,6 @@
         });
         nodeEl.appendChild(editBtn);
 
-        // Quick delete icon
         const delBtn = document.createElement('button');
         delBtn.className = 'node-action-btn btn-delete-node-quick';
         delBtn.title = 'Delete node';
@@ -1008,7 +1001,6 @@
         }
       };
 
-      // MOUSE EVENTS
       nodeEl.addEventListener('mousedown', (e) => {
         if (e.button !== 0) return;
         if (e.target.closest('.node-action-btn')) return;
@@ -1034,7 +1026,6 @@
         openInlineEditor(nodeData.id);
       });
 
-      // TOUCH EVENTS (Mobile & Tablet)
       nodeEl.addEventListener('touchstart', (e) => {
         if (e.touches.length !== 1) return;
         if (e.target.closest('.node-action-btn')) return;
@@ -1042,7 +1033,6 @@
         e.stopPropagation();
         const touch = e.touches[0];
 
-        // Detect mobile double tap to edit label
         const currentTime = new Date().getTime();
         const tapGap = currentTime - lastTapTime;
         if (tapGap < 300 && tapGap > 0) {
@@ -1247,7 +1237,7 @@
       applyTransform();
     }, { passive: false });
 
-    // --- VIEWPORT TOUCH LISTENERS (Pinch-Zoom, Two-Finger Pan & Single-Finger Canvas Pan) ---
+    // --- VIEWPORT TOUCH LISTENERS ---
     let initialTouchDistance = 0;
     let initialZoom = 1;
     let initialTouchCenter = { x: 0, y: 0 };
@@ -1268,7 +1258,6 @@
           updateSelectionVisuals();
         }
       } else if (e.touches.length === 2) {
-        // Multi-touch gestures: 2-finger pan & pinch zoom
         state.isPanning = false;
         const t1 = e.touches[0];
         const t2 = e.touches[1];
@@ -1303,7 +1292,6 @@
         const pinchRatio = currentDistance / initialTouchDistance;
         let newZoom = Math.min(Math.max(0.3, initialZoom * pinchRatio), 2.5);
 
-        // Zoom relative to touch midpoint
         state.view.x = currentCenter.x - (initialTouchCenter.x - initialViewAtPinch.x) * (newZoom / initialZoom) + (currentCenter.x - initialTouchCenter.x);
         state.view.y = currentCenter.y - (initialTouchCenter.y - initialViewAtPinch.y) * (newZoom / initialZoom) + (currentCenter.y - initialTouchCenter.y);
         state.view.zoom = newZoom;
@@ -1484,6 +1472,112 @@
       showToast(`Added "${text}"`);
     });
 
+    // --- AUTHENTICATION FLOW & DATABASE SYNC GUARD ---
+    let dbSyncAttached = false;
+
+    function attemptLogin() {
+      const email = loginEmail.value.trim();
+      const password = loginPassword.value.trim();
+      if (!email || !password) {
+        authErrorMsg.textContent = "Please enter both email and password.";
+        authErrorMsg.classList.remove('hidden');
+        return;
+      }
+
+      loginBtn.disabled = true;
+      loginBtn.textContent = "Signing In...";
+      authErrorMsg.classList.add('hidden');
+
+      auth.signInWithEmailAndPassword(email, password)
+        .then(() => {
+          authErrorMsg.classList.add('hidden');
+        })
+        .catch(err => {
+          console.error("Authentication failed:", err);
+          authErrorMsg.textContent = err.message;
+          authErrorMsg.classList.remove('hidden');
+        })
+        .finally(() => {
+          loginBtn.disabled = false;
+          loginBtn.textContent = "Sign In";
+        });
+    }
+
+    if (loginBtn) {
+      loginBtn.addEventListener('click', attemptLogin);
+    }
+
+    if (loginPassword) {
+      loginPassword.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          attemptLogin();
+        }
+      });
+    }
+
+    // Attach sync only when authenticated to prevent unauthorized crash
+    function initDatabaseSync() {
+      if (dbSyncAttached || !window.boardRef) return;
+      dbSyncAttached = true;
+
+      const connectedRef = db.ref(".info/connected");
+      connectedRef.on('value', (snap) => {
+        if (snap.val() === false) {
+          setSaveStatus('offline');
+        } else {
+          setSaveStatus('synced', state.lastModified);
+        }
+      });
+
+      window.boardRef.on('value', (snapshot) => {
+        const cloudData = snapshot.val();
+        if (cloudData && Array.isArray(cloudData.nodes) && Array.isArray(cloudData.edges)) {
+          if (state.isDraggingGroup) return;
+
+          const cloudTimestamp = cloudData.lastModified || 0;
+          if (cloudTimestamp >= state.lastModified) {
+            isIncomingSync = true;
+            state.nodes = cloudData.nodes.map(n => ({ 
+              ...n, 
+              x: Number(n.x) || 0, 
+              y: Number(n.y) || 0 
+            }));
+            state.edges = cloudData.edges;
+            state.lastModified = cloudTimestamp;
+
+            try {
+              localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({
+                nodes: state.nodes,
+                edges: state.edges,
+                view: state.view,
+                lastModified: state.lastModified
+              }));
+            } catch (e) {}
+
+            renderBoard();
+            isIncomingSync = false;
+            setSaveStatus('synced', cloudTimestamp);
+          }
+        } else {
+          commitState(true);
+        }
+      }, (err) => {
+        console.error("Firebase sync error:", err);
+        setSaveStatus('error');
+      });
+    }
+
+    // Auth State Observer
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        authModal.classList.add('hidden');
+        initDatabaseSync();
+      } else {
+        authModal.classList.remove('hidden');
+        setSaveStatus('offline');
+      }
+    });
+
     window.onload = function() {
       renderBoard();
       applyTransform();
@@ -1491,77 +1585,7 @@
       if (!localStorage.getItem(LOCAL_STORAGE_KEY)) {
         centerDiagram();
       }
-
-      // Realtime Database listener
-      if (window.boardRef) {
-        const connectedRef = db.ref(".info/connected");
-        connectedRef.on('value', (snap) => {
-          if (snap.val() === false) {
-            setSaveStatus('offline');
-          } else {
-            setSaveStatus('synced', state.lastModified);
-          }
-        });
-
-        window.boardRef.on('value', (snapshot) => {
-          const cloudData = snapshot.val();
-          if (cloudData && Array.isArray(cloudData.nodes) && Array.isArray(cloudData.edges)) {
-            if (state.isDraggingGroup) return;
-
-            const cloudTimestamp = cloudData.lastModified || 0;
-            if (cloudTimestamp >= state.lastModified) {
-              isIncomingSync = true;
-              state.nodes = cloudData.nodes.map(n => ({ 
-                ...n, 
-                x: Number(n.x) || 0, 
-                y: Number(n.y) || 0 
-              }));
-              state.edges = cloudData.edges;
-              state.lastModified = cloudTimestamp;
-
-              try {
-                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({
-                  nodes: state.nodes,
-                  edges: state.edges,
-                  view: state.view,
-                  lastModified: state.lastModified
-                }));
-              } catch (e) {}
-
-              renderBoard();
-              isIncomingSync = false;
-              setSaveStatus('synced', cloudTimestamp);
-            }
-          } else {
-            commitState(true);
-          }
-        }, (err) => {
-          console.error("Firebase sync error:", err);
-          setSaveStatus('error');
-        });
-      }
     };
   </script>
-  <!-- Login Modal for 2 Allowed Users -->
-  <div id="auth-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[100] flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl p-6 sm:p-7 w-full max-w-sm shadow-2xl border border-slate-100 flex flex-col gap-4">
-      <div class="flex items-center gap-2">
-        <i class="fa-solid fa-lock text-indigo-600 text-lg"></i>
-        <h3 class="font-bold text-slate-800 text-base">Authorized Sign In</h3>
-      </div>
-      <p class="text-xs text-slate-500">Sign in with an authorized account to access and edit the whiteboard.</p>
-      
-      <div class="flex flex-col gap-2.5">
-        <input type="email" id="login-email" placeholder="Email" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-        <input type="password" id="login-password" placeholder="Password" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-      </div>
-
-      <p id="auth-error-msg" class="text-xs text-rose-600 hidden font-medium"></p>
-
-      <button id="btn-login-submit" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow transition-all">
-        Sign In
-      </button>
-    </div>
-  </div>
 </body>
 </html>
