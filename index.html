@@ -2119,16 +2119,16 @@
       updateSelectionVisuals();
     }
 
-    // --- FULL MAP DYNAMIC EXPORT TO PDF ---
+    // --- FULL MAP & LINES DYNAMIC EXPORT TO PDF ---
     function exportToPDF() {
-      showToast("Generating full map PDF, please wait...");
+      showToast("Generating full map PDF with connecting lines...", 3000);
       const worldLayerEl = document.getElementById('world-layer');
       if (!worldLayerEl || state.nodes.length === 0) return;
 
-      // 1. Calculate bounding box of all nodes to wrap the full diagram
+      // 1. Calculate full bounding box covering all nodes
       let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
       state.nodes.forEach(n => {
-        const pad = 120; // Padding for node widths and labels
+        const pad = 160;
         if (n.x - pad < minX) minX = n.x - pad;
         if (n.x + pad > maxX) maxX = n.x + pad;
         if (n.y - pad < minY) minY = n.y - pad;
@@ -2138,7 +2138,7 @@
       const mapWidth = maxX - minX;
       const mapHeight = maxY - minY;
 
-      // 2. Temporarily clone world layer into an offscreen container centered for snapshotting
+      // 2. Build offscreen container for clean snapshotting
       const exportContainer = document.createElement('div');
       exportContainer.style.position = 'fixed';
       exportContainer.style.left = '-9999px';
@@ -2150,12 +2150,19 @@
       exportContainer.style.backgroundSize = getComputedStyle(document.getElementById('board-viewport')).backgroundSize;
 
       const cloneWorld = worldLayerEl.cloneNode(true);
-      // Reset transform and shift all coordinates so top-left of bounding box is 0,0
       cloneWorld.style.transform = `translate(${-minX}px, ${-minY}px) scale(1)`;
+
+      // Explicitly adjust SVG layer dimensions inside the clone so lines render fully
+      const svgClone = cloneWorld.querySelector('svg#svg-layer');
+      if (svgClone) {
+        svgClone.style.width = `${mapWidth}px`;
+        svgClone.style.height = `${mapHeight}px`;
+        svgClone.setAttribute('viewBox', `${minX} ${minY} ${mapWidth} ${mapHeight}`);
+      }
+
       exportContainer.appendChild(cloneWorld);
       document.body.appendChild(exportContainer);
 
-      // Clear selections for clean export look
       const prevSelected = new Set(state.selectedNodeIds);
       state.selectedNodeIds.clear();
       state.selectedEdgeId = null;
@@ -2179,8 +2186,8 @@
         });
 
         pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-        pdf.save('Adam_Pollack_PPSC_Workmap_Full.pdf');
-        showToast("Full map PDF exported successfully!");
+        pdf.save('Adam_Pollack_PPSC_Workmap_Complete.pdf');
+        showToast("Full map PDF with connecting lines exported!");
       }).catch(err => {
         console.error("PDF export error:", err);
         if (exportContainer.parentNode) document.body.removeChild(exportContainer);
