@@ -3163,6 +3163,8 @@
 
       if (!modalEl || !labelInput) return;
 
+      modalEl.classList.remove('hidden');
+
       if (modalBox) {
         modalBox.style.transform = 'none';
         modalBox.style.position = 'absolute';
@@ -3221,9 +3223,14 @@
       renderModalTextColorChoices();
       renderModalShapeChoices();
 
-      modalEl.classList.remove('hidden');
       labelInput.value = '';
-      setTimeout(() => labelInput.focus(), 50);
+      setTimeout(() => {
+        if (modalBox) {
+          modalBox.style.left = `${(window.innerWidth - modalBox.offsetWidth) / 2}px`;
+          modalBox.style.top = `${(window.innerHeight - modalBox.offsetHeight) / 2}px`;
+        }
+        labelInput.focus();
+      }, 30);
     }
 
     function switchPage(pageId) {
