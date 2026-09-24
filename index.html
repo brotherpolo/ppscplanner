@@ -1516,12 +1516,12 @@
       escaped = escaped
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
         .replace(/\*(.*?)\*/g, '<em>$1</em>')
-        .replace(/<u>(.*?)<\/u>/g, '<u>$1</u>');
+        .replace(/&lt;u&gt;(.*?)&lt;\/u&gt;/g, '<u>$1</u>');
 
       return escaped.replace(/\n/g, '<br/>');
     }
 
-    // Helper to strip markdown symbols for clean cluster titles
+    // Helper to strip markdown symbols and tags for clean cluster titles / hierarchy view
     function cleanClusterLabel(rawText) {
       if (!rawText) return '';
       return rawText
@@ -2666,6 +2666,24 @@
       `;
     }
 
+    function getHierarchyPillMarkup(node, isDark) {
+      const hex = COLOR_HEX_MAP[node.color] || '#64748b';
+      const hubMarkup = node.isHub ? `<span class="text-[9px] font-bold uppercase tracking-wider text-indigo-500 bg-indigo-500/10 border border-indigo-500/30 px-1.5 py-0.2 rounded">Hub</span>` : '';
+      
+      const bg = isDark ? `${hex}25` : `${hex}18`;
+      const border = isDark ? `${hex}60` : `${hex}45`;
+      const color = isDark ? '#ffffff' : hex;
+
+      const cleanText = cleanClusterLabel(node.label);
+
+      return `
+        <div style="background-color: ${bg}; border-color: ${border}; color: ${color};" class="px-3 py-1 text-xs font-semibold rounded-full border shadow-xs inline-flex items-center justify-center text-center gap-1.5 mx-auto w-max max-w-[200px]">
+          <span class="truncate">${cleanText}</span>
+        </div>
+        ${hubMarkup}
+      `;
+    }
+
     function populateParentDropdown(selectedId = null, filterQuery = "") {
       const dropdownItemsContainer = document.getElementById('parent-dropdown-items');
       const dropdownSelected = document.getElementById('parent-dropdown-selected');
@@ -3071,7 +3089,7 @@
 
         const pillContainer = document.createElement('div');
         pillContainer.className = "flex items-center justify-center";
-        pillContainer.innerHTML = getPillMarkup(node, isDark);
+        pillContainer.innerHTML = getHierarchyPillMarkup(node, isDark);
         leftGroup.appendChild(pillContainer);
 
         if (node.id === 'adam' || node.isHub) {
