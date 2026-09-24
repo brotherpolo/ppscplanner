@@ -2554,7 +2554,7 @@
       });
     }
 
-    // --- HIERARCHY TREE BUILDER WITH STRICT ADAM PRECEDENCE & PROPER COLOR CLUSTER GROUPING ---
+  // --- HIERARCHY TREE BUILDER USING STRICT EDGE PARENT-CHILD MAPPING ---
     function renderHierarchyTree() {
       const treeContainer = document.getElementById('tree-container');
       if (!treeContainer) return;
@@ -2562,7 +2562,7 @@
 
       const isDark = state.theme === 'dark' || state.theme === 'black';
 
-      // Always anchor the tree starting from Adam Pollack as the absolute root
+      // 1. Identify the absolute root (Adam)
       let rootNode = state.nodes.find(n => n.id === 'adam') || state.nodes.find(n => n.isHub) || state.nodes[0];
       if (!rootNode) return;
 
@@ -2571,25 +2571,12 @@
       function createTreeNode(node, level = 0) {
         visited.add(node.id);
         
-        let childNodes = [];
+        // Find children whose parent is strictly THIS node via state.edges
+        const childEdgeTargets = state.edges
+          .filter(e => e.source === node.id)
+          .map(e => e.target);
 
-        if (node.id === 'adam') {
-          // Adam directly owns any node connected to him in the edges list
-          const directEdges = state.edges.filter(e => e.source === 'adam');
-          childNodes = directEdges
-            .map(e => state.nodes.find(n => n.id === e.target))
-            .filter(n => n && !visited.has(n.id));
-        } else {
-          // For any other cluster/parent node, its children are nodes matching its color OR connected via edges
-          const colorKey = node.color;
-          childNodes = state.nodes.filter(n => {
-            if (visited.has(n.id) || n.id === 'adam') return false;
-            // Check if connected directly as child in edges or shares the same color group under this branch
-            const isDirectChildEdge = state.edges.some(e => e.source === node.id && e.target === n.id);
-            const isSameColorGroup = (n.color === colorKey) && !state.edges.some(e => e.source === 'adam' && e.target === n.id);
-            return isDirectChildEdge || isSameColorGroup;
-          });
-        }
+        const childNodes = state.nodes.filter(n => childEdgeTargets.includes(n.id) && !visited.has(n.id));
 
         const nodeWrapper = document.createElement('div');
         nodeWrapper.className = "flex flex-col gap-2";
@@ -2637,7 +2624,7 @@
 
         itemRow.appendChild(leftGroup);
 
-        // --- DESKTOP VIEW ACTIONS (Horizontal: + Add, Locate, Delete) ---
+        // --- DESKTOP VIEW ACTIONS ---
         const actionsDesktop = document.createElement('div');
         actionsDesktop.className = "tree-actions-desktop opacity-80 group-hover:opacity-100 transition-opacity";
 
@@ -2674,7 +2661,7 @@
 
         itemRow.appendChild(actionsDesktop);
 
-        // --- MOBILE VIEW ACTIONS (Single 3-Dot Button with Popup Menu) ---
+        // --- MOBILE VIEW ACTIONS ---
         const actionsMobile = document.createElement('div');
         actionsMobile.className = "tree-actions-mobile";
 
@@ -2685,7 +2672,6 @@
         const dropdownMenu = document.createElement('div');
         dropdownMenu.className = "hidden absolute right-0 top-full mt-1 z-50 min-w-[140px] rounded-xl border p-1.5 flex flex-col gap-1 tree-mobile-menu";
 
-        // Mobile Popup Option: + Add
         const mobAddOpt = document.createElement('button');
         mobAddOpt.className = "w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium text-emerald-500 hover:bg-emerald-500/10 flex items-center gap-2";
         mobAddOpt.innerHTML = '<i class="fa-solid fa-plus text-[11px] w-4"></i><span>Add</span>';
@@ -2696,7 +2682,6 @@
         });
         dropdownMenu.appendChild(mobAddOpt);
 
-        // Mobile Popup Option: Locate
         const mobLocateOpt = document.createElement('button');
         mobLocateOpt.className = "w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium opacity-80 hover:opacity-100 hover:bg-indigo-500/10 hover:text-indigo-400 flex items-center gap-2";
         mobLocateOpt.innerHTML = '<i class="fa-solid fa-crosshairs text-[11px] w-4"></i><span>Locate</span>';
@@ -2707,7 +2692,6 @@
         });
         dropdownMenu.appendChild(mobLocateOpt);
 
-        // Mobile Popup Option: Delete
         const mobDelOpt = document.createElement('button');
         mobDelOpt.className = "w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium text-rose-500 hover:bg-rose-500/10 flex items-center gap-2";
         mobDelOpt.innerHTML = '<i class="fa-solid fa-trash-can text-[11px] w-4"></i><span>Delete</span>';
@@ -2744,6 +2728,25 @@
 
         return nodeWrapper;
       }
+
+      // Render starting from Adam as the root
+      treeContainer.appendChild(createTreeNode(rootNode, 0));
+
+      const orphans = state.nodes.filter(n => !visited.has(n.id));
+      if (orphans.length > 0) {
+        const orphanSection = document.createElement('div');
+        orphanSection.className = "pt-4 border-t border-slate-500/20 flex flex-col gap-2";
+        const orphanTitle = document.createElement('div');
+        orphanTitle.className = "text-xs font-bold opacity-40 uppercase tracking-wider";
+        orphanTitle.textContent = "Unconnected Nodes";
+        orphanSection.appendChild(orphanTitle);
+
+        orphans.forEach(o => {
+          orphanSection.appendChild(createTreeNode(o, 0));
+        });
+        treeContainer.appendChild(orphanSection);
+      }
+    }
 
       // Render starting from Adam as the root
       treeContainer.appendChild(createTreeNode(rootNode, 0));
