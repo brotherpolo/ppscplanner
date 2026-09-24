@@ -1513,13 +1513,23 @@
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;");
 
-      // Replace Markdown formatting tags
       escaped = escaped
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
         .replace(/\*(.*?)\*/g, '<em>$1</em>')
         .replace(/<u>(.*?)<\/u>/g, '<u>$1</u>');
 
       return escaped.replace(/\n/g, '<br/>');
+    }
+
+    // Helper to strip markdown symbols for clean cluster titles
+    function cleanClusterLabel(rawText) {
+      if (!rawText) return '';
+      return rawText
+        .replace(/\*\*/g, '')
+        .replace(/\*/g, '')
+        .replace(/<\/?u>/g, '')
+        .replace(/\n/g, ' ')
+        .trim();
     }
 
     // --- THEME SWITCHER LOGIC ---
@@ -2257,11 +2267,11 @@
           let clusterName = null;
 
           if (cluster.nodes.length === 1) {
-            clusterName = cluster.nodes[0].label.replace(/\n/g, ' ').trim();
+            clusterName = cleanClusterLabel(cluster.nodes[0].label);
           } else {
             const internalHub = cluster.nodes.find(n => n.isHub || state.edges.some(e => e.source === n.id && nodeIdsInCluster.has(e.target)));
             if (internalHub) {
-              clusterName = internalHub.label.replace(/\n/g, ' ').trim();
+              clusterName = cleanClusterLabel(internalHub.label);
             }
 
             if (!clusterName) {
@@ -2269,7 +2279,7 @@
                 if (nodeIdsInCluster.has(edge.target) && !nodeIdsInCluster.has(edge.source)) {
                   const parentNode = state.nodes.find(n => n.id === edge.source);
                   if (parentNode) {
-                    clusterName = parentNode.label.replace(/\n/g, ' ').trim();
+                    clusterName = cleanClusterLabel(parentNode.label);
                     break;
                   }
                 }
@@ -2278,7 +2288,7 @@
           }
 
           if (!clusterName) {
-            clusterName = cluster.nodes[0].label.replace(/\n/g, ' ').trim() || colorKey;
+            clusterName = cleanClusterLabel(cluster.nodes[0].label) || colorKey;
           }
 
           return {
@@ -2361,7 +2371,7 @@
         state.view.y = (height / 2) - (node.y * state.view.zoom);
         applyTransform();
 
-        showToast(`Focused on ${node.label.replace(/\n/g, ' ')}`);
+        showToast(`Focused on ${cleanClusterLabel(node.label)}`);
       }, 50);
     }
 
@@ -2690,7 +2700,7 @@
 
       const matchingNodes = state.nodes.filter(node => {
         if (!query) return true;
-        const normalizedLabel = node.label.replace(/\n/g, ' ').toLowerCase();
+        const normalizedLabel = cleanClusterLabel(node.label).toLowerCase();
         return normalizedLabel.includes(query);
       });
 
@@ -2891,7 +2901,7 @@
 
       if (parentNodeId) {
         const parentNode = state.nodes.find(n => n.id === parentNodeId);
-        const parentName = parentNode ? parentNode.label.replace('\n', ' ') : 'Item';
+        const parentName = parentNode ? cleanClusterLabel(parentNode.label) : 'Item';
         if (modalTitleEl) modalTitleEl.textContent = `Add Child to "${parentName}"`;
         state.selectedModalColor = parentNode ? parentNode.color : 'red';
         state.selectedModalShape = parentNode ? (parentNode.shape || 'pill') : 'pill';
