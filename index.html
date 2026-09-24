@@ -33,9 +33,9 @@
       -webkit-user-select: none;
     }
 
-    /* Splash Screen Animations */
+    /* Splash Screen Animations & Theme Adaptations */
     #splash-screen {
-      transition: opacity 0.5s ease, visibility 0.5s ease;
+      transition: opacity 0.5s ease, visibility 0.5s ease, background-color 0.2s ease;
     }
     #splash-screen.fade-out {
       opacity: 0;
@@ -54,6 +54,16 @@
     }
     .animate-pulse-zoom {
       animation: pulseZoom 2.2s ease-in-out infinite;
+    }
+
+    body.theme-light #splash-screen {
+      background-color: #ffffff;
+    }
+    body.theme-dark #splash-screen {
+      background-color: #0b1120;
+    }
+    body.theme-black #splash-screen {
+      background-color: #000000;
     }
 
     /* Layout Structure */
@@ -543,9 +553,19 @@
   </style>
 </head>
 <body class="theme-light w-screen h-screen overflow-hidden">
+  <script>
+    // Immediate Theme Pre-hydration to eliminate flash of light theme during load
+    (function() {
+      try {
+        var savedTheme = localStorage.getItem('mindmap_whiteboard_theme') || 'light';
+        document.body.classList.remove('theme-light', 'theme-dark', 'theme-black');
+        document.body.classList.add('theme-' + savedTheme);
+      } catch (e) {}
+    })();
+  </script>
 
   <!-- Fullscreen Initial Loading Splash Screen -->
-  <div id="splash-screen" class="fixed inset-0 z-[200] bg-white flex flex-col items-center justify-center p-6 select-none">
+  <div id="splash-screen" class="fixed inset-0 z-[200] flex flex-col items-center justify-center p-6 select-none">
     <div class="flex flex-col items-center gap-6">
       <img src="novaralogo.png" alt="Novara" class="w-64 max-w-[70vw] object-contain animate-pulse-zoom drop-shadow-sm" />
       <div class="flex items-center gap-2">
