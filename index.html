@@ -2119,82 +2119,79 @@
       updateSelectionVisuals();
     }
 
-    // --- FULL MAP & LINES DYNAMIC EXPORT TO PDF ---
+    // --- 100% PRECISE FULL-MAP PDF EXPORT ---
     function exportToPDF() {
-      showToast("Generating full map PDF with connecting lines...", 3000);
-      const worldLayerEl = document.getElementById('world-layer');
-      if (!worldLayerEl || state.nodes.length === 0) return;
+      showToast("Generating perfectly aligned PDF...", 3000);
+      const viewportEl = document.getElementById('board-viewport');
+      if (!viewportEl || state.nodes.length === 0) return;
 
-      // 1. Calculate full bounding box covering all nodes
+      const prevView = { x: state.view.x, y: state.view.y, zoom: state.view.zoom };
+      const prevSelected = new Set(state.selectedNodeIds);
+
+      state.selectedNodeIds.clear();
+      state.selectedEdgeId = null;
+      updateSelectionVisuals();
+
       let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
       state.nodes.forEach(n => {
-        const pad = 160;
+        const pad = 180;
         if (n.x - pad < minX) minX = n.x - pad;
         if (n.x + pad > maxX) maxX = n.x + pad;
         if (n.y - pad < minY) minY = n.y - pad;
         if (n.y + pad > maxY) maxY = n.y + pad;
       });
 
-      const mapWidth = maxX - minX;
-      const mapHeight = maxY - minY;
+      const contentWidth = maxX - minX;
+      const contentHeight = maxY - minY;
+      const viewWidth = viewportEl.clientWidth || window.innerWidth;
+      const viewHeight = viewportEl.clientHeight || window.innerHeight;
 
-      // 2. Build offscreen container for clean snapshotting
-      const exportContainer = document.createElement('div');
-      exportContainer.style.position = 'fixed';
-      exportContainer.style.left = '-9999px';
-      exportContainer.style.top = '-9999px';
-      exportContainer.style.width = `${mapWidth}px`;
-      exportContainer.style.height = `${mapHeight}px`;
-      exportContainer.style.backgroundColor = getComputedStyle(document.getElementById('board-viewport')).backgroundColor || '#fbfbfa';
-      exportContainer.style.backgroundImage = getComputedStyle(document.getElementById('board-viewport')).backgroundImage;
-      exportContainer.style.backgroundSize = getComputedStyle(document.getElementById('board-viewport')).backgroundSize;
+      const zoomX = viewWidth / contentWidth;
+      const zoomY = viewHeight / contentHeight;
+      const targetZoom = Math.min(Math.max(0.2, Math.min(zoomX, zoomY)), 1.5);
 
-      const cloneWorld = worldLayerEl.cloneNode(true);
-      cloneWorld.style.transform = `translate(${-minX}px, ${-minY}px) scale(1)`;
+      state.view.zoom = targetZoom;
+      state.view.x = (viewWidth / 2) - ((minX + contentWidth / 2) * targetZoom);
+      state.view.y = (viewHeight / 2) - ((minY + contentHeight / 2) * targetZoom);
+      
+      applyTransform();
+      renderBoard();
 
-      // Explicitly adjust SVG layer dimensions inside the clone so lines render fully
-      const svgClone = cloneWorld.querySelector('svg#svg-layer');
-      if (svgClone) {
-        svgClone.style.width = `${mapWidth}px`;
-        svgClone.style.height = `${mapHeight}px`;
-        svgClone.setAttribute('viewBox', `${minX} ${minY} ${mapWidth} ${mapHeight}`);
-      }
+      setTimeout(() => {
+        html2canvas(viewportEl, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: getComputedStyle(viewportEl).backgroundColor || '#fbfbfa'
+        }).then(canvas => {
+          state.view.x = prevView.x;
+          state.view.y = prevView.y;
+          state.view.zoom = prevView.zoom;
+          state.selectedNodeIds = prevSelected;
+          applyTransform();
+          renderBoard();
 
-      exportContainer.appendChild(cloneWorld);
-      document.body.appendChild(exportContainer);
+          const imgData = canvas.toDataURL('image/png');
+          const { jsPDF } = window.jspdf;
+          const pdf = new jsPDF({
+            orientation: canvas.width > canvas.height ? 'landscape' : 'portrait',
+            unit: 'px',
+            format: [canvas.width, canvas.height]
+          });
 
-      const prevSelected = new Set(state.selectedNodeIds);
-      state.selectedNodeIds.clear();
-      state.selectedEdgeId = null;
-      updateSelectionVisuals();
-
-      html2canvas(exportContainer, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: null
-      }).then(canvas => {
-        document.body.removeChild(exportContainer);
-        state.selectedNodeIds = prevSelected;
-        updateSelectionVisuals();
-
-        const imgData = canvas.toDataURL('image/png');
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF({
-          orientation: canvas.width > canvas.height ? 'landscape' : 'portrait',
-          unit: 'px',
-          format: [canvas.width, canvas.height]
+          pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+          pdf.save('Adam_Pollack_PPSC_Workmap.pdf');
+          showToast("PDF exported successfully!");
+        }).catch(err => {
+          console.error("PDF export error:", err);
+          state.view.x = prevView.x;
+          state.view.y = prevView.y;
+          state.view.zoom = prevView.zoom;
+          state.selectedNodeIds = prevSelected;
+          applyTransform();
+          renderBoard();
+          showToast("Failed to export PDF.");
         });
-
-        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-        pdf.save('Adam_Pollack_PPSC_Workmap_Complete.pdf');
-        showToast("Full map PDF with connecting lines exported!");
-      }).catch(err => {
-        console.error("PDF export error:", err);
-        if (exportContainer.parentNode) document.body.removeChild(exportContainer);
-        state.selectedNodeIds = prevSelected;
-        updateSelectionVisuals();
-        showToast("Failed to export PDF.");
-      });
+      }, 400);
     }
 
     // --- ISOLATED CLUSTER GENERATION (SHIFT + Z + X) ---
