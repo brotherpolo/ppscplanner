@@ -2507,7 +2507,7 @@
       });
     }
 
-    // --- HIERARCHY TREE BUILDER WITH RESPONSIVE 3-DOT MENU ---
+    // --- HIERARCHY TREE BUILDER WITH FIXED ADAM POLLACK ROOT ANCHORING ---
     function renderHierarchyTree() {
       const treeContainer = document.getElementById('tree-container');
       if (!treeContainer) return;
@@ -2515,7 +2515,8 @@
 
       const isDark = state.theme === 'dark' || state.theme === 'black';
 
-      let rootNodes = state.nodes.filter(n => n.isHub);
+      // Explicitly prioritize Adam / Hub nodes as the absolute root of the hierarchy
+      let rootNodes = state.nodes.filter(n => n.id === 'adam' || n.isHub);
       if (rootNodes.length === 0) {
         const targetIds = new Set(state.edges.map(e => e.target));
         rootNodes = state.nodes.filter(n => !targetIds.has(n.id));
@@ -2568,10 +2569,10 @@
         pill.innerHTML = getPillMarkup(node, isDark);
         leftGroup.appendChild(pill);
 
-        if (node.isHub) {
+        if (node.isHub || node.id === 'adam') {
           const hubBadge = document.createElement('span');
           hubBadge.className = "text-[10px] font-bold uppercase tracking-wider text-indigo-500 bg-indigo-500/10 border border-indigo-500/30 px-2 py-0.5 rounded-md";
-          hubBadge.textContent = "Hub";
+          hubBadge.textContent = node.id === 'adam' ? "Root" : "Hub";
           leftGroup.appendChild(hubBadge);
         }
 
