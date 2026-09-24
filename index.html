@@ -696,7 +696,7 @@
   <!-- Fullscreen Initial Loading Splash Screen -->
   <div id="splash-screen" class="fixed inset-0 z-[200] flex flex-col items-center justify-center p-6 select-none">
     <div class="flex flex-col items-center gap-6">
-      <img src="novarablack.png" alt="Novara" class="w-64 max-w-[70vw] object-contain animate-pulse-zoom drop-shadow-sm" />
+      <img src="novaralogo.png" alt="Novara" class="w-64 max-w-[70vw] object-contain animate-pulse-zoom drop-shadow-sm" />
       <div class="flex items-center gap-2">
         <div class="w-2 h-2 rounded-full bg-indigo-600 animate-bounce" style="animation-delay: 0s;"></div>
         <div class="w-2 h-2 rounded-full bg-indigo-600 animate-bounce" style="animation-delay: 0.15s;"></div>
@@ -808,7 +808,7 @@
         <header class="absolute top-2 sm:top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1 sm:gap-1.5 p-1.5 rounded-2xl glass-panel w-max max-w-[94vw] overflow-x-auto no-scrollbar shadow-md">
           <div class="flex items-center px-2 sm:px-3 py-1 font-bold text-xs sm:text-sm tracking-tight border-r border-slate-500/30 shrink-0">
             <i class="fa-solid fa-project-diagram mr-1.5 text-indigo-600"></i>
-            <span class="hidden sm:inline">Adam Pollack | PPSC</span>
+            <span class="hidden sm:inline">Whiteboard</span>
           </div>
 
           <!-- Mode Buttons -->
@@ -911,6 +911,8 @@
 
         <!-- Bottom Helper Bar -->
         <div class="hidden sm:flex absolute bottom-5 left-5 z-40 glass-panel px-3.5 py-2 rounded-xl text-xs items-center gap-3">
+          <span class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 bg-slate-500/10 border border-slate-500/30 rounded font-mono text-[10px]">Shift + Z + X</kbd> group</span>
+          <span class="opacity-40">•</span>
           <span class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 bg-slate-500/10 border border-slate-500/30 rounded font-mono text-[10px]">Shift + +</kbd> new node</span>
           <span class="opacity-40">•</span>
           <span class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 bg-slate-500/10 border border-slate-500/30 rounded font-mono text-[10px]">Right-click</kbd> add connected</span>
@@ -1923,6 +1925,90 @@
       updateSelectionVisuals();
     }
 
+    // --- ISOLATED CLUSTER GENERATION (SHIFT + Z + X) ---
+    function createIsolatedGroup() {
+      switchPage('canvas');
+
+      const colors = ['blue', 'green', 'purple', 'red'];
+      const chosenColor = colors[Math.floor(Math.random() * colors.length)];
+
+      let originX = 500;
+      let originY = 500;
+
+      if (state.nodes.length > 0) {
+        let maxX = -Infinity;
+        let avgY = 0;
+        state.nodes.forEach(n => {
+          if (n.x > maxX) maxX = n.x;
+          avgY += n.y;
+        });
+        avgY = avgY / state.nodes.length;
+        originX = Math.round(maxX + 420);
+        originY = Math.round(avgY);
+      }
+
+      const timestamp = Date.now();
+      const baseId = `node_${timestamp}_base`;
+      const baseNode = {
+        id: baseId,
+        label: "New\nHub",
+        x: originX,
+        y: originY,
+        color: "gray"
+      };
+
+      const newNodes = [baseNode];
+      const newEdges = [];
+
+      const offsets = [
+        { label: "Branch 1", dx: -160, dy: -130 },
+        { label: "Branch 2", dx: 160, dy: -130 },
+        { label: "Branch 3", dx: -160, dy: 130 },
+        { label: "Branch 4", dx: 160, dy: 130 }
+      ];
+
+      offsets.forEach((offset, idx) => {
+        const childId = `node_${timestamp}_c${idx + 1}`;
+        newNodes.push({
+          id: childId,
+          label: offset.label,
+          x: originX + offset.dx,
+          y: originY + offset.dy,
+          color: chosenColor
+        });
+        newEdges.push({
+          id: `edge_${timestamp}_e${idx + 1}`,
+          source: baseId,
+          target: childId
+        });
+      });
+
+      state.nodes.push(...newNodes);
+      state.edges.push(...newEdges);
+
+      state.selectedNodeIds.clear();
+      newNodes.forEach(n => state.selectedNodeIds.add(n.id));
+      state.selectedEdgeId = null;
+
+      commitState(true);
+      renderBoard();
+
+      setTimeout(() => {
+        const viewportEl = document.getElementById('board-viewport');
+        const sidebar = document.getElementById('sidebar');
+        const rect = viewportEl ? viewportEl.getBoundingClientRect() : null;
+        const isCollapsed = sidebar ? sidebar.classList.contains('collapsed') : false;
+        const width = (rect && rect.width > 0) ? rect.width : (window.innerWidth - (isCollapsed ? 68 : 256));
+        const height = (rect && rect.height > 0) ? rect.height : window.innerHeight;
+
+        state.view.zoom = 1;
+        state.view.x = (width / 2) - (originX * state.view.zoom);
+        state.view.y = (height / 2) - (originY * state.view.zoom);
+        applyTransform();
+        showToast("Created new isolated cluster!");
+      }, 50);
+    }
+
     // Helper: Build Pill HTML for Dropdown
     function getPillMarkup(node, isDark) {
       const colorPillClasses = isDark ? {
@@ -2723,8 +2809,19 @@
       }
 
       // Keyboard shortcuts
+      const activeKeys = new Set();
+
       window.addEventListener('keydown', (e) => {
         if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA' || document.activeElement.tagName === 'SELECT') {
+          return;
+        }
+
+        activeKeys.add(e.code);
+
+        // SHIFT + Z + X creates a new group (1 base node + 4 branches) in an open canvas area
+        if (e.shiftKey && activeKeys.has('KeyZ') && activeKeys.has('KeyX')) {
+          e.preventDefault();
+          createIsolatedGroup();
           return;
         }
 
@@ -2759,6 +2856,14 @@
         if (e.key.toLowerCase() === 'v') setAppMode('select');
         if (e.key.toLowerCase() === 'c') setAppMode('connect');
         if (e.key.toLowerCase() === 'h') setAppMode('pan');
+      });
+
+      window.addEventListener('keyup', (e) => {
+        activeKeys.delete(e.code);
+      });
+
+      window.addEventListener('blur', () => {
+        activeKeys.clear();
       });
 
       // Authentication event listeners
