@@ -1259,7 +1259,13 @@
     };
 
  // --- 1. FIREBASE CONFIGURATION ---
-    firebaseConfig = window.FIREBASE_CONFIG;
+if (!firebase.apps.length) {
+     firebase.initializeApp(window.FIREBASE_CONFIG);
+   }
+
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
 
     if (!firebase.apps.length) {
       firebase.initializeApp(firebaseConfig);
