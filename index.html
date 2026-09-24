@@ -182,10 +182,10 @@
       border-radius: 4px;
     }
 
+    /* Node Shape Base Classes */
     .node {
       position: absolute;
       transform: translate(-50%, -50%);
-      border-radius: 9999px;
       min-width: 96px;
       max-width: 210px;
       width: max-content;
@@ -210,6 +210,16 @@
       box-sizing: border-box;
       transition: box-shadow 0.15s ease, border-color 0.15s ease, background-color 0.2s ease, color 0.2s ease;
     }
+
+    /* Shape Variations */
+    .node-shape-pill { border-radius: 9999px; }
+    .node-shape-rect { border-radius: 4px; }
+    .node-shape-square { border-radius: 4px; aspect-ratio: 1 / 1; min-width: 80px; min-height: 80px; }
+    .node-shape-roundrect { border-radius: 14px; }
+    .node-shape-circle { border-radius: 50%; aspect-ratio: 1 / 1; min-width: 90px; min-height: 90px; padding: 12px; }
+    .node-shape-diamond { border-radius: 12px; transform: translate(-50%, -50%) rotate(0deg); clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); padding: 22px; min-width: 110px; min-height: 110px; }
+    .node-shape-hexagon { border-radius: 8px; clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%); padding: 18px; min-width: 110px; min-height: 90px; }
+    .node-shape-triangle { border-radius: 4px; clip-path: polygon(50% 0%, 100% 100%, 0% 100%); padding: 24px 14px 12px 14px; min-width: 110px; min-height: 90px; }
 
     .node:active {
       cursor: grabbing;
@@ -786,7 +796,7 @@
         <!-- Version Code positioned just above the border line -->
         <div class="px-4 py-1.5 flex items-center justify-between text-[11px] font-mono font-medium opacity-40 select-none">
           <span class="sidebar-label tracking-wider uppercase">Version</span>
-          <span class="mx-auto sidebar-extra font-semibold">v0.91</span>
+          <span class="mx-auto sidebar-extra font-semibold">v0.9</span>
         </div>
 
         <div class="p-3 border-t border-slate-200/50 flex flex-col gap-2">
@@ -1046,6 +1056,14 @@
         </div>
       </div>
 
+      <!-- Node Shape Selection (8 Variations) -->
+      <div class="flex flex-col gap-1.5">
+        <label class="modal-label text-xs font-semibold">Node Shape (8 Variations)</label>
+        <div class="grid grid-cols-4 gap-1.5" id="shape-options">
+          <!-- 8 Shape Choices rendered dynamically -->
+        </div>
+      </div>
+
       <div class="flex justify-end gap-2 pt-2">
         <button id="btn-cancel-modal" class="modal-btn-cancel px-4 py-2 text-xs font-semibold rounded-xl transition-colors">Cancel</button>
         <button id="btn-confirm-add" class="px-5 py-2 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow">Create Node</button>
@@ -1110,6 +1128,18 @@
       return acc;
     }, {});
 
+    // --- 8 SHAPE VARIATIONS ---
+    const SHAPES_8 = [
+      { key: 'pill', name: 'Pill', icon: 'fa-capsules' },
+      { key: 'rect', name: 'Rectangle', icon: 'fa-square' },
+      { key: 'square', name: 'Square', icon: 'fa-stop' },
+      { key: 'roundrect', name: 'Rounded', icon: 'fa-square-full' },
+      { key: 'circle', name: 'Circle', icon: 'fa-circle' },
+      { key: 'diamond', name: 'Diamond', icon: 'fa-gem' },
+      { key: 'hexagon', name: 'Hexagon', icon: 'fa-cube' },
+      { key: 'triangle', name: 'Triangle', icon: 'fa-play fa-rotate-270' }
+    ];
+
     // --- 1. FIREBASE CONFIGURATION ---
     const firebaseConfig = {
       apiKey: "AIzaSyAYNo-d5ZRNvIg991DvYc6Lm5f8Q7rno_8",
@@ -1132,27 +1162,27 @@
     const THEME_STORAGE_KEY = 'mindmap_whiteboard_theme';
 
     const defaultNodes = [
-      { id: "adam", label: "Adam\nPollack", x: 420, y: 460, color: "gray", isHub: true },
-      { id: "product", label: "Product\nTeam", x: 800, y: 220, color: "gray" },
-      { id: "shawn", label: "Shawn", x: 720, y: 110, color: "red" },
-      { id: "albert", label: "Albert", x: 890, y: 110, color: "red" },
-      { id: "grant", label: "Grant", x: 730, y: 320, color: "red" },
-      { id: "jon", label: "Jon", x: 885, y: 290, color: "red" },
-      { id: "se", label: "Sales\nEngineers", x: 380, y: 240, color: "gray" },
-      { id: "demo_shadows", label: "Demo\nShadows", x: 340, y: 110, color: "green" },
-      { id: "se_config", label: "Config", x: 500, y: 145, color: "green" },
-      { id: "ensogo", label: "ensogo\ntraining", x: 550, y: 265, color: "green" },
-      { id: "demo_prep", label: "Demo\nPrep", x: 215, y: 315, color: "green" },
-      { id: "profiles", label: "Profiles", x: 215, y: 220, color: "green" },
-      { id: "flex", label: "Flex", x: 740, y: 520, color: "gray" },
-      { id: "templates", label: "Templates", x: 730, y: 420, color: "blue" },
-      { id: "flex_config", label: "Config", x: 870, y: 460, color: "blue" },
-      { id: "learning", label: "Learning", x: 870, y: 560, color: "blue" },
-      { id: "demo_excl", label: "Demo!", x: 700, y: 610, color: "blue" },
-      { id: "rfp", label: "RFP", x: 350, y: 730, color: "purple" },
-      { id: "kb", label: "knowledge\nbase", x: 495, y: 730, color: "purple" },
-      { id: "process", label: "Process", x: 410, y: 825, color: "purple" },
-      { id: "inventive", label: "Inventive", x: 240, y: 800, color: "purple" }
+      { id: "adam", label: "Adam\nPollack", x: 420, y: 460, color: "gray", shape: "pill", isHub: true },
+      { id: "product", label: "Product\nTeam", x: 800, y: 220, color: "gray", shape: "pill" },
+      { id: "shawn", label: "Shawn", x: 720, y: 110, color: "red", shape: "pill" },
+      { id: "albert", label: "Albert", x: 890, y: 110, color: "red", shape: "pill" },
+      { id: "grant", label: "Grant", x: 730, y: 320, color: "red", shape: "pill" },
+      { id: "jon", label: "Jon", x: 885, y: 290, color: "red", shape: "pill" },
+      { id: "se", label: "Sales\nEngineers", x: 380, y: 240, color: "gray", shape: "pill" },
+      { id: "demo_shadows", label: "Demo\nShadows", x: 340, y: 110, color: "green", shape: "pill" },
+      { id: "se_config", label: "Config", x: 500, y: 145, color: "green", shape: "pill" },
+      { id: "ensogo", label: "ensogo\ntraining", x: 550, y: 265, color: "green", shape: "pill" },
+      { id: "demo_prep", label: "Demo\nPrep", x: 215, y: 315, color: "green", shape: "pill" },
+      { id: "profiles", label: "Profiles", x: 215, y: 220, color: "green", shape: "pill" },
+      { id: "flex", label: "Flex", x: 740, y: 520, color: "gray", shape: "pill" },
+      { id: "templates", label: "Templates", x: 730, y: 420, color: "blue", shape: "pill" },
+      { id: "flex_config", label: "Config", x: 870, y: 460, color: "blue", shape: "pill" },
+      { id: "learning", label: "Learning", x: 870, y: 560, color: "blue", shape: "pill" },
+      { id: "demo_excl", label: "Demo!", x: 700, y: 610, color: "blue", shape: "pill" },
+      { id: "rfp", label: "RFP", x: 350, y: 730, color: "purple", shape: "pill" },
+      { id: "kb", label: "knowledge\nbase", x: 495, y: 730, color: "purple", shape: "pill" },
+      { id: "process", label: "Process", x: 410, y: 825, color: "purple", shape: "pill" },
+      { id: "inventive", label: "Inventive", x: 240, y: 800, color: "purple", shape: "pill" }
     ];
 
     const defaultEdges = [
@@ -1185,7 +1215,7 @@
           const parsed = JSON.parse(raw);
           if (Array.isArray(parsed.nodes) && Array.isArray(parsed.edges)) {
             return {
-              nodes: parsed.nodes.map(n => ({ ...n, x: Number(n.x) || 0, y: Number(n.y) || 0 })),
+              nodes: parsed.nodes.map(n => ({ ...n, x: Number(n.x) || 0, y: Number(n.y) || 0, shape: n.shape || 'pill' })),
               edges: parsed.edges,
               view: parsed.view || { x: 0, y: 0, zoom: 1 },
               lastModified: parsed.lastModified || 0
@@ -1222,6 +1252,7 @@
       dragStartWorld: { x: 0, y: 0 },
       nodeInitialPositions: new Map(),
       selectedModalColor: 'red',
+      selectedModalShape: 'pill',
       editingNodeId: null,
       currentPage: 'canvas',
       modalParentNodeId: null,
@@ -1368,6 +1399,7 @@
       }
       populateParentDropdown(state.modalParentNodeId);
       renderModalColorChoices();
+      renderModalShapeChoices();
       renderColorPickers();
     }
 
@@ -1575,7 +1607,8 @@
       state.nodes.forEach(nodeData => {
         const nodeEl = document.createElement('div');
         nodeEl.id = `node-${nodeData.id}`;
-        nodeEl.className = `node node-${nodeData.color} ${nodeData.isHub ? 'node-hub' : ''}`;
+        const shapeClass = `node-shape-${nodeData.shape || 'pill'}`;
+        nodeEl.className = `node node-${nodeData.color} ${shapeClass} ${nodeData.isHub ? 'node-hub' : ''}`;
         nodeEl.innerHTML = nodeData.label.replace(/\n/g, '<br/>');
         nodeEl.style.left = `${nodeData.x}px`;
         nodeEl.style.top = `${nodeData.y}px`;
@@ -2157,7 +2190,6 @@
       renderBoard();
 
       setTimeout(() => {
-        // TRICK: Rasterize SVG lines directly onto an HTML5 Canvas so html2canvas captures them perfectly
         const svgXml = new XMLSerializer().serializeToString(svgLayerEl);
         const svgBlob = new Blob([svgXml], { type: 'image/svg+xml;charset=utf-8' });
         const svgUrl = URL.createObjectURL(svgBlob);
@@ -2258,7 +2290,8 @@
         label: "New\nHub",
         x: originX,
         y: originY,
-        color: "gray"
+        color: "gray",
+        shape: "pill"
       };
 
       const newNodes = [baseNode];
@@ -2278,7 +2311,8 @@
           label: offset.label,
           x: originX + offset.dx,
           y: originY + offset.dy,
-          color: chosenColor
+          color: chosenColor,
+          shape: "pill"
         });
         newEdges.push({
           id: `edge_${timestamp}_e${idx + 1}`,
@@ -2404,7 +2438,9 @@
         const parentNode = state.nodes.find(n => n.id === nodeId);
         if (parentNode) {
           state.selectedModalColor = parentNode.color;
+          state.selectedModalShape = parentNode.shape || 'pill';
           renderModalColorChoices();
+          renderModalShapeChoices();
         }
       }
 
@@ -2438,6 +2474,34 @@
         btn.addEventListener('click', () => {
           state.selectedModalColor = c.key;
           renderModalColorChoices();
+        });
+
+        container.appendChild(btn);
+      });
+    }
+
+    // Render the 8 shapes in the Add Node modal
+    function renderModalShapeChoices() {
+      const container = document.getElementById('shape-options');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const isDark = state.theme === 'dark' || state.theme === 'black';
+
+      SHAPES_8.forEach(s => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.dataset.shape = s.key;
+        btn.className = `shape-choice h-9 rounded-xl border-2 flex flex-col items-center justify-center font-semibold text-[10px] transition-all gap-0.5 ${state.selectedModalShape === s.key ? 'ring-2 ring-indigo-500 scale-105 bg-indigo-500/10 border-indigo-500 text-indigo-600' : (isDark ? 'border-zinc-700 bg-zinc-800/50 text-zinc-300 hover:border-zinc-500' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300')}`;
+
+        btn.innerHTML = `
+          <i class="fa-solid ${s.icon} text-xs"></i>
+          <span class="truncate px-1">${s.name}</span>
+        `;
+
+        btn.addEventListener('click', () => {
+          state.selectedModalShape = s.key;
+          renderModalShapeChoices();
         });
 
         container.appendChild(btn);
@@ -2514,12 +2578,15 @@
         const parentName = parentNode ? parentNode.label.replace('\n', ' ') : 'Item';
         if (modalTitleEl) modalTitleEl.textContent = `Add Child to "${parentName}"`;
         state.selectedModalColor = parentNode ? parentNode.color : 'red';
+        state.selectedModalShape = parentNode ? (parentNode.shape || 'pill') : 'pill';
       } else {
         if (modalTitleEl) modalTitleEl.textContent = 'Create New Node';
         state.selectedModalColor = 'red';
+        state.selectedModalShape = 'pill';
       }
 
       renderModalColorChoices();
+      renderModalShapeChoices();
 
       modalEl.classList.remove('hidden');
       labelInput.value = '';
@@ -2879,6 +2946,7 @@
       // Render 15-Color Pickers across interface
       renderColorPickers();
       renderModalColorChoices();
+      renderModalShapeChoices();
 
       // Initialize Theme
       applyTheme(state.theme);
@@ -3008,7 +3076,8 @@
             label: text,
             x: posX,
             y: posY,
-            color: state.selectedModalColor || 'red'
+            color: state.selectedModalColor || 'red',
+            shape: state.selectedModalShape || 'pill'
           };
 
           state.nodes.push(newNode);
@@ -3416,7 +3485,8 @@
             state.nodes = cloudData.nodes.map(n => ({ 
               ...n, 
               x: Number(n.x) || 0, 
-              y: Number(n.y) || 0 
+              y: Number(n.y) || 0,
+              shape: n.shape || 'pill'
             }));
             state.edges = cloudData.edges;
             state.lastModified = cloudTimestamp;
