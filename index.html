@@ -1737,6 +1737,7 @@
 
       const screenPos = worldToScreen(node.x, node.y);
       inlineEditorEl.style.display = 'flex';
+      inlineEditorEl.style.transform = 'none';
       inlineEditorEl.style.position = 'absolute';
       inlineEditorEl.style.left = `${Math.max(20, Math.min(window.innerWidth - 320, screenPos.x - 145))}px`;
       inlineEditorEl.style.top = `${Math.max(20, Math.min(window.innerHeight - 300, screenPos.y - 120))}px`;
@@ -3542,8 +3543,8 @@
       let isDragging = false;
       let startX = 0;
       let startY = 0;
-      let startModalX = 0;
-      let startModalY = 0;
+      let initialLeft = 0;
+      let initialTop = 0;
 
       handleEl.addEventListener('mousedown', (e) => {
         if (e.button !== 0 || e.target.closest('button')) return;
@@ -3561,8 +3562,8 @@
         modalBoxEl.style.left = `${rect.left}px`;
         modalBoxEl.style.top = `${rect.top}px`;
 
-        startModalX = rect.left;
-        startModalY = rect.top;
+        initialLeft = rect.left;
+        initialTop = rect.top;
 
         const onMouseMove = (ev) => {
           if (!isDragging) return;
@@ -3572,8 +3573,8 @@
           const dx = ev.clientX - startX;
           const dy = ev.clientY - startY;
 
-          let newLeft = startModalX + dx;
-          let newTop = startModalY + dy;
+          let newLeft = initialLeft + dx;
+          let newTop = initialTop + dy;
 
           const w = modalBoxEl.offsetWidth;
           const h = modalBoxEl.offsetHeight;
