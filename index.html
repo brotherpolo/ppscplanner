@@ -207,6 +207,7 @@
       box-sizing: border-box;
       background: transparent;
       border: none;
+      overflow: hidden;
     }
 
     .node::before {
@@ -215,7 +216,7 @@
       inset: 0;
       border: 2.25px solid;
       border-color: inherit;
-      background-color: inherit;
+      background-color: var(--node-bg, inherit);
       z-index: -1;
       transition: background-color 0.2s ease, border-color 0.2s ease;
     }
@@ -589,7 +590,7 @@
       color: #334155;
     }
     body.theme-light .node::before {
-      background-color: #ffffff;
+      background-color: var(--node-bg, #ffffff);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03);
     }
     body.theme-light .node-red::before { border-color: #dc2626; } body.theme-light .node-red { color: #991b1b; }
@@ -609,7 +610,7 @@
     body.theme-light .node-gray::before { border-color: #475569; } body.theme-light .node-gray { color: #1e293b; }
 
     /* Light Theme Polygon Fills */
-    body.theme-light .node-polygon-bg polygon { fill: #ffffff; }
+    body.theme-light .node-polygon-bg polygon { fill: var(--node-bg, #ffffff); }
     body.theme-light .node-red .node-polygon-bg polygon { stroke: #dc2626; }
     body.theme-light .node-orange .node-polygon-bg polygon { stroke: #ea580c; }
     body.theme-light .node-amber .node-polygon-bg polygon { stroke: #d97706; }
@@ -682,7 +683,7 @@
       color: #ffffff;
     }
     body.theme-dark .node::before {
-      background-color: #1e293b;
+      background-color: var(--node-bg, #1e293b);
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
     }
     body.theme-dark .node-red::before { border-color: #ef4444; } body.theme-dark .node-red { color: #fca5a5; }
@@ -702,7 +703,7 @@
     body.theme-dark .node-gray::before { border-color: #64748b; } body.theme-dark .node-gray { color: #cbd5e1; }
 
     /* Dark Theme Polygon Fills */
-    body.theme-dark .node-polygon-bg polygon { fill: #1e293b; }
+    body.theme-dark .node-polygon-bg polygon { fill: var(--node-bg, #1e293b); }
     body.theme-dark .node-red .node-polygon-bg polygon { stroke: #ef4444; }
     body.theme-dark .node-orange .node-polygon-bg polygon { stroke: #f97316; }
     body.theme-dark .node-amber .node-polygon-bg polygon { stroke: #f59e0b; }
@@ -779,7 +780,7 @@
       color: #ffffff;
     }
     body.theme-black .node::before {
-      background-color: #09090b;
+      background-color: var(--node-bg, #09090b);
       box-shadow: 0 0 16px rgba(0, 0, 0, 0.8);
     }
     body.theme-black .node-red::before { border-color: #f87171; } body.theme-black .node-red { color: #fca5a5; }
@@ -799,7 +800,7 @@
     body.theme-black .node-gray::before { border-color: #a1a1aa; } body.theme-black .node-gray { color: #e4e4e7; }
 
     /* Black Theme Polygon Fills */
-    body.theme-black .node-polygon-bg polygon { fill: #09090b; }
+    body.theme-black .node-polygon-bg polygon { fill: var(--node-bg, #09090b); }
     body.theme-black .node-red .node-polygon-bg polygon { stroke: #f87171; }
     body.theme-black .node-orange .node-polygon-bg polygon { stroke: #fb923c; }
     body.theme-black .node-amber .node-polygon-bg polygon { stroke: #fbbf24; }
@@ -1833,12 +1834,12 @@
         if (nodeData.bgColor && COLOR_HEX_MAP[nodeData.bgColor]) {
           const bgHex = COLOR_HEX_MAP[nodeData.bgColor];
           if (!isPolygon) {
-            nodeEl.style.backgroundColor = isDark ? `${bgHex}80` : `${bgHex}80`;
+            nodeEl.style.setProperty('--node-bg', isDark ? `${bgHex}28` : `${bgHex}18`);
           } else {
-            nodeEl.style.backgroundColor = '';
+            nodeEl.style.removeProperty('--node-bg');
           }
         } else {
-          nodeEl.style.backgroundColor = '';
+          nodeEl.style.removeProperty('--node-bg');
         }
 
         if (isPolygon) {
@@ -1856,7 +1857,7 @@
           }
           if (nodeData.bgColor && COLOR_HEX_MAP[nodeData.bgColor]) {
             const bgHex = COLOR_HEX_MAP[nodeData.bgColor];
-            poly.style.fill = isDark ? `${bgHex}80` : `${bgHex}80`;
+            poly.style.fill = isDark ? `${bgHex}28` : `${bgHex}18`;
           } else {
             poly.style.fill = '';
           }
@@ -2727,7 +2728,7 @@
       const hubMarkup = node.isHub ? `<span class="text-[9px] font-bold uppercase tracking-wider text-indigo-500 bg-indigo-500/10 border border-indigo-500/30 px-1.5 py-0.2 rounded">Hub</span>` : '';
       
       const bgHex = node.bgColor && COLOR_HEX_MAP[node.bgColor] ? COLOR_HEX_MAP[node.bgColor] : hex;
-      const bg = isDark ? `${bgHex}80` : `${bgHex}80`;
+      const bg = isDark ? `${bgHex}28` : `${bgHex}18`;
       const border = isDark ? `${hex}60` : `${hex}45`;
       const color = isDark ? '#ffffff' : hex;
       const fontStyle = node.fontSize ? `font-size: ${node.fontSize};` : '';
