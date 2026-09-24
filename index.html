@@ -187,8 +187,7 @@
       position: absolute;
       transform: translate(-50%, -50%);
       min-width: 96px;
-      max-width: 210px;
-      width: max-content;
+      max-width: 320px;
       min-height: 48px;
       padding: 10px 18px;
       display: flex;
@@ -214,12 +213,12 @@
     /* Shape Variations */
     .node-shape-pill { border-radius: 9999px; }
     .node-shape-rect { border-radius: 4px; }
-    .node-shape-square { border-radius: 4px; aspect-ratio: 1 / 1; min-width: 80px; min-height: 80px; }
+    .node-shape-square { border-radius: 4px; }
     .node-shape-roundrect { border-radius: 14px; }
-    .node-shape-circle { border-radius: 50%; aspect-ratio: 1 / 1; min-width: 90px; min-height: 90px; padding: 12px; }
-    .node-shape-diamond { border-radius: 12px; transform: translate(-50%, -50%) rotate(0deg); clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); padding: 22px; min-width: 110px; min-height: 110px; }
-    .node-shape-hexagon { border-radius: 8px; clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%); padding: 18px; min-width: 110px; min-height: 90px; }
-    .node-shape-triangle { border-radius: 4px; clip-path: polygon(50% 0%, 100% 100%, 0% 100%); padding: 24px 14px 12px 14px; min-width: 110px; min-height: 90px; }
+    .node-shape-circle { border-radius: 50%; }
+    .node-shape-diamond { border-radius: 12px; clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); padding: 22px; }
+    .node-shape-hexagon { border-radius: 8px; clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%); padding: 18px; }
+    .node-shape-triangle { border-radius: 4px; clip-path: polygon(50% 0%, 100% 100%, 0% 100%); padding: 24px 14px 12px 14px; }
 
     .node:active {
       cursor: grabbing;
@@ -243,7 +242,7 @@
       50% { outline-color: #059669; }
     }
 
-    /* Node Hover Action Buttons on Canvas */
+    /* Node Hover Action Buttons & Resize Handles on Canvas */
     .node-action-btn {
       position: absolute;
       width: 24px;
@@ -262,15 +261,33 @@
       pointer-events: auto;
     }
 
+    .node-resize-handle {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      bottom: 2px;
+      right: 2px;
+      cursor: se-resize;
+      opacity: 0;
+      transition: opacity 0.15s;
+      z-index: 40;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      pointer-events: auto;
+    }
+
     @media (hover: none) and (pointer: coarse) {
-      .node-action-btn {
+      .node-action-btn, .node-resize-handle {
         opacity: 0.95;
-        width: 26px;
-        height: 26px;
       }
     }
 
-    .node:hover .node-action-btn {
+    .node:hover .node-action-btn,
+    .node:hover .node-resize-handle,
+    .node.selected .node-action-btn,
+    .node.selected .node-resize-handle {
       opacity: 1;
     }
 
@@ -560,6 +577,7 @@
     body.theme-light .node-gray { border-color: #475569; color: #1e293b; }
     body.theme-light .edge-line { stroke: #64748b; }
     body.theme-light .node-action-btn { background: #ffffff; border-color: #cbd5e1; color: #475569; }
+    body.theme-light .node-resize-handle { color: #64748b; }
     body.theme-light .btn-edit-node { color: #3b82f6; }
     body.theme-light .btn-delete-node-quick { color: #ef4444; }
     body.theme-light #node-inline-editor { background: #ffffff; }
@@ -633,6 +651,7 @@
     body.theme-dark .node-gray { border-color: #64748b; color: #cbd5e1; }
     body.theme-dark .edge-line { stroke: #475569; }
     body.theme-dark .node-action-btn { background: #0f172a; border-color: #334155; color: #94a3b8; }
+    body.theme-dark .node-resize-handle { color: #94a3b8; }
     body.theme-dark .btn-edit-node { color: #60a5fa; }
     body.theme-dark .btn-delete-node-quick { color: #f87171; }
     body.theme-dark #node-inline-editor { background: #0f172a; border: 1px solid #334155; }
@@ -710,6 +729,7 @@
     body.theme-black .node-gray { border-color: #a1a1aa; color: #e4e4e7; }
     body.theme-black .edge-line { stroke: #52525b; stroke-width: 2.75px; }
     body.theme-black .node-action-btn { background: #000000; border-color: #3f3f46; color: #d4d4d8; }
+    body.theme-black .node-resize-handle { color: #a1a1aa; }
     body.theme-black .btn-edit-node { color: #93c5fd; }
     body.theme-black .btn-delete-node-quick { color: #fca5a5; }
     body.theme-black #node-inline-editor { background: #000000; border: 1px solid #3f3f46; }
@@ -1215,7 +1235,14 @@
           const parsed = JSON.parse(raw);
           if (Array.isArray(parsed.nodes) && Array.isArray(parsed.edges)) {
             return {
-              nodes: parsed.nodes.map(n => ({ ...n, x: Number(n.x) || 0, y: Number(n.y) || 0, shape: n.shape || 'pill' })),
+              nodes: parsed.nodes.map(n => ({ 
+                ...n, 
+                x: Number(n.x) || 0, 
+                y: Number(n.y) || 0,
+                width: Number(n.width) || 0,
+                height: Number(n.height) || 0,
+                shape: n.shape || 'pill'
+              })),
               edges: parsed.edges,
               view: parsed.view || { x: 0, y: 0, zoom: 1 },
               lastModified: parsed.lastModified || 0
@@ -1613,6 +1640,9 @@
         nodeEl.style.left = `${nodeData.x}px`;
         nodeEl.style.top = `${nodeData.y}px`;
 
+        if (nodeData.width) nodeEl.style.width = `${nodeData.width}px`;
+        if (nodeData.height) nodeEl.style.height = `${nodeData.height}px`;
+
         if (state.selectedNodeIds.has(nodeData.id)) {
           nodeEl.classList.add('selected');
         }
@@ -1641,6 +1671,13 @@
           deleteNode(nodeData.id);
         });
         nodeEl.appendChild(delBtn);
+
+        const resizeHandle = document.createElement('div');
+        resizeHandle.className = 'node-resize-handle';
+        resizeHandle.title = 'Resize node';
+        resizeHandle.innerHTML = '<i class="fa-solid fa-expand-alt"></i>';
+        setupResizeEvents(resizeHandle, nodeData, nodeEl);
+        nodeEl.appendChild(resizeHandle);
 
         setupNodeEvents(nodeEl, nodeData);
         nodesContainerEl.appendChild(nodeEl);
@@ -1680,6 +1717,82 @@
       edgeElements.forEach(line => {
         line.classList.toggle('selected', line.dataset.edgeId === state.selectedEdgeId);
       });
+    }
+
+    function setupResizeEvents(handleEl, nodeData, nodeEl) {
+      let isResizing = false;
+      let startX = 0;
+      let startY = 0;
+      let startWidth = 0;
+      let startHeight = 0;
+
+      const onPointerDown = (clientX, clientY) => {
+        isResizing = true;
+        startX = clientX;
+        startY = clientY;
+        const rect = nodeEl.getBoundingClientRect();
+        startWidth = nodeData.width || rect.width;
+        startHeight = nodeData.height || rect.height;
+        pushHistory();
+      };
+
+      const onPointerMove = (clientX, clientY) => {
+        if (!isResizing) return;
+        const dx = (clientX - startX) / state.view.zoom;
+        const dy = (clientY - startY) / state.view.zoom;
+        const newWidth = Math.max(80, Math.round(startWidth + dx));
+        const newHeight = Math.max(48, Math.round(startHeight + dy));
+
+        nodeData.width = newWidth;
+        nodeData.height = newHeight;
+        nodeEl.style.width = `${newWidth}px`;
+        nodeEl.style.height = `${newHeight}px`;
+        updateEdgeCoordinates();
+      };
+
+      const onPointerUp = () => {
+        if (!isResizing) return;
+        isResizing = false;
+        commitState(true, true);
+      };
+
+      handleEl.addEventListener('mousedown', (e) => {
+        if (e.button !== 0) return;
+        e.stopPropagation();
+        onPointerDown(e.clientX, e.clientY);
+
+        const onMouseMove = (ev) => onPointerMove(ev.clientX, ev.clientY);
+        const onMouseUp = () => {
+          window.removeEventListener('mousemove', onMouseMove);
+          window.removeEventListener('mouseup', onMouseUp);
+          onPointerUp();
+        };
+
+        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('mouseup', onMouseUp);
+      });
+
+      handleEl.addEventListener('touchstart', (e) => {
+        if (e.touches.length !== 1) return;
+        e.stopPropagation();
+        const t = e.touches[0];
+        onPointerDown(t.clientX, t.clientY);
+
+        const onTouchMove = (ev) => {
+          if (ev.touches.length === 1) {
+            ev.preventDefault();
+            onPointerMove(ev.touches[0].clientX, ev.touches[0].clientY);
+          }
+        };
+        const onTouchEnd = () => {
+          window.removeEventListener('touchmove', onTouchMove);
+          window.removeEventListener('touchend', onTouchEnd);
+          onPointerUp();
+        };
+
+        window.addEventListener('touchmove', onTouchMove, { passive: false });
+        window.addEventListener('touchend', onTouchEnd);
+      }, { passive: false });
     }
 
     function setupNodeEvents(nodeEl, nodeData) {
@@ -1779,7 +1892,7 @@
 
       nodeEl.addEventListener('mousedown', (e) => {
         if (e.button !== 0) return;
-        if (e.target.closest('.node-action-btn')) return;
+        if (e.target.closest('.node-action-btn') || e.target.closest('.node-resize-handle')) return;
 
         e.stopPropagation();
         const continueDrag = handlePointerDown(e.clientX, e.clientY, e.shiftKey || e.ctrlKey || e.metaKey);
@@ -1818,7 +1931,7 @@
 
       nodeEl.addEventListener('touchstart', (e) => {
         if (e.touches.length !== 1) return;
-        if (e.target.closest('.node-action-btn')) return;
+        if (e.target.closest('.node-action-btn') || e.target.closest('.node-resize-handle')) return;
 
         e.stopPropagation();
         const touch = e.touches[0];
@@ -3486,6 +3599,8 @@
               ...n, 
               x: Number(n.x) || 0, 
               y: Number(n.y) || 0,
+              width: Number(n.width) || 0,
+              height: Number(n.height) || 0,
               shape: n.shape || 'pill'
             }));
             state.edges = cloudData.edges;
