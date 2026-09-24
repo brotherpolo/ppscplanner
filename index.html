@@ -2507,7 +2507,7 @@
       });
     }
 
-    // --- HIERARCHY TREE BUILDER WITH STRICT ADAM ROOT PRECEDENCE ---
+    // --- HIERARCHY TREE BUILDER WITH STRICT ADAM PRECEDENCE & COLOR SUB-GROUPING ---
     function renderHierarchyTree() {
       const treeContainer = document.getElementById('tree-container');
       if (!treeContainer) return;
@@ -2524,20 +2524,31 @@
       function createTreeNode(node, level = 0) {
         visited.add(node.id);
         
-        // Find all outgoing child nodes connected via edges, giving Adam precedence
-        const childEdges = state.edges.filter(e => e.source === node.id);
-        const childNodes = childEdges
+        // Find all outgoing child nodes connected via edges
+        let childEdges = state.edges.filter(e => e.source === node.id);
+        let childNodes = childEdges
           .map(e => state.nodes.find(n => n.id === e.target))
-          .filter(n => {
-            if (!n || visited.has(n.id)) return false;
-            // If the current node is NOT 'adam', ignore any child that has a direct incoming edge from 'adam'
-            // This forces nodes like 'Market Feedback' to stay exclusively under Adam and avoids cross-branch stealing
-            if (node.id !== 'adam') {
-              const hasAdamEdge = state.edges.some(e => e.source === 'adam' && e.target === n.id);
-              if (hasAdamEdge) return false;
+          .filter(n => n && !visited.has(n.id));
+
+        // Special rule for Adam: if a node is connected directly to Adam AND also has a parent color cluster elsewhere,
+        // make sure it roots directly under Adam as its own distinct branch.
+        if (node.id === 'adam') {
+          // If Market Feedback (or other nodes directly touching Adam) were being misplaced, 
+          // ensure any node with an edge from 'adam' is captured as a direct child of Adam.
+          const directAdamTargets = state.edges
+            .filter(e => e.source === 'adam')
+            .map(e => state.nodes.find(n => n.id === e.target))
+            .filter(n => n && !visited.has(n.id));
+
+          // Merge unique direct children
+          const existingIds = new Set(childNodes.map(c => c.id));
+          directAdamTargets.forEach(t => {
+            if (!existingIds.has(t.id)) {
+              childNodes.push(t);
+              existingIds.add(t.id);
             }
-            return true;
           });
+        }
 
         const nodeWrapper = document.createElement('div');
         nodeWrapper.className = "flex flex-col gap-2";
