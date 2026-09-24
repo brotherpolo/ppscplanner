@@ -1113,7 +1113,7 @@
   </div>
 
   <div id="add-node-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-    <div class="modal-box rounded-2xl p-5 sm:p-6 w-full max-w-sm flex flex-col gap-4 max-h-[90vh] overflow-y-auto no-scrollbar">
+    <div class="modal-box rounded-2xl p-5 sm:p-6 w-full max-w-sm flex flex-col gap-4 max-h-[90vh] overflow-y-auto no-scrollbar" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);">
       <div class="flex items-center justify-between">
         <h3 id="add-modal-title" class="font-bold text-base">Create New Node</h3>
         <button id="btn-close-modal" class="opacity-60 hover:opacity-100 p-1 transition-opacity">
@@ -3522,6 +3522,9 @@
 
       handleEl.addEventListener('mousedown', (e) => {
         if (e.button !== 0 || e.target.closest('button')) return;
+        e.stopPropagation();
+        e.preventDefault();
+        
         isDragging = true;
         startX = e.clientX;
         startY = e.clientY;
@@ -3537,6 +3540,9 @@
 
         const onMouseMove = (ev) => {
           if (!isDragging) return;
+          ev.stopPropagation();
+          ev.preventDefault();
+
           const dx = ev.clientX - startX;
           const dy = ev.clientY - startY;
 
@@ -3553,7 +3559,11 @@
           modalBoxEl.style.top = `${newTop}px`;
         };
 
-        const onMouseUp = () => {
+        const onMouseUp = (ev) => {
+          if (isDragging) {
+            ev.stopPropagation();
+            ev.preventDefault();
+          }
           isDragging = false;
           window.removeEventListener('mousemove', onMouseMove);
           window.removeEventListener('mouseup', onMouseUp);
