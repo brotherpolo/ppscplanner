@@ -860,9 +860,7 @@
         <!-- Sidebar Header & Toggle -->
         <div class="h-16 px-4 border-b border-slate-100 flex items-center justify-between sidebar-header">
           <div class="flex items-center gap-2.5 overflow-hidden sidebar-brand">
-            <div class="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-sm shadow-indigo-200">
-              <i class="fa-solid fa-diagram-project"></i>
-            </div>
+            <img src="adam.jpeg" alt="Adam" class="w-9 h-9 rounded-xl object-cover shrink-0 shadow-sm" />
             <div class="flex flex-col sidebar-label overflow-hidden">
               <span class="font-bold text-sm leading-none truncate">Adam Pollack | PPSC</span>
               <span class="text-[10px] opacity-60 font-medium truncate mt-0.5">Mindmap & Outline</span>
@@ -1728,7 +1726,7 @@
         const shape = nodeData.shape || 'pill';
         nodeEl.className = `node node-${nodeData.color} node-shape-${shape} ${nodeData.isHub ? 'node-hub' : ''}`;
         
-        // Render polygon background for Diamond, Hexagon, or Triangle to keep borders crisp
+        // Render SVG polygon background for Diamond, Hexagon, or Triangle to keep borders crisp
         if (shape === 'diamond' || shape === 'hexagon' || shape === 'triangle') {
           const polyBg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
           polyBg.setAttribute("class", "node-polygon-bg");
