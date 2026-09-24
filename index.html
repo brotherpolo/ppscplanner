@@ -206,7 +206,7 @@
       box-sizing: border-box;
       background: transparent;
       border: none;
-      overflow: hidden;
+      overflow: visible;
     }
 
     .node::before {
@@ -258,7 +258,9 @@
       z-index: 30 !important;
     }
     .node.selected::before {
-      box-shadow: 0 0 0 3.5px #2563eb, 0 0 20px rgba(37, 99, 235, 0.5);
+      border-color: #2563eb !important;
+      border-width: 3.5px !important;
+      box-shadow: 0 0 16px rgba(37, 99, 235, 0.6);
     }
     .node.selected .node-polygon-bg polygon {
       stroke: #2563eb !important;
