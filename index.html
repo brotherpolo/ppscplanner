@@ -224,6 +224,13 @@
     .node-shape-roundrect::before { border-radius: 14px; }
     .node-shape-circle::before { border-radius: 50%; }
 
+    /* Hide default box border for polygon-backed shapes */
+    .node-shape-diamond::before,
+    .node-shape-hexagon::before,
+    .node-shape-triangle::before {
+      display: none !important;
+    }
+
     /* SVG-Backed Polygon Shapes for Clean, Robust Borders */
     .node-polygon-bg {
       position: absolute;
