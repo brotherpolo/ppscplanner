@@ -144,12 +144,6 @@
       will-change: transform;
     }
 
-    #node-inline-editor > div:first-child,
-#add-node-modal .modal-box > div:first-child {
-  cursor: move;
-  user-select: none;
-}
-
     svg#svg-layer {
       position: absolute;
       top: 0;
@@ -359,6 +353,13 @@
       flex-direction: column;
       gap: 10px;
       min-width: 290px;
+    }
+
+    /* Make Modal Headers Draggable */
+    #node-inline-editor > div:first-child,
+    #add-node-modal .modal-box > div:first-child {
+      cursor: move;
+      user-select: none;
     }
 
     #node-inline-textarea {
@@ -1724,8 +1725,9 @@
       if (btnInlineUnderline) btnInlineUnderline.classList.toggle('text-white', !!node.isUnderline);
 
       inlineEditorEl.style.display = 'flex';
-      inlineEditorEl.style.left = `${node.x}px`;
-      inlineEditorEl.style.top = `${node.y}px`;
+      inlineEditorEl.style.transform = 'translate(-50%, -50%)';
+      inlineEditorEl.style.left = `${Math.max(160, Math.min(window.innerWidth - 160, node.x))}px`;
+      inlineEditorEl.style.top = `${Math.max(160, Math.min(window.innerHeight - 160, node.y))}px`;
 
       const hex = COLOR_HEX_MAP[node.color] || '#3b82f6';
       inlineEditorEl.style.boxShadow = `0 18px 40px -6px rgba(0, 0, 0, 0.35), 0 0 0 2px ${hex}`;
@@ -3138,6 +3140,7 @@
       state.modalParentNodeId = parentNodeId;
 
       const modalEl = document.getElementById('add-node-modal');
+      const modalBox = modalEl ? modalEl.querySelector('.modal-box') : null;
       const modalTitleEl = document.getElementById('add-modal-title');
       const labelInput = document.getElementById('node-label-input');
       const searchInput = document.getElementById('parent-search-input');
@@ -3150,6 +3153,13 @@
       const btnModalUnderline = document.getElementById('btn-modal-underline');
 
       if (!modalEl || !labelInput) return;
+
+      if (modalBox) {
+        modalBox.style.transform = 'translate(-50%, -50%)';
+        modalBox.style.left = '50%';
+        modalBox.style.top = '50%';
+        modalBox.style.position = 'absolute';
+      }
 
       if (searchInput) searchInput.value = '';
       if (dropdownMenu) dropdownMenu.classList.add('hidden');
@@ -3503,12 +3513,70 @@
       }
     });
 
+    function makeModalDraggable(modalBoxEl, handleEl) {
+      let isDragging = false;
+      let startX = 0;
+      let startY = 0;
+      let initialLeft = 0;
+      let initialTop = 0;
+
+      handleEl.addEventListener('mousedown', (e) => {
+        if (e.button !== 0 || e.target.closest('button')) return;
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+
+        const rect = modalBoxEl.getBoundingClientRect();
+        initialLeft = rect.left + rect.width / 2;
+        initialTop = rect.top + rect.height / 2;
+
+        modalBoxEl.style.transform = 'translate(-50%, -50%)';
+        modalBoxEl.style.left = `${initialLeft}px`;
+        modalBoxEl.style.top = `${initialTop}px`;
+        modalBoxEl.style.position = 'absolute';
+
+        const onMouseMove = (ev) => {
+          if (!isDragging) return;
+          const dx = ev.clientX - startX;
+          const dy = ev.clientY - startY;
+
+          let newLeft = initialLeft + dx;
+          let newTop = initialTop + dy;
+
+          const halfW = modalBoxEl.offsetWidth / 2;
+          const halfH = modalBoxEl.offsetHeight / 2;
+
+          newLeft = Math.max(halfW, Math.min(window.innerWidth - halfW, newLeft));
+          newTop = Math.max(halfH, Math.min(window.innerHeight - halfH, newTop));
+
+          modalBoxEl.style.left = `${newLeft}px`;
+          modalBoxEl.style.top = `${newTop}px`;
+        };
+
+        const onMouseUp = () => {
+          isDragging = false;
+          window.removeEventListener('mousemove', onMouseMove);
+          window.removeEventListener('mouseup', onMouseUp);
+        };
+
+        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('mouseup', onMouseUp);
+      });
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
       const viewportEl = document.getElementById('board-viewport');
       const marqueeBoxEl = document.getElementById('marquee-box');
       const modalEl = document.getElementById('add-node-modal');
       const labelInput = document.getElementById('node-label-input');
       const sidebar = document.getElementById('sidebar');
+
+      const inlineEditorEl = document.getElementById('node-inline-editor');
+      const addNodeModalBox = document.querySelector('#add-node-modal .modal-box');
+      const addModalHeader = document.querySelector('#add-node-modal h3')?.parentElement;
+
+      if (inlineEditorEl) makeModalDraggable(inlineEditorEl, inlineEditorEl.querySelector('div:first-child'));
+      if (addNodeModalBox && addModalHeader) makeModalDraggable(addNodeModalBox, addModalHeader);
 
       const btnSelectMode = document.getElementById('btn-select-mode');
       const btnConnectMode = document.getElementById('btn-connect-mode');
