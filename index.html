@@ -2554,7 +2554,7 @@
       });
     }
 
-  // --- HIERARCHY TREE BUILDER USING STRICT EDGE PARENT-CHILD MAPPING ---
+    // --- CLEAN HIERARCHY TREE BUILDER USING STRICT EDGE MAPPING ---
     function renderHierarchyTree() {
       const treeContainer = document.getElementById('tree-container');
       if (!treeContainer) return;
@@ -2562,7 +2562,7 @@
 
       const isDark = state.theme === 'dark' || state.theme === 'black';
 
-      // 1. Identify the absolute root (Adam)
+      // Always anchor the tree starting from Adam Pollack as the absolute root
       let rootNode = state.nodes.find(n => n.id === 'adam') || state.nodes.find(n => n.isHub) || state.nodes[0];
       if (!rootNode) return;
 
@@ -2571,7 +2571,7 @@
       function createTreeNode(node, level = 0) {
         visited.add(node.id);
         
-        // Find children whose parent is strictly THIS node via state.edges
+        // Find direct child nodes connected via edges where source === node.id
         const childEdgeTargets = state.edges
           .filter(e => e.source === node.id)
           .map(e => e.target);
@@ -2728,25 +2728,6 @@
 
         return nodeWrapper;
       }
-
-      // Render starting from Adam as the root
-      treeContainer.appendChild(createTreeNode(rootNode, 0));
-
-      const orphans = state.nodes.filter(n => !visited.has(n.id));
-      if (orphans.length > 0) {
-        const orphanSection = document.createElement('div');
-        orphanSection.className = "pt-4 border-t border-slate-500/20 flex flex-col gap-2";
-        const orphanTitle = document.createElement('div');
-        orphanTitle.className = "text-xs font-bold opacity-40 uppercase tracking-wider";
-        orphanTitle.textContent = "Unconnected Nodes";
-        orphanSection.appendChild(orphanTitle);
-
-        orphans.forEach(o => {
-          orphanSection.appendChild(createTreeNode(o, 0));
-        });
-        treeContainer.appendChild(orphanSection);
-      }
-    }
 
       // Render starting from Adam as the root
       treeContainer.appendChild(createTreeNode(rootNode, 0));
