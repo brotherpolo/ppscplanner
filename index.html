@@ -1360,7 +1360,8 @@
                 y: Number(n.y) || 0,
                 width: Number(n.width) || 0,
                 height: Number(n.height) || 0,
-                shape: n.shape || 'pill'
+                shape: n.shape || 'pill',
+                fontSize: n.fontSize || ''
               })),
               edges: parsed.edges,
               view: parsed.view || { x: 0, y: 0, zoom: 1 },
@@ -1399,6 +1400,7 @@
       nodeInitialPositions: new Map(),
       selectedModalColor: 'red',
       selectedModalShape: 'pill',
+      selectedModalFontSize: '',
       editingNodeId: null,
       currentPage: 'canvas',
       modalParentNodeId: null,
@@ -1526,21 +1528,12 @@
       textareaEl.focus();
     }
 
-    function applyFontSizeToSelection(textareaEl, sizeValue) {
-      if (!textareaEl || !sizeValue) return;
-      const start = textareaEl.selectionStart;
-      const end = textareaEl.selectionEnd;
-      const val = textareaEl.value;
-      const selectedText = val.substring(start, end) || "Text";
-
-      const wrapper = `<span style="font-size: ${sizeValue};">${selectedText}</span>`;
-      textareaEl.value = val.substring(0, start) + wrapper + val.substring(end);
-      textareaEl.focus();
-    }
-
     function renderFormattedLabel(rawText) {
       if (!rawText) return '';
-      let escaped = rawText
+      // Clean legacy inline span styles if present
+      let cleanText = rawText.replace(/<span style="font-size:\s*[^;]+;">(.*?)<\/span>/gi, '$1');
+
+      let escaped = cleanText
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;");
@@ -1548,8 +1541,7 @@
       escaped = escaped
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
         .replace(/\*(.*?)\*/g, '<em>$1</em>')
-        .replace(/&lt;u&gt;(.*?)&lt;\/u&gt;/g, '<u>$1</u>')
-        .replace(/&lt;span style=("|&quot;)font-size:\s*(.*?);\1&gt;(.*?)&lt;\/span&gt;/g, '<span style="font-size: $2;">$3</span>');
+        .replace(/&lt;u&gt;(.*?)&lt;\/u&gt;/g, '<u>$1</u>');
 
       return escaped.replace(/\n/g, '<br/>');
     }
@@ -1729,10 +1721,15 @@
       const node = state.nodes.find(n => n.id === nodeId);
       const inlineEditorEl = document.getElementById('node-inline-editor');
       const inlineTextareaEl = document.getElementById('node-inline-textarea');
+      const selectInlineFontsize = document.getElementById('select-inline-fontsize');
       if (!node || !inlineEditorEl || !inlineTextareaEl) return;
 
       state.editingNodeId = nodeId;
-      inlineTextareaEl.value = node.label;
+      inlineTextareaEl.value = node.label.replace(/<span style="font-size:\s*[^;]+;">(.*?)<\/span>/gi, '$1');
+      if (selectInlineFontsize) {
+        selectInlineFontsize.value = node.fontSize || '';
+      }
+
       inlineEditorEl.style.display = 'flex';
       inlineEditorEl.style.left = `${node.x}px`;
       inlineEditorEl.style.top = `${node.y}px`;
@@ -1835,6 +1832,9 @@
 
         const contentSpan = document.createElement('div');
         contentSpan.style.zIndex = '2';
+        if (nodeData.fontSize) {
+          contentSpan.style.fontSize = nodeData.fontSize;
+        }
         contentSpan.innerHTML = renderFormattedLabel(nodeData.label);
         nodeEl.appendChild(contentSpan);
 
@@ -2628,7 +2628,8 @@
         x: originX,
         y: originY,
         color: "gray",
-        shape: "pill"
+        shape: "pill",
+        fontSize: ''
       };
 
       const newNodes = [baseNode];
@@ -2649,7 +2650,8 @@
           x: originX + offset.dx,
           y: originY + offset.dy,
           color: chosenColor,
-          shape: "pill"
+          shape: "pill",
+          fontSize: ''
         });
         newEdges.push({
           id: `edge_${timestamp}_e${idx + 1}`,
@@ -2691,9 +2693,10 @@
       const bg = isDark ? `${hex}25` : `${hex}18`;
       const border = isDark ? `${hex}60` : `${hex}45`;
       const color = isDark ? '#ffffff' : hex;
+      const fontStyle = node.fontSize ? `font-size: ${node.fontSize};` : '';
 
       return `
-        <div style="background-color: ${bg}; border-color: ${border}; color: ${color};" class="px-3 py-1 text-xs font-semibold rounded-full border shadow-xs inline-flex items-center justify-center text-center gap-1.5 mx-auto w-max max-w-[200px]">
+        <div style="background-color: ${bg}; border-color: ${border}; color: ${color}; ${fontStyle}" class="px-3 py-1 text-xs font-semibold rounded-full border shadow-xs inline-flex items-center justify-center text-center gap-1.5 mx-auto w-max max-w-[200px]">
           <span class="truncate">${renderFormattedLabel(node.label).replace(/<br\/?>/g, ' ')}</span>
         </div>
         ${hubMarkup}
@@ -2707,11 +2710,12 @@
       const bg = isDark ? `${hex}25` : `${hex}18`;
       const border = isDark ? `${hex}60` : `${hex}45`;
       const color = isDark ? '#ffffff' : hex;
+      const fontStyle = node.fontSize ? `font-size: ${node.fontSize};` : '';
 
       const cleanText = cleanClusterLabel(node.label);
 
       return `
-        <div style="background-color: ${bg}; border-color: ${border}; color: ${color};" class="px-3 py-1 text-xs font-semibold rounded-full border shadow-xs inline-flex items-center justify-center text-center gap-1.5 mx-auto w-max max-w-[200px]">
+        <div style="background-color: ${bg}; border-color: ${border}; color: ${color}; ${fontStyle}" class="px-3 py-1 text-xs font-semibold rounded-full border shadow-xs inline-flex items-center justify-center text-center gap-1.5 mx-auto w-max max-w-[200px]">
           <span class="truncate">${cleanText}</span>
         </div>
         ${hubMarkup}
@@ -2789,8 +2793,11 @@
         if (parentNode) {
           state.selectedModalColor = parentNode.color;
           state.selectedModalShape = parentNode.shape || 'pill';
+          state.selectedModalFontSize = parentNode.fontSize || '';
           renderModalColorChoices();
           renderModalShapeChoices();
+          const selectModalFontsize = document.getElementById('select-modal-fontsize');
+          if (selectModalFontsize) selectModalFontsize.value = state.selectedModalFontSize;
         }
       }
 
@@ -2943,6 +2950,7 @@
       const labelInput = document.getElementById('node-label-input');
       const searchInput = document.getElementById('parent-search-input');
       const dropdownMenu = document.getElementById('parent-dropdown-menu');
+      const selectModalFontsize = document.getElementById('select-modal-fontsize');
 
       if (!modalEl || !labelInput) return;
 
@@ -2957,10 +2965,16 @@
         if (modalTitleEl) modalTitleEl.textContent = `Add Child to "${parentName}"`;
         state.selectedModalColor = parentNode ? parentNode.color : 'red';
         state.selectedModalShape = parentNode ? (parentNode.shape || 'pill') : 'pill';
+        state.selectedModalFontSize = parentNode ? (parentNode.fontSize || '') : '';
       } else {
         if (modalTitleEl) modalTitleEl.textContent = 'Create New Node';
         state.selectedModalColor = 'red';
         state.selectedModalShape = 'pill';
+        state.selectedModalFontSize = '';
+      }
+
+      if (selectModalFontsize) {
+        selectModalFontsize.value = state.selectedModalFontSize;
       }
 
       renderModalColorChoices();
@@ -3317,10 +3331,7 @@
       if (btnModalUnderline) btnModalUnderline.addEventListener('click', () => formatTextAreaSelection(labelInput, '<u>'));
       if (selectModalFontsize) {
         selectModalFontsize.addEventListener('change', (e) => {
-          if (e.target.value) {
-            applyFontSizeToSelection(labelInput, e.target.value);
-            e.target.value = "";
-          }
+          state.selectedModalFontSize = e.target.value;
         });
       }
 
@@ -3334,9 +3345,14 @@
       if (btnInlineUnderline) btnInlineUnderline.addEventListener('click', () => formatTextAreaSelection(inlineTextareaEl, '<u>'));
       if (selectInlineFontsize) {
         selectInlineFontsize.addEventListener('change', (e) => {
-          if (e.target.value) {
-            applyFontSizeToSelection(inlineTextareaEl, e.target.value);
-            e.target.value = "";
+          if (state.editingNodeId) {
+            const node = state.nodes.find(n => n.id === state.editingNodeId);
+            if (node) {
+              pushHistory();
+              node.fontSize = e.target.value;
+              commitState(true, true);
+              renderBoard();
+            }
           }
         });
       }
@@ -3477,7 +3493,8 @@
             x: posX,
             y: posY,
             color: state.selectedModalColor || 'red',
-            shape: state.selectedModalShape || 'pill'
+            shape: state.selectedModalShape || 'pill',
+            fontSize: state.selectedModalFontSize || ''
           };
 
           state.nodes.push(newNode);
@@ -3876,7 +3893,8 @@
               y: Number(n.y) || 0,
               width: Number(n.width) || 0,
               height: Number(n.height) || 0,
-              shape: n.shape || 'pill'
+              shape: n.shape || 'pill',
+              fontSize: n.fontSize || ''
             }));
             state.edges = cloudData.edges;
             state.lastModified = cloudTimestamp;
