@@ -344,7 +344,6 @@
 
     #node-inline-editor {
       position: absolute;
-      transform: translate(-50%, -50%);
       border-radius: 16px;
       padding: 12px 14px;
       box-shadow: 0 18px 40px -6px rgba(0, 0, 0, 0.35), 0 0 0 2px #3b82f6;
@@ -438,6 +437,7 @@
 
     .modal-box {
       transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+      position: absolute;
     }
     body.theme-light .modal-box {
       background-color: #ffffff;
@@ -1113,7 +1113,7 @@
   </div>
 
   <div id="add-node-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-    <div class="modal-box rounded-2xl p-5 sm:p-6 w-full max-w-sm flex flex-col gap-4 max-h-[90vh] overflow-y-auto no-scrollbar" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);">
+    <div class="modal-box rounded-2xl p-5 sm:p-6 w-full max-w-sm flex flex-col gap-4 max-h-[90vh] overflow-y-auto no-scrollbar">
       <div class="flex items-center justify-between">
         <h3 id="add-modal-title" class="font-bold text-base">Create New Node</h3>
         <button id="btn-close-modal" class="opacity-60 hover:opacity-100 p-1 transition-opacity">
@@ -1725,7 +1725,6 @@
       if (btnInlineUnderline) btnInlineUnderline.classList.toggle('text-white', !!node.isUnderline);
 
       inlineEditorEl.style.display = 'flex';
-      inlineEditorEl.style.transform = 'none';
       inlineEditorEl.style.left = `${Math.max(20, Math.min(window.innerWidth - 320, node.x - 145))}px`;
       inlineEditorEl.style.top = `${Math.max(20, Math.min(window.innerHeight - 300, node.y - 120))}px`;
 
@@ -3155,10 +3154,9 @@
       if (!modalEl || !labelInput) return;
 
       if (modalBox) {
-        modalBox.style.transform = 'translate(-50%, -50%)';
-        modalBox.style.left = '50%';
-        modalBox.style.top = '50%';
-        modalBox.style.position = 'absolute';
+        modalBox.style.transform = 'none';
+        modalBox.style.left = `${(window.innerWidth - modalBox.offsetWidth) / 2}px`;
+        modalBox.style.top = `${(window.innerHeight - modalBox.offsetHeight) / 2}px`;
       }
 
       if (searchInput) searchInput.value = '';
