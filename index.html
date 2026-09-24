@@ -704,9 +704,6 @@
     body.theme-black .btn-delete-node-quick { color: #fca5a5; }
     body.theme-black #node-inline-editor { background: #000000; border: 1px solid #3f3f46; }
     body.theme-black #node-inline-textarea { background: #18181b; border: 1px solid #3f3f46; color: #ffffff; }
-    body.theme-black #page-hierarchy { background-color: #000000; }
-    body.theme-black #page-hierarchy h1 { color: #ffffff; }
-    body.theme-black #page-hierarchy .tree-branch-line { border-left-color: #3f3f46; }
     body.theme-black .tree-mobile-menu {
       background-color: #09090b;
       border-color: #27272a;
@@ -2119,9 +2116,9 @@
       updateSelectionVisuals();
     }
 
-    // --- 100% PRECISE FULL-MAP PDF EXPORT ---
+    // --- ROBUST FULL-MAP PDF EXPORT WITH SVG LINES FIX ---
     function exportToPDF() {
-      showToast("Generating perfectly aligned PDF...", 3000);
+      showToast("Preparing PDF snapshot...", 3000);
       const viewportEl = document.getElementById('board-viewport');
       if (!viewportEl || state.nodes.length === 0) return;
 
@@ -2132,6 +2129,7 @@
       state.selectedEdgeId = null;
       updateSelectionVisuals();
 
+      // Find precise map bounding box
       let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
       state.nodes.forEach(n => {
         const pad = 180;
@@ -2148,7 +2146,7 @@
 
       const zoomX = viewWidth / contentWidth;
       const zoomY = viewHeight / contentHeight;
-      const targetZoom = Math.min(Math.max(0.2, Math.min(zoomX, zoomY)), 1.5);
+      const targetZoom = Math.min(Math.max(0.25, Math.min(zoomX, zoomY)), 1.25);
 
       state.view.zoom = targetZoom;
       state.view.x = (viewWidth / 2) - ((minX + contentWidth / 2) * targetZoom);
@@ -2157,11 +2155,31 @@
       applyTransform();
       renderBoard();
 
+      // Allow DOM to paint SVG paths fully before taking screenshot
       setTimeout(() => {
+        // Force SVG layer to be explicitly sized so html2canvas picks up vector lines
+        const svgEl = document.getElementById('svg-layer');
+        if (svgEl) {
+          svgEl.style.width = `${viewportEl.clientWidth}px`;
+          svgEl.style.height = `${viewportEl.clientHeight}px`;
+        }
+
         html2canvas(viewportEl, {
           scale: 2,
           useCORS: true,
-          backgroundColor: getComputedStyle(viewportEl).backgroundColor || '#fbfbfa'
+          logging: false,
+          backgroundColor: getComputedStyle(viewportEl).backgroundColor || '#fbfbfa',
+          onclone: (clonedDoc) => {
+            // Ensure SVG paths inside cloned document are fully visible and opaque
+            const clonedSvg = clonedDoc.getElementById('svg-layer');
+            if (clonedSvg) {
+              clonedSvg.querySelectorAll('path').forEach(p => {
+                p.style.display = 'block';
+                p.style.visibility = 'visible';
+                p.style.opacity = '1';
+              });
+            }
+          }
         }).then(canvas => {
           state.view.x = prevView.x;
           state.view.y = prevView.y;
@@ -2191,7 +2209,7 @@
           renderBoard();
           showToast("Failed to export PDF.");
         });
-      }, 400);
+      }, 500);
     }
 
     // --- ISOLATED CLUSTER GENERATION (SHIFT + Z + X) ---
