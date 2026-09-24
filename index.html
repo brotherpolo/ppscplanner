@@ -1048,6 +1048,8 @@
               </div>
               <textarea id="node-inline-textarea" rows="2" placeholder="Node title..."></textarea>
               <div class="flex flex-col border-t border-slate-500/20 pt-2 gap-2">
+                <span class="text-[10px] font-bold opacity-60 uppercase">Link URL (Optional)</span>
+                <input type="url" id="node-inline-url" placeholder="https://example.com" class="modal-input w-full rounded-lg px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500" />
                 <span class="text-[10px] font-bold opacity-60 uppercase">Color</span>
                 <div class="grid grid-cols-8 gap-1.5" id="inline-color-pickers"></div>
                 <span class="text-[10px] font-bold opacity-60 uppercase mt-1">Background (Pastel)</span>
@@ -1193,6 +1195,11 @@
           </div>
         </div>
         <textarea id="node-label-input" rows="2" class="modal-input w-full rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="e.g. Solution Architect"></textarea>
+      </div>
+
+      <div class="flex flex-col gap-1.5">
+        <label class="modal-label text-xs font-semibold">Link URL (Optional)</label>
+        <input type="url" id="node-modal-url" placeholder="https://example.com" class="modal-input w-full rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500" />
       </div>
 
       <div class="flex flex-col gap-1.5">
@@ -1373,7 +1380,8 @@
                 height: Number(n.height) || 0,
                 shape: n.shape || 'pill',
                 fontSize: n.fontSize || '',
-                bgColor: n.bgColor || ''
+                bgColor: n.bgColor || '',
+                linkUrl: n.linkUrl || ''
               })),
               edges: parsed.edges,
               view: parsed.view || { x: 0, y: 0, zoom: 1 },
@@ -1736,12 +1744,16 @@
       const inlineEditorEl = document.getElementById('node-inline-editor');
       const inlineTextareaEl = document.getElementById('node-inline-textarea');
       const selectInlineFontsize = document.getElementById('select-inline-fontsize');
+      const inlineUrlEl = document.getElementById('node-inline-url');
       if (!node || !inlineEditorEl || !inlineTextareaEl) return;
 
       state.editingNodeId = nodeId;
       inlineTextareaEl.value = node.label.replace(/<span style="font-size:\s*[^;]+;">(.*?)<\/span>/gi, '$1');
       if (selectInlineFontsize) {
         selectInlineFontsize.value = node.fontSize || '';
+      }
+      if (inlineUrlEl) {
+        inlineUrlEl.value = node.linkUrl || '';
       }
 
       inlineEditorEl.style.display = 'flex';
@@ -1764,15 +1776,18 @@
     function closeInlineEditor(save = true) {
       const inlineEditorEl = document.getElementById('node-inline-editor');
       const inlineTextareaEl = document.getElementById('node-inline-textarea');
+      const inlineUrlEl = document.getElementById('node-inline-url');
       if (!state.editingNodeId) return;
 
       if (save && inlineTextareaEl) {
         const node = state.nodes.find(n => n.id === state.editingNodeId);
         if (node) {
           const val = inlineTextareaEl.value.trim();
-          if (val && val !== node.label) {
+          const urlVal = inlineUrlEl ? inlineUrlEl.value.trim() : '';
+          if (val && (val !== node.label || urlVal !== node.linkUrl)) {
             pushHistory();
             node.label = val;
+            node.linkUrl = urlVal;
             commitState(true, true);
           }
         }
@@ -1834,7 +1849,7 @@
         if (nodeData.bgColor && COLOR_HEX_MAP[nodeData.bgColor]) {
           const bgHex = COLOR_HEX_MAP[nodeData.bgColor];
           if (!isPolygon) {
-            nodeEl.style.setProperty('--node-bg', isDark ? `${bgHex}FF` : `${bgHex}FF`);
+            nodeEl.style.setProperty('--node-bg', isDark ? `${bgHex}28` : `${bgHex}18`);
           } else {
             nodeEl.style.removeProperty('--node-bg');
           }
@@ -1857,7 +1872,7 @@
           }
           if (nodeData.bgColor && COLOR_HEX_MAP[nodeData.bgColor]) {
             const bgHex = COLOR_HEX_MAP[nodeData.bgColor];
-            poly.style.fill = isDark ? `${bgHex}FF` : `${bgHex}FF`;
+            poly.style.fill = isDark ? `${bgHex}28` : `${bgHex}18`;
           } else {
             poly.style.fill = '';
           }
@@ -1870,7 +1885,12 @@
         if (nodeData.fontSize) {
           contentSpan.style.fontSize = nodeData.fontSize;
         }
-        contentSpan.innerHTML = renderFormattedLabel(nodeData.label);
+
+        if (nodeData.linkUrl) {
+          contentSpan.innerHTML = `<a href="${nodeData.linkUrl}" target="_blank" rel="noopener noreferrer" class="underline hover:opacity-80 flex items-center gap-1">${renderFormattedLabel(nodeData.linkUrl.replace(/^https?:\/\//, ''))} <i class="fa-solid fa-external-link-alt text-[9px]"></i></a>`;
+        } else {
+          contentSpan.innerHTML = renderFormattedLabel(nodeData.label);
+        }
         nodeEl.appendChild(contentSpan);
 
         nodeEl.style.left = `${nodeData.x}px`;
@@ -2128,7 +2148,7 @@
 
       nodeEl.addEventListener('mousedown', (e) => {
         if (e.button !== 0) return;
-        if (e.target.closest('.node-action-btn') || e.target.closest('.node-resize-handle')) return;
+        if (e.target.closest('.node-action-btn') || e.target.closest('.node-resize-handle') || e.target.closest('a')) return;
 
         e.stopPropagation();
         const continueDrag = handlePointerDown(e.clientX, e.clientY, e.shiftKey || e.ctrlKey || e.metaKey);
@@ -2166,7 +2186,7 @@
 
       nodeEl.addEventListener('touchstart', (e) => {
         if (e.touches.length !== 1) return;
-        if (e.target.closest('.node-action-btn') || e.target.closest('.node-resize-handle')) return;
+        if (e.target.closest('.node-action-btn') || e.target.closest('.node-resize-handle') || e.target.closest('a')) return;
 
         e.stopPropagation();
         const touch = e.touches[0];
@@ -2665,7 +2685,8 @@
         color: "gray",
         shape: "pill",
         fontSize: '',
-        bgColor: ''
+        bgColor: '',
+        linkUrl: ''
       };
 
       const newNodes = [baseNode];
@@ -2688,7 +2709,8 @@
           color: chosenColor,
           shape: "pill",
           fontSize: '',
-          bgColor: ''
+          bgColor: '',
+          linkUrl: ''
         });
         newEdges.push({
           id: `edge_${timestamp}_e${idx + 1}`,
@@ -2728,7 +2750,7 @@
       const hubMarkup = node.isHub ? `<span class="text-[9px] font-bold uppercase tracking-wider text-indigo-500 bg-indigo-500/10 border border-indigo-500/30 px-1.5 py-0.2 rounded">Hub</span>` : '';
       
       const bgHex = node.bgColor && COLOR_HEX_MAP[node.bgColor] ? COLOR_HEX_MAP[node.bgColor] : hex;
-      const bg = isDark ? `${bgHex}FF` : `${bgHex}FF`;
+      const bg = isDark ? `${bgHex}28` : `${bgHex}18`;
       const border = isDark ? `${hex}60` : `${hex}45`;
       const color = isDark ? '#ffffff' : hex;
       const fontStyle = node.fontSize ? `font-size: ${node.fontSize};` : '';
@@ -3080,6 +3102,7 @@
       const searchInput = document.getElementById('parent-search-input');
       const dropdownMenu = document.getElementById('parent-dropdown-menu');
       const selectModalFontsize = document.getElementById('select-modal-fontsize');
+      const modalUrlEl = document.getElementById('node-modal-url');
 
       if (!modalEl || !labelInput) return;
 
@@ -3106,6 +3129,9 @@
 
       if (selectModalFontsize) {
         selectModalFontsize.value = state.selectedModalFontSize;
+      }
+      if (modalUrlEl) {
+        modalUrlEl.value = '';
       }
 
       renderModalColorChoices();
@@ -3620,6 +3646,9 @@
             }
           }
 
+          const modalUrlEl = document.getElementById('node-modal-url');
+          const urlVal = modalUrlEl ? modalUrlEl.value.trim() : '';
+
           const newNodeId = "node_" + Date.now();
           const newNode = {
             id: newNodeId,
@@ -3629,7 +3658,8 @@
             color: state.selectedModalColor || 'red',
             shape: state.selectedModalShape || 'pill',
             fontSize: state.selectedModalFontSize || '',
-            bgColor: state.selectedModalBgColor || ''
+            bgColor: state.selectedModalBgColor || '',
+            linkUrl: urlVal
           };
 
           state.nodes.push(newNode);
@@ -4030,7 +4060,8 @@
               height: Number(n.height) || 0,
               shape: n.shape || 'pill',
               fontSize: n.fontSize || '',
-              bgColor: n.bgColor || ''
+              bgColor: n.bgColor || '',
+              linkUrl: n.linkUrl || ''
             }));
             state.edges = cloudData.edges;
             state.lastModified = cloudTimestamp;
