@@ -1010,7 +1010,8 @@
             </svg>
             <div id="nodes-container"></div>
           </div>
-          <div id="node-inline-editor">
+          
+          <div id="node-inline-editor" class="modal-box">
             <div class="flex items-center justify-between pb-1 border-b border-slate-500/20 text-[11px] font-semibold">
               <span>Edit Node Properties</span>
               <button id="btn-inline-delete-node" class="text-rose-500 hover:text-rose-700 p-1" title="Delete Node">
@@ -1053,6 +1054,7 @@
               </div>
             </div>
           </div>
+
           <div id="marquee-box"></div>
         </div>
 
@@ -1735,7 +1737,7 @@
 
       const screenPos = worldToScreen(node.x, node.y);
       inlineEditorEl.style.display = 'flex';
-      inlineEditorEl.style.transform = 'none';
+      inlineEditorEl.style.position = 'absolute';
       inlineEditorEl.style.left = `${Math.max(20, Math.min(window.innerWidth - 320, screenPos.x - 145))}px`;
       inlineEditorEl.style.top = `${Math.max(20, Math.min(window.innerHeight - 300, screenPos.y - 120))}px`;
 
@@ -2507,6 +2509,7 @@
     function exportToPNG() {
       showToast("Generating high-resolution PNG snapshot...", 2500);
       const viewportEl = document.getElementById('board-viewport');
+      const svgLayerEl = document.getElementById('svg-layer');
       if (!viewportEl || state.nodes.length === 0) return;
 
       const prevView = { x: state.view.x, y: state.view.y, zoom: state.view.zoom };
@@ -2534,6 +2537,8 @@
       applyTransform();
       renderBoard();
 
+      if (svgLayerEl) svgLayerEl.style.pointerEvents = 'auto';
+
       const originalWidth = viewportEl.style.width;
       const originalHeight = viewportEl.style.height;
       viewportEl.style.width = `${contentWidth}px`;
@@ -2552,6 +2557,7 @@
         }).then(canvas => {
           viewportEl.style.width = originalWidth;
           viewportEl.style.height = originalHeight;
+          if (svgLayerEl) svgLayerEl.style.pointerEvents = 'none';
 
           state.view.x = prevView.x;
           state.view.y = prevView.y;
@@ -2570,6 +2576,7 @@
           console.error("PNG export error:", err);
           viewportEl.style.width = originalWidth;
           viewportEl.style.height = originalHeight;
+          if (svgLayerEl) svgLayerEl.style.pointerEvents = 'none';
           state.view.x = prevView.x;
           state.view.y = prevView.y;
           state.view.zoom = prevView.zoom;
