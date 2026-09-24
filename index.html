@@ -29,7 +29,6 @@
       height: 100vh;
       overflow: hidden;
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background-color: #fafaf9;
       user-select: none;
       -webkit-user-select: none;
     }
@@ -67,7 +66,7 @@
     }
 
     #sidebar {
-      transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease, border-color 0.2s ease;
       will-change: width;
     }
     #sidebar.collapsed {
@@ -108,10 +107,8 @@
       position: relative;
       overflow: hidden;
       cursor: default;
-      background-color: #fbfbfa;
-      background-image: radial-gradient(circle, #cbd5e1 1.25px, transparent 1.25px);
-      background-size: 26px 26px;
       touch-action: none;
+      transition: background-color 0.2s ease;
     }
 
     #board-viewport.panning {
@@ -148,7 +145,6 @@
     }
 
     .edge-line {
-      stroke: #64748b;
       stroke-width: 2.5px;
       stroke-linecap: round;
       fill: none;
@@ -175,7 +171,6 @@
     .node {
       position: absolute;
       transform: translate(-50%, -50%);
-      background: #ffffff;
       border-radius: 9999px;
       min-width: 96px;
       max-width: 210px;
@@ -192,8 +187,6 @@
       letter-spacing: -0.01em;
       cursor: grab;
       border: 2.25px solid;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03);
-      transition: box-shadow 0.15s ease, border-color 0.15s ease;
       white-space: normal;
       word-break: normal;
       overflow-wrap: break-word;
@@ -201,6 +194,7 @@
       z-index: 10;
       touch-action: none;
       box-sizing: border-box;
+      transition: box-shadow 0.15s ease, border-color 0.15s ease, background-color 0.2s ease, color 0.2s ease;
     }
 
     .node:active {
@@ -210,7 +204,7 @@
     .node.selected {
       outline: 3px solid #2563eb;
       outline-offset: 3px;
-      box-shadow: 0 0 18px rgba(37, 99, 235, 0.35);
+      box-shadow: 0 0 18px rgba(37, 99, 235, 0.45);
       z-index: 30 !important;
     }
 
@@ -230,9 +224,8 @@
       width: 24px;
       height: 24px;
       border-radius: 50%;
-      background: white;
-      border: 1px solid #cbd5e1;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.12);
+      border: 1px solid;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -259,52 +252,32 @@
     .btn-edit-node {
       top: -10px;
       right: 20px;
-      color: #3b82f6;
     }
     .btn-edit-node:hover, .btn-edit-node:active {
-      background-color: #eff6ff;
       transform: scale(1.15);
     }
 
     .btn-delete-node-quick {
       top: -10px;
       right: -8px;
-      color: #ef4444;
     }
     .btn-delete-node-quick:hover, .btn-delete-node-quick:active {
-      background-color: #fef2f2;
       transform: scale(1.15);
     }
 
-    /* Cluster Colors */
-    .node-red { border-color: #dc2626; color: #991b1b; }
-    .node-green { border-color: #16a34a; color: #166534; }
-    .node-blue { border-color: #2563eb; color: #1e40af; }
-    .node-purple { border-color: #7c3aed; color: #5b21b6; }
-    .node-gray { border-color: #374151; color: #1f2937; }
-
     .node-hub {
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
       font-size: 15px;
       font-weight: 700;
       padding: 14px 24px;
     }
 
-    .glass-panel {
-      background: rgba(255, 255, 255, 0.94);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(226, 232, 240, 0.9);
-      box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
-    }
-
     #node-inline-editor {
       position: absolute;
       transform: translate(-50%, -50%);
-      background: #ffffff;
       border-radius: 16px;
       padding: 12px 14px;
-      box-shadow: 0 18px 40px -6px rgba(0, 0, 0, 0.25), 0 0 0 2px #3b82f6;
+      box-shadow: 0 18px 40px -6px rgba(0, 0, 0, 0.35), 0 0 0 2px #3b82f6;
       z-index: 100;
       display: none;
       flex-direction: column;
@@ -321,9 +294,7 @@
       font-weight: 600;
       line-height: 1.3;
       text-align: center;
-      border: 1px solid #e2e8f0;
       border-radius: 8px;
-      background: #f8fafc;
       padding: 6px 8px;
       user-select: text;
       -webkit-user-select: text;
@@ -342,14 +313,180 @@
       margin-left: 1.15rem;
       padding-left: 1.25rem;
     }
+
+    /* =========================================================================
+       THEME STYLES (Light, Dark, Absolute Black)
+       ========================================================================= */
+
+    /* 1. LIGHT THEME (Default) */
+    body.theme-light {
+      background-color: #fafaf9;
+      color: #1e293b;
+    }
+    body.theme-light #board-viewport {
+      background-color: #fbfbfa;
+      background-image: radial-gradient(circle, #cbd5e1 1.25px, transparent 1.25px);
+      background-size: 26px 26px;
+    }
+    body.theme-light #sidebar {
+      background-color: #ffffff;
+      border-color: #e2e8f0;
+    }
+    body.theme-light .glass-panel {
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.08);
+      color: #334155;
+    }
+    body.theme-light .node {
+      background-color: #ffffff;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+    body.theme-light .node-red { border-color: #dc2626; color: #991b1b; }
+    body.theme-light .node-green { border-color: #16a34a; color: #166534; }
+    body.theme-light .node-blue { border-color: #2563eb; color: #1e40af; }
+    body.theme-light .node-purple { border-color: #7c3aed; color: #5b21b6; }
+    body.theme-light .node-gray { border-color: #374151; color: #1f2937; }
+    body.theme-light .edge-line { stroke: #64748b; }
+    body.theme-light .node-action-btn { background: #ffffff; border-color: #cbd5e1; }
+    body.theme-light .btn-edit-node { color: #3b82f6; }
+    body.theme-light .btn-delete-node-quick { color: #ef4444; }
+    body.theme-light #node-inline-editor { background: #ffffff; }
+    body.theme-light #node-inline-textarea { background: #f8fafc; border: 1px solid #e2e8f0; color: #1e293b; }
+
+    /* 2. DARK THEME */
+    body.theme-dark {
+      background-color: #0f172a;
+      color: #f1f5f9;
+    }
+    body.theme-dark #board-viewport {
+      background-color: #0b1120;
+      background-image: radial-gradient(circle, #334155 1.25px, transparent 1.25px);
+      background-size: 26px 26px;
+    }
+    body.theme-dark #sidebar {
+      background-color: #0f172a;
+      border-color: #1e293b;
+    }
+    body.theme-dark #sidebar .sidebar-header {
+      border-color: #1e293b;
+    }
+    body.theme-dark #sidebar .sidebar-label {
+      color: #f8fafc;
+    }
+    body.theme-dark #sidebar .sidebar-item {
+      color: #94a3b8;
+    }
+    body.theme-dark #sidebar .sidebar-item:hover {
+      background-color: #1e293b;
+      color: #f8fafc;
+    }
+    body.theme-dark .glass-panel {
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(51, 65, 85, 0.8);
+      box-shadow: 0 14px 34px -4px rgba(0, 0, 0, 0.6);
+      color: #e2e8f0;
+    }
+    body.theme-dark .glass-panel button {
+      color: #cbd5e1;
+    }
+    body.theme-dark .glass-panel button:hover {
+      background-color: #1e293b;
+      color: #ffffff;
+    }
+    body.theme-dark .node {
+      background-color: #1e293b;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    }
+    body.theme-dark .node-red { border-color: #ef4444; color: #fca5a5; }
+    body.theme-dark .node-green { border-color: #22c55e; color: #86efac; }
+    body.theme-dark .node-blue { border-color: #3b82f6; color: #93c5fd; }
+    body.theme-dark .node-purple { border-color: #a855f7; color: #d8b4fe; }
+    body.theme-dark .node-gray { border-color: #64748b; color: #cbd5e1; }
+    body.theme-dark .edge-line { stroke: #475569; }
+    body.theme-dark .node-action-btn { background: #0f172a; border-color: #334155; }
+    body.theme-dark .btn-edit-node { color: #60a5fa; }
+    body.theme-dark .btn-delete-node-quick { color: #f87171; }
+    body.theme-dark #node-inline-editor { background: #0f172a; border: 1px solid #334155; }
+    body.theme-dark #node-inline-textarea { background: #1e293b; border: 1px solid #334155; color: #f8fafc; }
+    body.theme-dark #page-hierarchy { background-color: #0b1120; }
+    body.theme-dark #page-hierarchy .bg-white { background-color: #0f172a !important; border-color: #1e293b !important; }
+    body.theme-dark #page-hierarchy h1 { color: #f8fafc; }
+    body.theme-dark #page-hierarchy .tree-branch-line { border-left-color: #334155; }
+
+    /* 3. ABSOLUTE BLACK THEME */
+    body.theme-black {
+      background-color: #000000;
+      color: #ffffff;
+    }
+    body.theme-black #board-viewport {
+      background-color: #000000;
+      background-image: radial-gradient(circle, #27272a 1.25px, transparent 1.25px);
+      background-size: 26px 26px;
+    }
+    body.theme-black #sidebar {
+      background-color: #000000;
+      border-color: #27272a;
+    }
+    body.theme-black #sidebar .sidebar-header {
+      border-color: #27272a;
+    }
+    body.theme-black #sidebar .sidebar-label {
+      color: #ffffff;
+    }
+    body.theme-black #sidebar .sidebar-item {
+      color: #a1a1aa;
+    }
+    body.theme-black #sidebar .sidebar-item:hover {
+      background-color: #18181b;
+      color: #ffffff;
+    }
+    body.theme-black .glass-panel {
+      background: rgba(10, 10, 10, 0.95);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid #27272a;
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.9);
+      color: #f4f4f5;
+    }
+    body.theme-black .glass-panel button {
+      color: #d4d4d8;
+    }
+    body.theme-black .glass-panel button:hover {
+      background-color: #27272a;
+      color: #ffffff;
+    }
+    body.theme-black .node {
+      background-color: #09090b;
+      box-shadow: 0 0 16px rgba(0, 0, 0, 0.8);
+    }
+    body.theme-black .node-red { border-color: #f87171; color: #fca5a5; }
+    body.theme-black .node-green { border-color: #4ade80; color: #86efac; }
+    body.theme-black .node-blue { border-color: #60a5fa; color: #93c5fd; }
+    body.theme-black .node-purple { border-color: #c084fc; color: #e9d5ff; }
+    body.theme-black .node-gray { border-color: #a1a1aa; color: #e4e4e7; }
+    body.theme-black .edge-line { stroke: #52525b; stroke-width: 2.75px; }
+    body.theme-black .node-action-btn { background: #000000; border-color: #3f3f46; }
+    body.theme-black .btn-edit-node { color: #93c5fd; }
+    body.theme-black .btn-delete-node-quick { color: #fca5a5; }
+    body.theme-black #node-inline-editor { background: #000000; border: 1px solid #3f3f46; }
+    body.theme-black #node-inline-textarea { background: #18181b; border: 1px solid #3f3f46; color: #ffffff; }
+    body.theme-black #page-hierarchy { background-color: #000000; }
+    body.theme-black #page-hierarchy .bg-white { background-color: #09090b !important; border-color: #27272a !important; }
+    body.theme-black #page-hierarchy h1 { color: #ffffff; }
+    body.theme-black #page-hierarchy .tree-branch-line { border-left-color: #3f3f46; }
   </style>
 </head>
-<body class="w-screen h-screen overflow-hidden text-slate-800 bg-[#fafaf9]">
+<body class="theme-light w-screen h-screen overflow-hidden">
 
   <!-- Fullscreen Initial Loading Splash Screen -->
   <div id="splash-screen" class="fixed inset-0 z-[200] bg-white flex flex-col items-center justify-center p-6 select-none">
     <div class="flex flex-col items-center gap-6">
-      <img src="novaralogo.png" alt="Novara" class="w-64 max-w-[70vw] object-contain animate-pulse-zoom drop-shadow-sm" />
+      <img src="novara.png" alt="Novara" class="w-64 max-w-[70vw] object-contain animate-pulse-zoom drop-shadow-sm" />
       <div class="flex items-center gap-2">
         <div class="w-2 h-2 rounded-full bg-indigo-600 animate-bounce" style="animation-delay: 0s;"></div>
         <div class="w-2 h-2 rounded-full bg-indigo-600 animate-bounce" style="animation-delay: 0.15s;"></div>
@@ -370,8 +507,8 @@
               <i class="fa-solid fa-diagram-project"></i>
             </div>
             <div class="flex flex-col sidebar-label overflow-hidden">
-              <span class="font-bold text-sm text-slate-800 leading-none truncate">Planner Hub</span>
-              <span class="text-[10px] text-slate-400 font-medium truncate mt-0.5">Mindmap & Outline</span>
+              <span class="font-bold text-sm leading-none truncate">Planner Hub</span>
+              <span class="text-[10px] opacity-60 font-medium truncate mt-0.5">Mindmap & Outline</span>
             </div>
           </div>
           <button id="btn-toggle-sidebar" class="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors shrink-0">
@@ -394,58 +531,58 @@
 
         <!-- Section: Clusters Overview -->
         <div class="px-4 pt-3 pb-1 sidebar-extra">
-          <span class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">Clusters</span>
+          <span class="text-[10px] font-bold tracking-wider opacity-50 uppercase">Clusters</span>
         </div>
 
         <div class="px-3 flex flex-col gap-1 sidebar-extra" id="sidebar-cluster-list">
-          <div class="flex items-center justify-between px-3 py-1.5 text-xs text-slate-600 rounded-lg hover:bg-slate-50">
+          <div class="flex items-center justify-between px-3 py-1.5 text-xs rounded-lg hover:bg-slate-500/10">
             <div class="flex items-center gap-2">
               <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
-              <span class="font-medium text-slate-700 truncate">Central Hub</span>
+              <span class="font-medium truncate">Central Hub</span>
             </div>
-            <span class="text-[11px] font-semibold text-slate-400" id="count-hub">1</span>
+            <span class="text-[11px] font-semibold opacity-60" id="count-hub">1</span>
           </div>
-          <div class="flex items-center justify-between px-3 py-1.5 text-xs text-slate-600 rounded-lg hover:bg-slate-50">
+          <div class="flex items-center justify-between px-3 py-1.5 text-xs rounded-lg hover:bg-slate-500/10">
             <div class="flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-slate-600"></span>
-              <span class="font-medium text-slate-700 truncate">Product Team</span>
+              <span class="w-2.5 h-2.5 rounded-full bg-slate-500"></span>
+              <span class="font-medium truncate">Product Team</span>
             </div>
-            <span class="text-[11px] font-semibold text-slate-400" id="count-product">5</span>
+            <span class="text-[11px] font-semibold opacity-60" id="count-product">5</span>
           </div>
-          <div class="flex items-center justify-between px-3 py-1.5 text-xs text-slate-600 rounded-lg hover:bg-slate-50">
+          <div class="flex items-center justify-between px-3 py-1.5 text-xs rounded-lg hover:bg-slate-500/10">
             <div class="flex items-center gap-2">
               <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-              <span class="font-medium text-slate-700 truncate">Sales Engineers</span>
+              <span class="font-medium truncate">Sales Engineers</span>
             </div>
-            <span class="text-[11px] font-semibold text-slate-400" id="count-se">6</span>
+            <span class="text-[11px] font-semibold opacity-60" id="count-se">6</span>
           </div>
-          <div class="flex items-center justify-between px-3 py-1.5 text-xs text-slate-600 rounded-lg hover:bg-slate-50">
+          <div class="flex items-center justify-between px-3 py-1.5 text-xs rounded-lg hover:bg-slate-500/10">
             <div class="flex items-center gap-2">
               <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
-              <span class="font-medium text-slate-700 truncate">Flex</span>
+              <span class="font-medium truncate">Flex</span>
             </div>
-            <span class="text-[11px] font-semibold text-slate-400" id="count-flex">5</span>
+            <span class="text-[11px] font-semibold opacity-60" id="count-flex">5</span>
           </div>
-          <div class="flex items-center justify-between px-3 py-1.5 text-xs text-slate-600 rounded-lg hover:bg-slate-50">
+          <div class="flex items-center justify-between px-3 py-1.5 text-xs rounded-lg hover:bg-slate-500/10">
             <div class="flex items-center gap-2">
               <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
-              <span class="font-medium text-slate-700 truncate">RFP</span>
+              <span class="font-medium truncate">RFP</span>
             </div>
-            <span class="text-[11px] font-semibold text-slate-400" id="count-rfp">4</span>
+            <span class="text-[11px] font-semibold opacity-60" id="count-rfp">4</span>
           </div>
         </div>
       </div>
 
       <!-- Sidebar Footer (User Account & Sign Out) -->
-      <div class="p-3 border-t border-slate-100 flex flex-col gap-2">
-        <div class="sidebar-item flex items-center justify-between px-2.5 py-1.5 rounded-xl bg-slate-50 border border-slate-200/60">
+      <div class="p-3 border-t border-slate-200/50 flex flex-col gap-2">
+        <div class="sidebar-item flex items-center justify-between px-2.5 py-1.5 rounded-xl bg-slate-500/10 border border-slate-500/20">
           <div class="flex items-center gap-2 overflow-hidden">
-            <div class="w-7 h-7 rounded-lg bg-slate-200 text-slate-600 flex items-center justify-center text-xs shrink-0">
+            <div class="w-7 h-7 rounded-lg bg-slate-500/20 flex items-center justify-center text-xs shrink-0">
               <i class="fa-solid fa-user-check"></i>
             </div>
-            <span id="user-display-email" class="text-xs font-semibold text-slate-700 truncate sidebar-label max-w-[120px]">user</span>
+            <span id="user-display-email" class="text-xs font-semibold truncate sidebar-label max-w-[120px]">user</span>
           </div>
-          <button id="btn-sign-out" title="Sign Out" class="sidebar-label text-slate-400 hover:text-rose-600 p-1 transition-colors">
+          <button id="btn-sign-out" title="Sign Out" class="sidebar-label opacity-60 hover:opacity-100 hover:text-rose-500 p-1 transition-colors">
             <i class="fa-solid fa-arrow-right-from-bracket text-xs"></i>
           </button>
         </div>
@@ -459,7 +596,7 @@
       <section id="page-canvas" class="app-page">
         <!-- Floating Canvas Toolbar -->
         <header class="absolute top-2 sm:top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1 sm:gap-1.5 p-1.5 rounded-2xl glass-panel w-max max-w-[94vw] overflow-x-auto no-scrollbar shadow-md">
-          <div class="flex items-center px-2 sm:px-3 py-1 font-bold text-xs sm:text-sm tracking-tight text-slate-700 border-r border-slate-200 shrink-0">
+          <div class="flex items-center px-2 sm:px-3 py-1 font-bold text-xs sm:text-sm tracking-tight border-r border-slate-500/30 shrink-0">
             <i class="fa-solid fa-project-diagram mr-1.5 text-indigo-600"></i>
             <span class="hidden sm:inline">Whiteboard</span>
           </div>
@@ -470,46 +607,54 @@
             <span class="hidden md:inline">Select</span>
           </button>
 
-          <button id="btn-connect-mode" title="Connect Nodes (C)" class="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-xl text-slate-700 hover:bg-slate-100 transition-all shrink-0">
+          <button id="btn-connect-mode" title="Connect Nodes (C)" class="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-xl transition-all shrink-0">
             <i class="fa-solid fa-share-nodes"></i>
             <span class="hidden md:inline">Connect</span>
           </button>
 
-          <button id="btn-pan-mode" title="Pan Canvas (H / Spacebar)" class="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-xl text-slate-700 hover:bg-slate-100 transition-all shrink-0">
+          <button id="btn-pan-mode" title="Pan Canvas (H / Spacebar)" class="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-xl transition-all shrink-0">
             <i class="fa-solid fa-hand"></i>
             <span class="hidden md:inline">Pan</span>
           </button>
 
-          <div class="h-4 sm:h-5 w-px bg-slate-200 mx-0.5 sm:mx-1 shrink-0"></div>
+          <div class="h-4 sm:h-5 w-px bg-slate-500/30 mx-0.5 sm:mx-1 shrink-0"></div>
 
           <!-- Diagram Actions -->
-          <button id="btn-select-all" title="Select Entire Diagram (Ctrl+A)" class="flex items-center gap-1 px-2 sm:px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 rounded-xl transition-all shrink-0">
+          <button id="btn-select-all" title="Select Entire Diagram (Ctrl+A)" class="flex items-center gap-1 px-2 sm:px-3 py-1.5 text-xs font-semibold rounded-xl transition-all shrink-0">
             <i class="fa-solid fa-object-group"></i>
             <span class="hidden lg:inline">Select All</span>
           </button>
 
-          <button id="btn-open-add-modal" title="Add Node" class="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-xl transition-all shrink-0">
+          <button id="btn-open-add-modal" title="Add Node" class="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-emerald-600 bg-emerald-500/10 hover:bg-emerald-500/20 rounded-xl transition-all shrink-0">
             <i class="fa-solid fa-circle-plus"></i>
             <span class="hidden sm:inline">Add</span>
           </button>
 
-          <button id="btn-delete-selected" title="Delete Selected (Del / Backspace)" class="flex items-center gap-1 px-2 sm:px-3 py-1.5 text-xs font-semibold text-rose-700 hover:bg-rose-50 rounded-xl transition-all shrink-0">
+          <button id="btn-delete-selected" title="Delete Selected (Del / Backspace)" class="flex items-center gap-1 px-2 sm:px-3 py-1.5 text-xs font-semibold text-rose-500 hover:bg-rose-500/10 rounded-xl transition-all shrink-0">
             <i class="fa-solid fa-trash-can"></i>
             <span class="hidden lg:inline">Delete</span>
           </button>
 
-          <button id="btn-reset-default" title="Reset Diagram to Original Template" class="hidden items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-700 hover:bg-amber-50 rounded-xl transition-all shrink-0">
+          <button id="btn-reset-default" title="Reset Diagram to Original Template" class="hidden items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-500 hover:bg-amber-500/10 rounded-xl transition-all shrink-0">
             <i class="fa-solid fa-rotate-left"></i> Reset
           </button>
 
-          <button id="btn-reset-view" title="Center Diagram" class="flex items-center px-2 sm:px-2.5 py-1.5 text-xs font-semibold text-slate-500 hover:bg-slate-100 rounded-xl transition-all shrink-0">
+          <button id="btn-reset-view" title="Center Diagram" class="flex items-center px-2 sm:px-2.5 py-1.5 text-xs font-semibold rounded-xl transition-all shrink-0">
             <i class="fa-solid fa-compress"></i>
           </button>
 
-          <div class="h-4 sm:h-5 w-px bg-slate-200 mx-0.5 sm:mx-1 shrink-0"></div>
+          <div class="h-4 sm:h-5 w-px bg-slate-500/30 mx-0.5 sm:mx-1 shrink-0"></div>
+
+          <!-- Theme Switcher Button -->
+          <button id="btn-theme-toggle" title="Cycle Theme: Light -> Dark -> Absolute Black" class="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-xl transition-all shrink-0 hover:bg-slate-500/10">
+            <i id="theme-toggle-icon" class="fa-solid fa-sun text-amber-500 text-sm"></i>
+            <span id="theme-toggle-text" class="hidden md:inline font-medium">Light</span>
+          </button>
+
+          <div class="h-4 sm:h-5 w-px bg-slate-500/30 mx-0.5 sm:mx-1 shrink-0"></div>
 
           <!-- Real-time Firebase Sync Status Pill -->
-          <div id="save-status-pill" class="flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium text-slate-600 border border-slate-200 rounded-xl bg-white shadow-xs shrink-0">
+          <div id="save-status-pill" class="flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium border border-slate-500/30 rounded-xl bg-slate-500/5 shadow-xs shrink-0">
             <div id="save-status-dot" class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></div>
             <span id="save-status-text" class="whitespace-nowrap">Cloud Synced</span>
           </div>
@@ -530,14 +675,14 @@
 
             <!-- In-place Direct Node Editor -->
             <div id="node-inline-editor">
-              <div class="flex items-center justify-between pb-1 border-b border-slate-100 text-[11px] font-semibold text-slate-500">
+              <div class="flex items-center justify-between pb-1 border-b border-slate-500/20 text-[11px] font-semibold">
                 <span>Edit Node Label</span>
                 <button id="btn-inline-delete-node" class="text-rose-500 hover:text-rose-700 p-1" title="Delete Node">
                   <i class="fa-solid fa-trash-can text-xs"></i>
                 </button>
               </div>
               <textarea id="node-inline-textarea" rows="2" placeholder="Node title..."></textarea>
-              <div class="flex items-center justify-between border-t border-slate-100 pt-2 gap-1.5">
+              <div class="flex items-center justify-between border-t border-slate-500/20 pt-2 gap-1.5">
                 <div class="flex items-center gap-1.5" id="inline-color-pickers">
                   <button data-color="red" class="w-5 h-5 rounded-full bg-red-500 hover:scale-125 transition-transform" title="Red"></button>
                   <button data-color="green" class="w-5 h-5 rounded-full bg-green-500 hover:scale-125 transition-transform" title="Green"></button>
@@ -555,48 +700,48 @@
         </div>
 
         <!-- Bottom Helper Bar -->
-        <div class="hidden sm:flex absolute bottom-5 left-5 z-40 glass-panel px-3.5 py-2 rounded-xl text-xs text-slate-600 items-center gap-3">
-          <span class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded font-mono text-[10px]">Double-tap</kbd> edit label</span>
-          <span class="text-slate-300">•</span>
-          <span class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded font-mono text-[10px]">2-finger</kbd> pinch / zoom</span>
-          <span class="text-slate-300">•</span>
-          <span class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded font-mono text-[10px]">Ctrl + A</kbd> Reposition all</span>
+        <div class="hidden sm:flex absolute bottom-5 left-5 z-40 glass-panel px-3.5 py-2 rounded-xl text-xs items-center gap-3">
+          <span class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 bg-slate-500/10 border border-slate-500/30 rounded font-mono text-[10px]">Double-tap</kbd> edit label</span>
+          <span class="opacity-40">•</span>
+          <span class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 bg-slate-500/10 border border-slate-500/30 rounded font-mono text-[10px]">2-finger</kbd> pinch / zoom</span>
+          <span class="opacity-40">•</span>
+          <span class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 bg-slate-500/10 border border-slate-500/30 rounded font-mono text-[10px]">Ctrl + A</kbd> Reposition all</span>
         </div>
 
         <!-- Zoom Controls -->
         <div class="absolute bottom-4 right-4 sm:bottom-5 sm:right-5 z-40 glass-panel rounded-2xl flex items-center p-1 sm:p-1.5 gap-1">
-          <button id="btn-zoom-out" class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-xl text-slate-700 hover:bg-slate-100 transition-colors active:scale-95">
+          <button id="btn-zoom-out" class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-xl hover:bg-slate-500/10 transition-colors active:scale-95">
             <i class="fa-solid fa-minus text-xs"></i>
           </button>
-          <span id="zoom-level-text" class="text-[11px] sm:text-xs font-semibold text-slate-600 px-1 min-w-[38px] text-center">100%</span>
-          <button id="btn-zoom-in" class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-xl text-slate-700 hover:bg-slate-100 transition-colors active:scale-95">
+          <span id="zoom-level-text" class="text-[11px] sm:text-xs font-semibold px-1 min-w-[38px] text-center">100%</span>
+          <button id="btn-zoom-in" class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-xl hover:bg-slate-500/10 transition-colors active:scale-95">
             <i class="fa-solid fa-plus text-xs"></i>
           </button>
-          <div class="h-4 w-px bg-slate-200 mx-0.5"></div>
-          <button id="btn-center-diagram" title="Center Diagram" class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-xl text-slate-700 hover:bg-slate-100 transition-colors active:scale-95">
+          <div class="h-4 w-px bg-slate-500/30 mx-0.5"></div>
+          <button id="btn-center-diagram" title="Center Diagram" class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-xl hover:bg-slate-500/10 transition-colors active:scale-95">
             <i class="fa-solid fa-crosshairs text-xs"></i>
           </button>
         </div>
       </section>
 
       <!-- ================= PAGE 2: HIERARCHICAL TREE VIEW ================= -->
-      <section id="page-hierarchy" class="app-page hidden overflow-y-auto p-4 sm:p-8 bg-[#fafaf9]">
+      <section id="page-hierarchy" class="app-page hidden overflow-y-auto p-4 sm:p-8">
         <div class="max-w-4xl mx-auto flex flex-col gap-6 pb-20">
           
           <!-- Hierarchy Header Banner -->
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border border-slate-200 p-6 rounded-2xl shadow-sm">
             <div>
-              <h1 class="text-xl font-bold text-slate-800 tracking-tight">Adam's PPSC Hierarchy</h1>
-              <p class="text-xs text-slate-500 mt-1">Direct representation of graph nodes and clusters dynamically linked with the canvas.</p>
+              <h1 class="text-xl font-bold tracking-tight">Adam's PPSC Hierarchy</h1>
+              <p class="text-xs opacity-60 mt-1">Direct representation of graph nodes and clusters dynamically linked with the canvas.</p>
             </div>
             <div class="flex items-center gap-2">
-              <button id="btn-hierarchy-add-root" class="px-3 py-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl transition-all flex items-center gap-1.5">
+              <button id="btn-hierarchy-add-root" class="px-3 py-1.5 text-xs font-semibold text-emerald-600 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-xl transition-all flex items-center gap-1.5">
                 <i class="fa-solid fa-circle-plus"></i> Add Item
               </button>
-              <button id="btn-collapse-all-tree" class="px-3 py-1.5 text-xs font-semibold text-slate-600 border border-slate-200 hover:bg-slate-50 rounded-xl transition-all">
+              <button id="btn-collapse-all-tree" class="px-3 py-1.5 text-xs font-semibold border border-slate-500/30 hover:bg-slate-500/10 rounded-xl transition-all">
                 <i class="fa-solid fa-angles-up mr-1"></i> Collapse All
               </button>
-              <button id="btn-expand-all-tree" class="px-3 py-1.5 text-xs font-semibold text-indigo-600 border border-indigo-200 bg-indigo-50/50 hover:bg-indigo-50 rounded-xl transition-all">
+              <button id="btn-expand-all-tree" class="px-3 py-1.5 text-xs font-semibold text-indigo-600 border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 rounded-xl transition-all">
                 <i class="fa-solid fa-angles-down mr-1"></i> Expand All
               </button>
             </div>
@@ -654,13 +799,13 @@
   </div>
 
   <!-- Toast Notification -->
-  <div id="toast" class="fixed top-16 sm:top-20 left-1/2 -translate-x-1/2 z-50 glass-panel border border-slate-200 text-slate-800 text-xs px-4 py-2 rounded-xl shadow-lg transition-opacity duration-300 opacity-0 pointer-events-none text-center whitespace-nowrap">
+  <div id="toast" class="fixed top-16 sm:top-20 left-1/2 -translate-x-1/2 z-50 glass-panel border border-slate-500/30 text-xs px-4 py-2 rounded-xl shadow-lg transition-opacity duration-300 opacity-0 pointer-events-none text-center whitespace-nowrap">
     Notice
   </div>
 
   <!-- Login Modal for Authorized Users -->
   <div id="auth-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[100] flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-2xl p-6 sm:p-7 w-full max-w-sm shadow-2xl border border-slate-100 flex flex-col gap-4">
+    <div class="bg-white rounded-2xl p-6 sm:p-7 w-full max-w-sm shadow-2xl border border-slate-100 flex flex-col gap-4 text-slate-800">
       <div class="flex items-center gap-2">
         <i class="fa-solid fa-lock text-indigo-600 text-lg"></i>
         <h3 class="font-bold text-slate-800 text-base">Authorized Sign In</h3>
@@ -700,6 +845,7 @@
     window.boardRef = db.ref("mindmap/board");
 
     const LOCAL_STORAGE_KEY = 'mindmap_whiteboard_state_v2';
+    const THEME_STORAGE_KEY = 'mindmap_whiteboard_theme';
 
     const defaultNodes = [
       { id: "adam", label: "Adam\nPollack", x: 420, y: 460, color: "red", isHub: true },
@@ -794,7 +940,8 @@
       selectedModalColor: 'red',
       editingNodeId: null,
       currentPage: 'canvas',
-      modalParentNodeId: null
+      modalParentNodeId: null,
+      theme: localStorage.getItem(THEME_STORAGE_KEY) || 'light' // 'light' | 'dark' | 'black'
     };
 
     let isIncomingSync = false;
@@ -822,6 +969,46 @@
         setTimeout(() => {
           splash.classList.add('fade-out');
         }, 350);
+      }
+    }
+
+    // --- THEME SWITCHER LOGIC ---
+    function applyTheme(themeName) {
+      state.theme = themeName;
+      localStorage.setItem(THEME_STORAGE_KEY, themeName);
+
+      document.body.classList.remove('theme-light', 'theme-dark', 'theme-black');
+      document.body.classList.add(`theme-${themeName}`);
+
+      const themeIcon = document.getElementById('theme-toggle-icon');
+      const themeText = document.getElementById('theme-toggle-text');
+
+      if (themeName === 'light') {
+        if (themeIcon) themeIcon.className = "fa-solid fa-sun text-amber-500 text-sm";
+        if (themeText) themeText.textContent = "Light";
+      } else if (themeName === 'dark') {
+        if (themeIcon) themeIcon.className = "fa-solid fa-moon text-indigo-400 text-sm";
+        if (themeText) themeText.textContent = "Dark";
+      } else if (themeName === 'black') {
+        if (themeIcon) themeIcon.className = "fa-solid fa-circle text-slate-400 text-sm";
+        if (themeText) themeText.textContent = "Black";
+      }
+
+      if (state.currentPage === 'hierarchy') {
+        renderHierarchyTree();
+      }
+    }
+
+    function cycleTheme() {
+      if (state.theme === 'light') {
+        applyTheme('dark');
+        showToast("Switched to Dark Theme");
+      } else if (state.theme === 'dark') {
+        applyTheme('black');
+        showToast("Switched to Absolute Black");
+      } else {
+        applyTheme('light');
+        showToast("Switched to Light Theme");
       }
     }
 
@@ -946,7 +1133,7 @@
         purple: '#7c3aed',
         gray: '#374151'
       };
-      inlineEditorEl.style.boxShadow = `0 18px 40px -6px rgba(0, 0, 0, 0.25), 0 0 0 2px ${colorMap[node.color] || '#3b82f6'}`;
+      inlineEditorEl.style.boxShadow = `0 18px 40px -6px rgba(0, 0, 0, 0.35), 0 0 0 2px ${colorMap[node.color] || '#3b82f6'}`;
 
       setTimeout(() => {
         inlineTextareaEl.focus();
@@ -1356,15 +1543,12 @@
       const node = state.nodes.find(n => n.id === nodeId);
       if (!node) return;
 
-      // 1. Switch to canvas page immediately
       switchPage('canvas');
 
-      // 2. Select and highlight the target node
       state.selectedNodeIds.clear();
       state.selectedNodeIds.add(nodeId);
       updateSelectionVisuals();
 
-      // 3. Defer calculations to allow layout transition and guarantee non-zero dimensions
       setTimeout(() => {
         const viewportEl = document.getElementById('board-viewport');
         const sidebar = document.getElementById('sidebar');
@@ -1414,21 +1598,17 @@
       [btnSelectMode, btnConnectMode, btnPanMode].forEach(btn => {
         if (!btn) return;
         btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-sm');
-        btn.classList.add('text-slate-700', 'hover:bg-slate-100');
       });
 
       if (mode === 'select' && btnSelectMode) {
         btnSelectMode.classList.add('bg-indigo-600', 'text-white', 'shadow-sm');
-        btnSelectMode.classList.remove('hover:bg-slate-100');
         if (viewportEl) viewportEl.style.cursor = 'default';
       } else if (mode === 'connect' && btnConnectMode) {
         btnConnectMode.classList.add('bg-indigo-600', 'text-white', 'shadow-sm');
-        btnConnectMode.classList.remove('hover:bg-slate-100');
         if (viewportEl) viewportEl.style.cursor = 'crosshair';
         showToast("Connect Mode: Tap first node, then second node to connect.");
       } else if (mode === 'pan' && btnPanMode) {
         btnPanMode.classList.add('bg-indigo-600', 'text-white', 'shadow-sm');
-        btnPanMode.classList.remove('hover:bg-slate-100');
         if (viewportEl) viewportEl.style.cursor = 'grab';
       }
       updateSelectionVisuals();
@@ -1490,10 +1670,9 @@
         pageHierarchy.classList.add('hidden');
 
         navCanvas.classList.add('bg-indigo-50', 'text-indigo-700');
-        navCanvas.classList.remove('text-slate-600', 'hover:bg-slate-100');
+        navCanvas.classList.remove('text-slate-600');
 
         navHierarchy.classList.remove('bg-indigo-50', 'text-indigo-700');
-        navHierarchy.classList.add('text-slate-600', 'hover:bg-slate-100');
 
         applyTransform();
       } else if (pageId === 'hierarchy') {
@@ -1501,10 +1680,7 @@
         pageHierarchy.classList.remove('hidden');
 
         navHierarchy.classList.add('bg-indigo-50', 'text-indigo-700');
-        navHierarchy.classList.remove('text-slate-600', 'hover:bg-slate-100');
-
         navCanvas.classList.remove('bg-indigo-50', 'text-indigo-700');
-        navCanvas.classList.add('text-slate-600', 'hover:bg-slate-100');
 
         renderHierarchyTree();
       }
@@ -1535,7 +1711,15 @@
       if (!treeContainer) return;
       treeContainer.innerHTML = '';
 
-      const colorPillClasses = {
+      const isDark = state.theme === 'dark' || state.theme === 'black';
+
+      const colorPillClasses = isDark ? {
+        red: 'bg-red-950/60 text-red-300 border-red-800',
+        green: 'bg-emerald-950/60 text-emerald-300 border-emerald-800',
+        blue: 'bg-blue-950/60 text-blue-300 border-blue-800',
+        purple: 'bg-purple-950/60 text-purple-300 border-purple-800',
+        gray: 'bg-zinc-900 text-zinc-300 border-zinc-700'
+      } : {
         red: 'bg-red-50 text-red-700 border-red-200',
         green: 'bg-emerald-50 text-emerald-700 border-emerald-200',
         blue: 'bg-blue-50 text-blue-700 border-blue-200',
@@ -1563,14 +1747,18 @@
         nodeWrapper.className = "flex flex-col gap-2";
 
         const itemRow = document.createElement('div');
-        itemRow.className = "flex items-center justify-between p-2.5 rounded-xl border border-slate-100 hover:border-indigo-100 hover:bg-slate-50/80 transition-all group";
+        itemRow.className = `flex items-center justify-between p-2.5 rounded-xl border transition-all group ${
+          isDark 
+            ? 'border-zinc-800/80 hover:border-indigo-500/40 hover:bg-zinc-800/40' 
+            : 'border-slate-100 hover:border-indigo-100 hover:bg-slate-50/80'
+        }`;
 
         const leftGroup = document.createElement('div');
         leftGroup.className = "flex items-center gap-2.5 overflow-hidden";
 
         if (childNodes.length > 0) {
           const toggleBtn = document.createElement('button');
-          toggleBtn.className = "w-6 h-6 rounded-lg hover:bg-slate-200 text-slate-400 hover:text-slate-700 flex items-center justify-center text-xs transition-colors shrink-0";
+          toggleBtn.className = "w-6 h-6 rounded-lg opacity-60 hover:opacity-100 flex items-center justify-center text-xs transition-colors shrink-0";
           toggleBtn.innerHTML = '<i class="fa-solid fa-chevron-down transition-transform"></i>';
           toggleBtn.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -1584,7 +1772,7 @@
         } else {
           const leafBullet = document.createElement('div');
           leafBullet.className = "w-6 h-6 flex items-center justify-center shrink-0";
-          leafBullet.innerHTML = '<div class="w-1.5 h-1.5 rounded-full bg-slate-300"></div>';
+          leafBullet.innerHTML = '<div class="w-1.5 h-1.5 rounded-full bg-slate-500/40"></div>';
           leftGroup.appendChild(leafBullet);
         }
 
@@ -1595,7 +1783,7 @@
 
         if (node.isHub) {
           const hubBadge = document.createElement('span');
-          hubBadge.className = "text-[10px] font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-md";
+          hubBadge.className = "text-[10px] font-bold uppercase tracking-wider text-indigo-500 bg-indigo-500/10 border border-indigo-500/30 px-2 py-0.5 rounded-md";
           hubBadge.textContent = "Hub";
           leftGroup.appendChild(hubBadge);
         }
@@ -1606,7 +1794,7 @@
         actionsGroup.className = "flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity";
 
         const btnAddChild = document.createElement('button');
-        btnAddChild.className = "px-2 py-1 text-xs font-medium text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all flex items-center gap-1";
+        btnAddChild.className = "px-2 py-1 text-xs font-medium text-emerald-500 hover:bg-emerald-500/10 rounded-lg transition-all flex items-center gap-1";
         btnAddChild.title = "Add Sub-item";
         btnAddChild.innerHTML = '<i class="fa-solid fa-plus text-[11px]"></i><span class="hidden sm:inline">Add</span>';
         btnAddChild.addEventListener('click', (e) => {
@@ -1616,7 +1804,7 @@
         actionsGroup.appendChild(btnAddChild);
 
         const btnLocate = document.createElement('button');
-        btnLocate.className = "px-2 py-1 text-xs font-medium text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all flex items-center gap-1";
+        btnLocate.className = "px-2 py-1 text-xs font-medium opacity-70 hover:opacity-100 hover:text-indigo-400 hover:bg-indigo-500/10 rounded-lg transition-all flex items-center gap-1";
         btnLocate.title = "Locate on Canvas";
         btnLocate.innerHTML = '<i class="fa-solid fa-crosshairs text-[11px]"></i><span class="hidden sm:inline">Locate</span>';
         btnLocate.addEventListener('click', (e) => {
@@ -1626,7 +1814,7 @@
         actionsGroup.appendChild(btnLocate);
 
         const btnDeleteRow = document.createElement('button');
-        btnDeleteRow.className = "px-2 py-1 text-xs font-medium text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all";
+        btnDeleteRow.className = "px-2 py-1 text-xs font-medium opacity-50 hover:opacity-100 hover:text-rose-500 hover:bg-rose-500/10 rounded-lg transition-all";
         btnDeleteRow.title = "Delete Item";
         btnDeleteRow.innerHTML = '<i class="fa-solid fa-trash-can text-[11px]"></i>';
         btnDeleteRow.addEventListener('click', (e) => {
@@ -1660,9 +1848,9 @@
       const orphans = state.nodes.filter(n => !visited.has(n.id));
       if (orphans.length > 0) {
         const orphanSection = document.createElement('div');
-        orphanSection.className = "pt-4 border-t border-slate-100 flex flex-col gap-2";
+        orphanSection.className = "pt-4 border-t border-slate-500/20 flex flex-col gap-2";
         const orphanTitle = document.createElement('div');
-        orphanTitle.className = "text-xs font-bold text-slate-400 uppercase tracking-wider";
+        orphanTitle.className = "text-xs font-bold opacity-40 uppercase tracking-wider";
         orphanTitle.textContent = "Unconnected Nodes";
         orphanSection.appendChild(orphanTitle);
 
@@ -1709,6 +1897,11 @@
       const btnInlineDelete = document.getElementById('btn-inline-delete-node');
       const inlineTextareaEl = document.getElementById('node-inline-textarea');
       const inlineColorPickers = document.getElementById('inline-color-pickers');
+      const btnThemeToggle = document.getElementById('btn-theme-toggle');
+
+      // Initialize Theme
+      applyTheme(state.theme);
+      if (btnThemeToggle) btnThemeToggle.addEventListener('click', cycleTheme);
 
       if (btnSelectMode) btnSelectMode.addEventListener('click', () => setAppMode('select'));
       if (btnConnectMode) btnConnectMode.addEventListener('click', () => setAppMode('connect'));
