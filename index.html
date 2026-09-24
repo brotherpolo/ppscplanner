@@ -834,6 +834,17 @@
 
           <div class="h-4 sm:h-5 w-px bg-slate-500/30 mx-0.5 sm:mx-1 shrink-0"></div>
 
+          <!-- Undo / Redo Buttons -->
+          <button id="btn-undo" title="Undo (Ctrl+Z)" class="flex items-center px-2 sm:px-2.5 py-1.5 text-xs font-semibold rounded-xl transition-all shrink-0 opacity-55 hover:opacity-100 disabled:opacity-20" disabled>
+            <i class="fa-solid fa-rotate-left"></i>
+          </button>
+
+          <button id="btn-redo" title="Redo (Ctrl+Y)" class="flex items-center px-2 sm:px-2.5 py-1.5 text-xs font-semibold rounded-xl transition-all shrink-0 opacity-55 hover:opacity-100 disabled:opacity-20" disabled>
+            <i class="fa-solid fa-rotate-right"></i>
+          </button>
+
+          <div class="h-4 sm:h-5 w-px bg-slate-500/30 mx-0.5 sm:mx-1 shrink-0"></div>
+
           <!-- Diagram Actions -->
           <button id="btn-select-all" title="Select Entire Diagram (Ctrl+A)" class="flex items-center gap-1 px-2 sm:px-3 py-1.5 text-xs font-semibold rounded-xl transition-all shrink-0">
             <i class="fa-solid fa-object-group"></i>
@@ -914,6 +925,8 @@
 
         <!-- Bottom Helper Bar -->
         <div class="hidden sm:flex absolute bottom-5 left-5 z-40 glass-panel px-3.5 py-2 rounded-xl text-xs items-center gap-3">
+          <span class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 bg-slate-500/10 border border-slate-500/30 rounded font-mono text-[10px]">Ctrl + Z / Y</kbd> undo/redo</span>
+          <span class="opacity-40">•</span>
           <span class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 bg-slate-500/10 border border-slate-500/30 rounded font-mono text-[10px]">Shift + Z + X</kbd> group</span>
           <span class="opacity-40">•</span>
           <span class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 bg-slate-500/10 border border-slate-500/30 rounded font-mono text-[10px]">Shift + +</kbd> new node</span>
@@ -921,8 +934,6 @@
           <span class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 bg-slate-500/10 border border-slate-500/30 rounded font-mono text-[10px]">Right-click</kbd> add connected</span>
           <span class="opacity-40">•</span>
           <span class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 bg-slate-500/10 border border-slate-500/30 rounded font-mono text-[10px]">Double-tap</kbd> edit label</span>
-          <span class="opacity-40">•</span>
-          <span class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 bg-slate-500/10 border border-slate-500/30 rounded font-mono text-[10px]">Ctrl + A</kbd> Reposition all</span>
         </div>
 
         <!-- Zoom Controls -->
@@ -1213,6 +1224,82 @@
       theme: localStorage.getItem(THEME_STORAGE_KEY) || 'light'
     };
 
+    // --- UNDO / REDO HISTORY STACKS (up to 10 steps) ---
+    const historyStack = [];
+    const redoStack = [];
+    const MAX_HISTORY = 10;
+
+    function pushHistory() {
+      const snapshot = JSON.stringify({
+        nodes: state.nodes,
+        edges: state.edges
+      });
+      // Avoid duplicate consecutive entries
+      if (historyStack.length > 0 && historyStack[historyStack.length - 1] === snapshot) {
+        return;
+      }
+      historyStack.push(snapshot);
+      if (historyStack.length > MAX_HISTORY) {
+        historyStack.shift();
+      }
+      redoStack.length = 0; // Clear redo on new action
+      updateUndoRedoButtons();
+    }
+
+    function updateUndoRedoButtons() {
+      const undoBtn = document.getElementById('btn-undo');
+      const redoBtn = document.getElementById('btn-redo');
+      if (undoBtn) undoBtn.disabled = historyStack.length === 0;
+      if (redoBtn) redoBtn.disabled = redoStack.length === 0;
+    }
+
+    function performUndo() {
+      if (historyStack.length === 0) return;
+      const currentSnapshot = JSON.stringify({
+        nodes: state.nodes,
+        edges: state.edges
+      });
+      redoStack.push(currentSnapshot);
+      const prevSnapshot = historyStack.pop();
+      const parsed = JSON.parse(prevSnapshot);
+
+      state.nodes = parsed.nodes;
+      state.edges = parsed.edges;
+      state.selectedNodeIds.clear();
+      state.selectedEdgeId = null;
+
+      commitState(true, true); // commit without re-pushing history
+      renderBoard();
+      if (state.currentPage === 'hierarchy') renderHierarchyTree();
+      updateUndoRedoButtons();
+      showToast("Undone");
+    }
+
+    function performRedo() {
+      if (redoStack.length === 0) return;
+      const currentSnapshot = JSON.stringify({
+        nodes: state.nodes,
+        edges: state.edges
+      });
+      historyStack.push(currentSnapshot);
+      if (historyStack.length > MAX_HISTORY) {
+        historyStack.shift();
+      }
+      const nextSnapshot = redoStack.pop();
+      const parsed = JSON.parse(nextSnapshot);
+
+      state.nodes = parsed.nodes;
+      state.edges = parsed.edges;
+      state.selectedNodeIds.clear();
+      state.selectedEdgeId = null;
+
+      commitState(true, true);
+      renderBoard();
+      if (state.currentPage === 'hierarchy') renderHierarchyTree();
+      updateUndoRedoButtons();
+      showToast("Redone");
+    }
+
     let isIncomingSync = false;
 
     // Toast Function
@@ -1276,6 +1363,7 @@
       }
       populateParentDropdown(state.modalParentNodeId);
       renderModalColorChoices();
+      renderColorPickers();
     }
 
     function cycleTheme() {
@@ -1317,7 +1405,11 @@
       }
     }
 
-    function commitState(immediateCloud = true) {
+    function commitState(immediateCloud = true, skipHistoryPush = false) {
+      if (!skipHistoryPush) {
+        pushHistory();
+      }
+
       const now = Date.now();
       state.lastModified = now;
 
@@ -2457,6 +2549,13 @@
         pill.innerHTML = getPillMarkup(node, isDark);
         leftGroup.appendChild(pill);
 
+        if (node.isHub) {
+          const hubBadge = document.createElement('span');
+          hubBadge.className = "text-[10px] font-bold uppercase tracking-wider text-indigo-500 bg-indigo-500/10 border border-indigo-500/30 px-2 py-0.5 rounded-md";
+          hubBadge.textContent = "Hub";
+          leftGroup.appendChild(hubBadge);
+        }
+
         itemRow.appendChild(leftGroup);
 
         // --- DESKTOP VIEW ACTIONS (Horizontal: + Add, Locate, Delete) ---
@@ -2613,6 +2712,8 @@
       const btnSelectMode = document.getElementById('btn-select-mode');
       const btnConnectMode = document.getElementById('btn-connect-mode');
       const btnPanMode = document.getElementById('btn-pan-mode');
+      const btnUndo = document.getElementById('btn-undo');
+      const btnRedo = document.getElementById('btn-redo');
       const btnSelectAll = document.getElementById('btn-select-all');
       const btnDeleteSelected = document.getElementById('btn-delete-selected');
       const btnResetDefault = document.getElementById('btn-reset-default');
@@ -2636,6 +2737,10 @@
       const inlineTextareaEl = document.getElementById('node-inline-textarea');
       const btnThemeToggle = document.getElementById('btn-theme-toggle');
       const btnHierarchyThemeToggle = document.getElementById('btn-hierarchy-theme-toggle');
+
+      // Undo / Redo Click Listeners
+      if (btnUndo) btnUndo.addEventListener('click', performUndo);
+      if (btnRedo) btnRedo.addEventListener('click', performRedo);
 
       // Render 15-Color Pickers across interface
       renderColorPickers();
@@ -3001,6 +3106,20 @@
         }
 
         activeKeys.add(e.code);
+
+        // Ctrl + Z (Undo)
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+          e.preventDefault();
+          performUndo();
+          return;
+        }
+
+        // Ctrl + Y or Ctrl + Shift + Z (Redo)
+        if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'y' || (e.shiftKey && e.key.toLowerCase() === 'z'))) {
+          e.preventDefault();
+          performRedo();
+          return;
+        }
 
         // SHIFT + Z + X creates a new group (1 base node + 4 branches) in an open canvas area
         if (e.shiftKey && activeKeys.has('KeyZ') && activeKeys.has('KeyX')) {
