@@ -1389,7 +1389,10 @@
                 fontSize: n.fontSize || '',
                 bgColor: n.bgColor || '',
                 linkUrl: n.linkUrl || '',
-                linkCaption: n.linkCaption || ''
+                linkCaption: n.linkCaption || '',
+                isBold: !!n.isBold,
+                isItalic: !!n.isItalic,
+                isUnderline: !!n.isUnderline
               })),
               edges: parsed.edges,
               view: parsed.view || { x: 0, y: 0, zoom: 1 },
@@ -1430,6 +1433,9 @@
       selectedModalShape: 'pill',
       selectedModalFontSize: '',
       selectedModalBgColor: '',
+      selectedModalBold: false,
+      selectedModalItalic: false,
+      selectedModalUnderline: false,
       editingNodeId: null,
       currentPage: 'canvas',
       modalParentNodeId: null,
@@ -1540,38 +1546,19 @@
     }
 
     // --- TEXT FORMATTING HELPER ---
-    function formatTextAreaSelection(textareaEl, syntaxWrap) {
-      if (!textareaEl) return;
-      const start = textareaEl.selectionStart;
-      const end = textareaEl.selectionEnd;
-      const val = textareaEl.value;
-      const selectedText = val.substring(start, end);
-
-      if (syntaxWrap === '<u>') {
-        textareaEl.value = val.substring(0, start) + `<u>${selectedText}</u>` + val.substring(end);
-        textareaEl.setSelectionRange(start + 3, end + 3);
-      } else {
-        textareaEl.value = val.substring(0, start) + `${syntaxWrap}${selectedText}${syntaxWrap}` + val.substring(end);
-        textareaEl.setSelectionRange(start + syntaxWrap.length, end + syntaxWrap.length);
-      }
-      textareaEl.focus();
-    }
-
     function renderFormattedLabel(rawText) {
       if (!rawText) return '';
-      let cleanText = rawText.replace(/<span style="font-size:\s*[^;]+;">(.*?)<\/span>/gi, '$1');
+      let cleanText = rawText
+        .replace(/<span style="font-size:\s*[^;]+;">(.*?)<\/span>/gi, '$1')
+        .replace(/\*\*(.*?)\*\*/g, '$1')
+        .replace(/\*(.*?)\*/g, '$1')
+        .replace(/<\/?u>/g, '');
 
-      let escaped = cleanText
+      return cleanText
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
-
-      escaped = escaped
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.*?)\*/g, '<em>$1</em>')
-        .replace(/&lt;u&gt;(.*?)&lt;\/u&gt;/g, '<u>$1</u>');
-
-      return escaped.replace(/\n/g, '<br/>');
+        .replace(/>/g, "&gt;")
+        .replace(/\n/g, '<br/>');
     }
 
     function cleanClusterLabel(rawText) {
@@ -1754,10 +1741,14 @@
       const selectInlineFontsize = document.getElementById('select-inline-fontsize');
       const inlineUrlEl = document.getElementById('node-inline-url');
       const inlineCaptionEl = document.getElementById('node-inline-caption');
+      const btnInlineBold = document.getElementById('btn-inline-bold');
+      const btnInlineItalic = document.getElementById('btn-inline-italic');
+      const btnInlineUnderline = document.getElementById('btn-inline-underline');
+
       if (!node || !inlineEditorEl || !inlineTextareaEl) return;
 
       state.editingNodeId = nodeId;
-      inlineTextareaEl.value = node.label.replace(/<span style="font-size:\s*[^;]+;">(.*?)<\/span>/gi, '$1');
+      inlineTextareaEl.value = renderFormattedLabel(node.label);
       if (selectInlineFontsize) {
         selectInlineFontsize.value = node.fontSize || '';
       }
@@ -1767,6 +1758,13 @@
       if (inlineCaptionEl) {
         inlineCaptionEl.value = node.linkCaption || '';
       }
+
+      if (btnInlineBold) btnInlineBold.classList.toggle('bg-indigo-600', !!node.isBold);
+      if (btnInlineBold) btnInlineBold.classList.toggle('text-white', !!node.isBold);
+      if (btnInlineItalic) btnInlineItalic.classList.toggle('bg-indigo-600', !!node.isItalic);
+      if (btnInlineItalic) btnInlineItalic.classList.toggle('text-white', !!node.isItalic);
+      if (btnInlineUnderline) btnInlineUnderline.classList.toggle('bg-indigo-600', !!node.isUnderline);
+      if (btnInlineUnderline) btnInlineUnderline.classList.toggle('text-white', !!node.isUnderline);
 
       inlineEditorEl.style.display = 'flex';
       inlineEditorEl.style.left = `${node.x}px`;
@@ -1864,7 +1862,7 @@
         if (nodeData.bgColor && COLOR_HEX_MAP[nodeData.bgColor]) {
           const bgHex = COLOR_HEX_MAP[nodeData.bgColor];
           if (!isPolygon) {
-            nodeEl.style.setProperty('--node-bg', isDark ? `${bgHex}FA` : `${bgHex}FA`);
+            nodeEl.style.setProperty('--node-bg', isDark ? `${bgHex}28` : `${bgHex}18`);
           } else {
             nodeEl.style.removeProperty('--node-bg');
           }
@@ -1887,7 +1885,7 @@
           }
           if (nodeData.bgColor && COLOR_HEX_MAP[nodeData.bgColor]) {
             const bgHex = COLOR_HEX_MAP[nodeData.bgColor];
-            poly.style.fill = isDark ? `${bgHex}FA` : `${bgHex}FA`;
+            poly.style.fill = isDark ? `${bgHex}28` : `${bgHex}18`;
           } else {
             poly.style.fill = '';
           }
@@ -1900,6 +1898,9 @@
         if (nodeData.fontSize) {
           contentSpan.style.fontSize = nodeData.fontSize;
         }
+        if (nodeData.isBold) contentSpan.style.fontWeight = 'bold';
+        if (nodeData.isItalic) contentSpan.style.fontStyle = 'italic';
+        if (nodeData.isUnderline) contentSpan.style.textDecoration = 'underline';
 
         if (nodeData.linkUrl) {
           const displayLabel = nodeData.linkCaption ? renderFormattedLabel(nodeData.linkCaption) : renderFormattedLabel(nodeData.label);
@@ -2372,11 +2373,11 @@
           let clusterName = null;
 
           if (cluster.nodes.length === 1) {
-            clusterName = cleanClusterLabel(cluster.nodes[0].label);
+            clusterName = cleanClusterLabel(cluster.nodes[0].linkCaption || cluster.nodes[0].label);
           } else {
             const internalHub = cluster.nodes.find(n => n.isHub || state.edges.some(e => e.source === n.id && nodeIdsInCluster.has(e.target)));
             if (internalHub) {
-              clusterName = cleanClusterLabel(internalHub.label);
+              clusterName = cleanClusterLabel(internalHub.linkCaption || internalHub.label);
             }
 
             if (!clusterName) {
@@ -2384,7 +2385,7 @@
                 if (nodeIdsInCluster.has(edge.target) && !nodeIdsInCluster.has(edge.source)) {
                   const parentNode = state.nodes.find(n => n.id === edge.source);
                   if (parentNode) {
-                    clusterName = cleanClusterLabel(parentNode.label);
+                    clusterName = cleanClusterLabel(parentNode.linkCaption || parentNode.label);
                     break;
                   }
                 }
@@ -2393,7 +2394,7 @@
           }
 
           if (!clusterName) {
-            clusterName = cleanClusterLabel(cluster.nodes[0].label) || colorKey;
+            clusterName = cleanClusterLabel(cluster.nodes[0].linkCaption || cluster.nodes[0].label) || colorKey;
           }
 
           return {
@@ -2476,7 +2477,7 @@
         state.view.y = (height / 2) - (node.y * state.view.zoom);
         applyTransform();
 
-        showToast(`Focused on ${cleanClusterLabel(node.label)}`);
+        showToast(`Focused on ${cleanClusterLabel(node.linkCaption || node.label)}`);
       }, 50);
     }
 
@@ -2703,7 +2704,10 @@
         fontSize: '',
         bgColor: '',
         linkUrl: '',
-        linkCaption: ''
+        linkCaption: '',
+        isBold: false,
+        isItalic: false,
+        isUnderline: false
       };
 
       const newNodes = [baseNode];
@@ -2728,7 +2732,10 @@
           fontSize: '',
           bgColor: '',
           linkUrl: '',
-          linkCaption: ''
+          linkCaption: '',
+          isBold: false,
+          isItalic: false,
+          isUnderline: false
         });
         newEdges.push({
           id: `edge_${timestamp}_e${idx + 1}`,
@@ -2772,9 +2779,12 @@
       const border = isDark ? `${hex}60` : `${hex}45`;
       const color = isDark ? '#ffffff' : hex;
       const fontStyle = node.fontSize ? `font-size: ${node.fontSize};` : '';
+      const weightStyle = node.isBold ? `font-weight: bold;` : '';
+      const italicStyle = node.isItalic ? `font-style: italic;` : '';
+      const underlineStyle = node.isUnderline ? `text-decoration: underline;` : '';
 
       return `
-        <div style="background-color: ${bg}; border-color: ${border}; color: ${color}; ${fontStyle}" class="px-3 py-1 text-xs font-semibold rounded-full border shadow-xs inline-flex items-center justify-center text-center gap-1.5 mx-auto w-max max-w-[200px]">
+        <div style="background-color: ${bg}; border-color: ${border}; color: ${color}; ${fontStyle} ${weightStyle} ${italicStyle} ${underlineStyle}" class="px-3 py-1 text-xs font-semibold rounded-full border shadow-xs inline-flex items-center justify-center text-center gap-1.5 mx-auto w-max max-w-[200px]">
           <span class="truncate">${renderFormattedLabel(node.linkCaption || node.label).replace(/<br\/?>/g, ' ')}</span>
         </div>
         ${hubMarkup}
@@ -2786,15 +2796,18 @@
       const hubMarkup = node.isHub ? `<span class="text-[9px] font-bold uppercase tracking-wider text-indigo-500 bg-indigo-500/10 border border-indigo-500/30 px-1.5 py-0.2 rounded">Hub</span>` : '';
       
       const bgHex = node.bgColor && COLOR_HEX_MAP[node.bgColor] ? COLOR_HEX_MAP[node.bgColor] : hex;
-      const bg = isDark ? `${bgHex}28` : `${bgHex}18`;
+      const bg = isDark ? `${bgHex}FA` : `${bgHex}FA`;
       const border = isDark ? `${hex}60` : `${hex}45`;
       const color = isDark ? '#ffffff' : hex;
       const fontStyle = node.fontSize ? `font-size: ${node.fontSize};` : '';
+      const weightStyle = node.isBold ? `font-weight: bold;` : '';
+      const italicStyle = node.isItalic ? `font-style: italic;` : '';
+      const underlineStyle = node.isUnderline ? `text-decoration: underline;` : '';
 
       const cleanText = cleanClusterLabel(node.linkCaption || node.label);
 
       return `
-        <div style="background-color: ${bg}; border-color: ${border}; color: ${color}; ${fontStyle}" class="px-3 py-1 text-xs font-semibold rounded-full border shadow-xs inline-flex items-center justify-center text-center gap-1.5 mx-auto w-max max-w-[200px]">
+        <div style="background-color: ${bg}; border-color: ${border}; color: ${color}; ${fontStyle} ${weightStyle} ${italicStyle} ${underlineStyle}" class="px-3 py-1 text-xs font-semibold rounded-full border shadow-xs inline-flex items-center justify-center text-center gap-1.5 mx-auto w-max max-w-[200px]">
           <span class="truncate">${cleanText}</span>
         </div>
         ${hubMarkup}
@@ -2874,11 +2887,30 @@
           state.selectedModalShape = parentNode.shape || 'pill';
           state.selectedModalFontSize = parentNode.fontSize || '';
           state.selectedModalBgColor = parentNode.bgColor || '';
+          state.selectedModalBold = !!parentNode.isBold;
+          state.selectedModalItalic = !!parentNode.isItalic;
+          state.selectedModalUnderline = !!parentNode.isUnderline;
           renderModalColorChoices();
           renderModalBgColorChoices();
           renderModalShapeChoices();
           const selectModalFontsize = document.getElementById('select-modal-fontsize');
           if (selectModalFontsize) selectModalFontsize.value = state.selectedModalFontSize;
+
+          const btnModalBold = document.getElementById('btn-modal-bold');
+          const btnModalItalic = document.getElementById('btn-modal-italic');
+          const btnModalUnderline = document.getElementById('btn-modal-underline');
+          if (btnModalBold) {
+            btnModalBold.classList.toggle('bg-indigo-600', state.selectedModalBold);
+            btnModalBold.classList.toggle('text-white', state.selectedModalBold);
+          }
+          if (btnModalItalic) {
+            btnModalItalic.classList.toggle('bg-indigo-600', state.selectedModalItalic);
+            btnModalItalic.classList.toggle('text-white', state.selectedModalItalic);
+          }
+          if (btnModalUnderline) {
+            btnModalUnderline.classList.toggle('bg-indigo-600', state.selectedModalUnderline);
+            btnModalUnderline.classList.toggle('text-white', state.selectedModalUnderline);
+          }
         }
       }
 
@@ -3122,6 +3154,9 @@
       const selectModalFontsize = document.getElementById('select-modal-fontsize');
       const modalUrlEl = document.getElementById('node-modal-url');
       const modalCaptionEl = document.getElementById('node-modal-caption');
+      const btnModalBold = document.getElementById('btn-modal-bold');
+      const btnModalItalic = document.getElementById('btn-modal-italic');
+      const btnModalUnderline = document.getElementById('btn-modal-underline');
 
       if (!modalEl || !labelInput) return;
 
@@ -3132,25 +3167,42 @@
 
       if (parentNodeId) {
         const parentNode = state.nodes.find(n => n.id === parentNodeId);
-        const parentName = parentNode ? cleanClusterLabel(parentNode.label) : 'Item';
+        const parentName = parentNode ? cleanClusterLabel(parentNode.linkCaption || parentNode.label) : 'Item';
         if (modalTitleEl) modalTitleEl.textContent = `Add Child to "${parentName}"`;
         state.selectedModalColor = parentNode ? parentNode.color : 'red';
         state.selectedModalShape = parentNode ? (parentNode.shape || 'pill') : 'pill';
         state.selectedModalFontSize = parentNode ? (parentNode.fontSize || '') : '';
         state.selectedModalBgColor = parentNode ? (parentNode.bgColor || '') : '';
+        state.selectedModalBold = parentNode ? !!parentNode.isBold : false;
+        state.selectedModalItalic = parentNode ? !!parentNode.isItalic : false;
+        state.selectedModalUnderline = parentNode ? !!parentNode.isUnderline : false;
       } else {
         if (modalTitleEl) modalTitleEl.textContent = 'Create New Node';
         state.selectedModalColor = 'red';
         state.selectedModalShape = 'pill';
         state.selectedModalFontSize = '';
         state.selectedModalBgColor = '';
+        state.selectedModalBold = false;
+        state.selectedModalItalic = false;
+        state.selectedModalUnderline = false;
       }
 
-      if (selectModalFontsize) {
-        selectModalFontsize.value = state.selectedModalFontSize;
-      }
+      if (selectModalFontsize) selectModalFontsize.value = state.selectedModalFontSize;
       if (modalUrlEl) modalUrlEl.value = '';
       if (modalCaptionEl) modalCaptionEl.value = '';
+
+      if (btnModalBold) {
+        btnModalBold.classList.toggle('bg-indigo-600', state.selectedModalBold);
+        btnModalBold.classList.toggle('text-white', state.selectedModalBold);
+      }
+      if (btnModalItalic) {
+        btnModalItalic.classList.toggle('bg-indigo-600', state.selectedModalItalic);
+        btnModalItalic.classList.toggle('text-white', state.selectedModalItalic);
+      }
+      if (btnModalUnderline) {
+        btnModalUnderline.classList.toggle('bg-indigo-600', state.selectedModalUnderline);
+        btnModalUnderline.classList.toggle('text-white', state.selectedModalUnderline);
+      }
 
       renderModalColorChoices();
       renderModalBgColorChoices();
@@ -3502,9 +3554,28 @@
       const btnModalUnderline = document.getElementById('btn-modal-underline');
       const selectModalFontsize = document.getElementById('select-modal-fontsize');
 
-      if (btnModalBold) btnModalBold.addEventListener('click', () => formatTextAreaSelection(labelInput, '**'));
-      if (btnModalItalic) btnModalItalic.addEventListener('click', () => formatTextAreaSelection(labelInput, '*'));
-      if (btnModalUnderline) btnModalUnderline.addEventListener('click', () => formatTextAreaSelection(labelInput, '<u>'));
+      if (btnModalBold) {
+        btnModalBold.addEventListener('click', () => {
+          state.selectedModalBold = !state.selectedModalBold;
+          btnModalBold.classList.toggle('bg-indigo-600', state.selectedModalBold);
+          btnModalBold.classList.toggle('text-white', state.selectedModalBold);
+        });
+      }
+      if (btnModalItalic) {
+        btnModalItalic.addEventListener('click', () => {
+          state.selectedModalItalic = !state.selectedModalItalic;
+          btnModalItalic.classList.toggle('bg-indigo-600', state.selectedModalItalic);
+          btnModalItalic.classList.toggle('text-white', state.selectedModalItalic);
+        });
+      }
+      if (btnModalUnderline) {
+        btnModalUnderline.addEventListener('click', () => {
+          state.selectedModalUnderline = !state.selectedModalUnderline;
+          btnModalUnderline.classList.toggle('bg-indigo-600', state.selectedModalUnderline);
+          btnModalUnderline.classList.toggle('text-white', state.selectedModalUnderline);
+        });
+      }
+
       if (selectModalFontsize) {
         selectModalFontsize.addEventListener('change', (e) => {
           state.selectedModalFontSize = e.target.value;
@@ -3516,9 +3587,52 @@
       const btnInlineUnderline = document.getElementById('btn-inline-underline');
       const selectInlineFontsize = document.getElementById('select-inline-fontsize');
 
-      if (btnInlineBold) btnInlineBold.addEventListener('click', () => formatTextAreaSelection(inlineTextareaEl, '**'));
-      if (btnInlineItalic) btnInlineItalic.addEventListener('click', () => formatTextAreaSelection(inlineTextareaEl, '*'));
-      if (btnInlineUnderline) btnInlineUnderline.addEventListener('click', () => formatTextAreaSelection(inlineTextareaEl, '<u>'));
+      if (btnInlineBold) {
+        btnInlineBold.addEventListener('click', () => {
+          if (state.editingNodeId) {
+            const node = state.nodes.find(n => n.id === state.editingNodeId);
+            if (node) {
+              pushHistory();
+              node.isBold = !node.isBold;
+              btnInlineBold.classList.toggle('bg-indigo-600', node.isBold);
+              btnInlineBold.classList.toggle('text-white', node.isBold);
+              commitState(true, true);
+              renderBoard();
+            }
+          }
+        });
+      }
+      if (btnInlineItalic) {
+        btnInlineItalic.addEventListener('click', () => {
+          if (state.editingNodeId) {
+            const node = state.nodes.find(n => n.id === state.editingNodeId);
+            if (node) {
+              pushHistory();
+              node.isItalic = !node.isItalic;
+              btnInlineItalic.classList.toggle('bg-indigo-600', node.isItalic);
+              btnInlineItalic.classList.toggle('text-white', node.isItalic);
+              commitState(true, true);
+              renderBoard();
+            }
+          }
+        });
+      }
+      if (btnInlineUnderline) {
+        btnInlineUnderline.addEventListener('click', () => {
+          if (state.editingNodeId) {
+            const node = state.nodes.find(n => n.id === state.editingNodeId);
+            if (node) {
+              pushHistory();
+              node.isUnderline = !node.isUnderline;
+              btnInlineUnderline.classList.toggle('bg-indigo-600', node.isUnderline);
+              btnInlineUnderline.classList.toggle('text-white', node.isUnderline);
+              commitState(true, true);
+              renderBoard();
+            }
+          }
+        });
+      }
+
       if (selectInlineFontsize) {
         selectInlineFontsize.addEventListener('change', (e) => {
           if (state.editingNodeId) {
@@ -3680,7 +3794,10 @@
             fontSize: state.selectedModalFontSize || '',
             bgColor: state.selectedModalBgColor || '',
             linkUrl: urlVal,
-            linkCaption: captionVal
+            linkCaption: captionVal,
+            isBold: state.selectedModalBold,
+            isItalic: state.selectedModalItalic,
+            isUnderline: state.selectedModalUnderline
           };
 
           state.nodes.push(newNode);
@@ -4083,7 +4200,10 @@
               fontSize: n.fontSize || '',
               bgColor: n.bgColor || '',
               linkUrl: n.linkUrl || '',
-              linkCaption: n.linkCaption || ''
+              linkCaption: n.linkCaption || '',
+              isBold: !!n.isBold,
+              isItalic: !!n.isItalic,
+              isUnderline: !!n.isUnderline
             }));
             state.edges = cloudData.edges;
             state.lastModified = cloudTimestamp;
