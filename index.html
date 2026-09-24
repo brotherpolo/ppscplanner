@@ -463,6 +463,46 @@
       color: #ffffff;
     }
 
+    /* Hierarchy Surface Container Styling per Theme */
+    body.theme-light .hierarchy-surface {
+      background-color: #ffffff;
+      border-color: #e2e8f0;
+      color: #1e293b;
+    }
+    body.theme-light .hierarchy-btn-secondary {
+      border-color: #e2e8f0;
+      color: #475569;
+    }
+    body.theme-light .hierarchy-btn-secondary:hover {
+      background-color: #f8fafc;
+    }
+
+    body.theme-dark .hierarchy-surface {
+      background-color: #0f172a;
+      border-color: #1e293b;
+      color: #f8fafc;
+    }
+    body.theme-dark .hierarchy-btn-secondary {
+      border-color: #334155;
+      color: #cbd5e1;
+    }
+    body.theme-dark .hierarchy-btn-secondary:hover {
+      background-color: #1e293b;
+    }
+
+    body.theme-black .hierarchy-surface {
+      background-color: #09090b;
+      border-color: #27272a;
+      color: #ffffff;
+    }
+    body.theme-black .hierarchy-btn-secondary {
+      border-color: #3f3f46;
+      color: #e4e4e7;
+    }
+    body.theme-black .hierarchy-btn-secondary:hover {
+      background-color: #18181b;
+    }
+
     /* 1. LIGHT THEME (Default) */
     body.theme-light {
       background-color: #fafaf9;
@@ -564,7 +604,6 @@
     body.theme-dark #node-inline-editor { background: #0f172a; border: 1px solid #334155; }
     body.theme-dark #node-inline-textarea { background: #1e293b; border: 1px solid #334155; color: #f8fafc; }
     body.theme-dark #page-hierarchy { background-color: #0b1120; }
-    body.theme-dark #page-hierarchy .bg-white { background-color: #0f172a !important; border-color: #1e293b !important; }
     body.theme-dark #page-hierarchy h1 { color: #f8fafc; }
     body.theme-dark #page-hierarchy .tree-branch-line { border-left-color: #334155; }
     body.theme-dark .tree-mobile-menu {
@@ -632,7 +671,6 @@
     body.theme-black #node-inline-editor { background: #000000; border: 1px solid #3f3f46; }
     body.theme-black #node-inline-textarea { background: #18181b; border: 1px solid #3f3f46; color: #ffffff; }
     body.theme-black #page-hierarchy { background-color: #000000; }
-    body.theme-black #page-hierarchy .bg-white { background-color: #09090b !important; border-color: #27272a !important; }
     body.theme-black #page-hierarchy h1 { color: #ffffff; }
     body.theme-black #page-hierarchy .tree-branch-line { border-left-color: #3f3f46; }
     body.theme-black .tree-mobile-menu {
@@ -909,7 +947,7 @@
         <div class="max-w-4xl mx-auto flex flex-col gap-6 pb-20 pt-10 sm:pt-4">
           
           <!-- Hierarchy Header Banner -->
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border border-slate-200 p-6 rounded-2xl shadow-sm">
+          <div class="hierarchy-surface flex flex-col sm:flex-row sm:items-center justify-between gap-4 border p-6 rounded-2xl shadow-sm transition-colors">
             <div>
               <h1 class="text-xl font-bold tracking-tight">Adam's PPSC Hierarchy</h1>
               <p class="text-xs opacity-60 mt-1">Direct representation of graph nodes and clusters dynamically linked with the canvas.</p>
@@ -918,7 +956,7 @@
               <button id="btn-hierarchy-add-root" class="px-3 py-1.5 text-xs font-semibold text-emerald-600 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-xl transition-all flex items-center gap-1.5">
                 <i class="fa-solid fa-circle-plus"></i> Add Item
               </button>
-              <button id="btn-collapse-all-tree" class="px-3 py-1.5 text-xs font-semibold border border-slate-500/30 hover:bg-slate-500/10 rounded-xl transition-all">
+              <button id="btn-collapse-all-tree" class="hierarchy-btn-secondary px-3 py-1.5 text-xs font-semibold border rounded-xl transition-all">
                 <i class="fa-solid fa-angles-up mr-1"></i> Collapse All
               </button>
               <button id="btn-expand-all-tree" class="px-3 py-1.5 text-xs font-semibold text-indigo-600 border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 rounded-xl transition-all">
@@ -928,7 +966,7 @@
           </div>
 
           <!-- Tree Root Rendering Area -->
-          <div id="tree-container" class="bg-white border border-slate-200 p-6 sm:p-8 rounded-2xl shadow-sm flex flex-col gap-4">
+          <div id="tree-container" class="hierarchy-surface border p-6 sm:p-8 rounded-2xl shadow-sm flex flex-col gap-4 transition-colors">
             <!-- Dynamically populated -->
           </div>
         </div>
