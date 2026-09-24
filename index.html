@@ -1259,9 +1259,21 @@
     };
 
  // --- 1. FIREBASE CONFIGURATION ---
-if (!firebase.apps.length) {
-     firebase.initializeApp(window.FIREBASE_CONFIG);
-   }
+const firebaseConfig = window.FIREBASE_CONFIG;
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.database();
+    const auth = firebase.auth();
+    window.boardRef = db.ref("mindmap/board");
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.database();
+    const auth = firebase.auth();
+    window.boardRef = db.ref("mindmap/board");
 
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
