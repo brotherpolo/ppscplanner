@@ -34,6 +34,29 @@
       -webkit-user-select: none;
     }
 
+    /* Splash Screen Animations */
+    #splash-screen {
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+    #splash-screen.fade-out {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    @keyframes pulseZoom {
+      0%, 100% {
+        transform: scale(0.92);
+        opacity: 0.8;
+      }
+      50% {
+        transform: scale(1.1);
+        opacity: 1;
+      }
+    }
+    .animate-pulse-zoom {
+      animation: pulseZoom 2.2s ease-in-out infinite;
+    }
+
     /* Layout Structure */
     #app-container {
       display: flex;
@@ -323,6 +346,18 @@
 </head>
 <body class="w-screen h-screen overflow-hidden text-slate-800 bg-[#fafaf9]">
 
+  <!-- Fullscreen Initial Loading Splash Screen -->
+  <div id="splash-screen" class="fixed inset-0 z-[200] bg-white flex flex-col items-center justify-center p-6 select-none">
+    <div class="flex flex-col items-center gap-6">
+      <img src="novara.png" alt="Novara" class="w-64 max-w-[70vw] object-contain animate-pulse-zoom drop-shadow-sm" />
+      <div class="flex items-center gap-2">
+        <div class="w-2 h-2 rounded-full bg-indigo-600 animate-bounce" style="animation-delay: 0s;"></div>
+        <div class="w-2 h-2 rounded-full bg-indigo-600 animate-bounce" style="animation-delay: 0.15s;"></div>
+        <div class="w-2 h-2 rounded-full bg-indigo-600 animate-bounce" style="animation-delay: 0.3s;"></div>
+      </div>
+    </div>
+  </div>
+
   <div id="app-container">
     
     <!-- Collapsible Left Navigation Sidebar -->
@@ -551,7 +586,7 @@
           <!-- Hierarchy Header Banner -->
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border border-slate-200 p-6 rounded-2xl shadow-sm">
             <div>
-              <h1 class="text-xl font-bold text-slate-800 tracking-tight">Adam's PPSC Hierachy</h1>
+              <h1 class="text-xl font-bold text-slate-800 tracking-tight">Adam's PPSC Hierarchy</h1>
               <p class="text-xs text-slate-500 mt-1">Direct representation of graph nodes and clusters dynamically linked with the canvas.</p>
             </div>
             <div class="flex items-center gap-2">
@@ -775,6 +810,19 @@
       toastTimeout = setTimeout(() => {
         toast.classList.add('opacity-0');
       }, 2200);
+    }
+
+    // Dismiss Splash Screen
+    let splashDismissed = false;
+    function hideSplashScreen() {
+      if (splashDismissed) return;
+      splashDismissed = true;
+      const splash = document.getElementById('splash-screen');
+      if (splash) {
+        setTimeout(() => {
+          splash.classList.add('fade-out');
+        }, 350);
+      }
     }
 
     function formatTime(timestamp) {
@@ -2096,6 +2144,9 @@
       if (!localStorage.getItem(LOCAL_STORAGE_KEY)) {
         centerDiagram();
       }
+
+      // Fallback timer: Dismiss splash screen after 1.5 seconds if auth is already cached
+      setTimeout(hideSplashScreen, 1500);
     });
 
     // --- FIREBASE AUTH & DATABASE SYNC ---
@@ -2146,9 +2197,11 @@
         } else {
           commitState(true);
         }
+        hideSplashScreen();
       }, (err) => {
         console.error("Firebase sync error:", err);
         setSaveStatus('error');
+        hideSplashScreen();
       });
     }
 
@@ -2162,6 +2215,7 @@
       } else {
         if (authModal) authModal.classList.remove('hidden');
         setSaveStatus('offline');
+        hideSplashScreen();
       }
     });
   </script>
