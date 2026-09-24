@@ -372,6 +372,97 @@
       color: #a5b4fc !important;
     }
 
+    /* Modal Theming Styles */
+    .modal-box {
+      transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+    body.theme-light .modal-box {
+      background-color: #ffffff;
+      border: 1px solid #f1f5f9;
+      color: #1e293b;
+    }
+    body.theme-light .modal-input {
+      background-color: #ffffff;
+      border: 1px solid #e2e8f0;
+      color: #1e293b;
+    }
+    body.theme-light .modal-dropdown-menu {
+      background-color: #ffffff;
+      border: 1px solid #e2e8f0;
+    }
+    body.theme-light .modal-dropdown-item:hover {
+      background-color: #f1f5f9;
+    }
+    body.theme-light .modal-label {
+      color: #475569;
+    }
+    body.theme-light .modal-btn-cancel {
+      color: #475569;
+    }
+    body.theme-light .modal-btn-cancel:hover {
+      background-color: #f1f5f9;
+    }
+
+    body.theme-dark .modal-box {
+      background-color: #0f172a;
+      border: 1px solid #1e293b;
+      color: #f8fafc;
+      box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.7);
+    }
+    body.theme-dark .modal-input {
+      background-color: #1e293b;
+      border: 1px solid #334155;
+      color: #f8fafc;
+    }
+    body.theme-dark .modal-dropdown-menu {
+      background-color: #0f172a;
+      border: 1px solid #334155;
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.6);
+    }
+    body.theme-dark .modal-dropdown-item:hover {
+      background-color: #1e293b;
+    }
+    body.theme-dark .modal-label {
+      color: #94a3b8;
+    }
+    body.theme-dark .modal-btn-cancel {
+      color: #94a3b8;
+    }
+    body.theme-dark .modal-btn-cancel:hover {
+      background-color: #1e293b;
+      color: #f8fafc;
+    }
+
+    body.theme-black .modal-box {
+      background-color: #09090b;
+      border: 1px solid #27272a;
+      color: #ffffff;
+      box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.95);
+    }
+    body.theme-black .modal-input {
+      background-color: #18181b;
+      border: 1px solid #3f3f46;
+      color: #ffffff;
+    }
+    body.theme-black .modal-dropdown-menu {
+      background-color: #09090b;
+      border: 1px solid #3f3f46;
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.9);
+    }
+    body.theme-black .modal-dropdown-item:hover {
+      background-color: #18181b;
+    }
+    body.theme-black .modal-label {
+      color: #a1a1aa;
+    }
+    body.theme-black .modal-btn-cancel {
+      color: #a1a1aa;
+    }
+    body.theme-black .modal-btn-cancel:hover {
+      background-color: #18181b;
+      color: #ffffff;
+    }
+
     /* 1. LIGHT THEME (Default) */
     body.theme-light {
       background-color: #fafaf9;
@@ -679,7 +770,7 @@
         <header class="absolute top-2 sm:top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1 sm:gap-1.5 p-1.5 rounded-2xl glass-panel w-max max-w-[94vw] overflow-x-auto no-scrollbar shadow-md">
           <div class="flex items-center px-2 sm:px-3 py-1 font-bold text-xs sm:text-sm tracking-tight border-r border-slate-500/30 shrink-0">
             <i class="fa-solid fa-project-diagram mr-1.5 text-indigo-600"></i>
-            <span class="hidden sm:inline">Adam Pollack | PPSC</span>
+            <span class="hidden sm:inline">Whiteboard</span>
           </div>
 
           <!-- Mode Buttons -->
@@ -846,51 +937,51 @@
     </main>
   </div>
 
-  <!-- Add Node Modal -->
-  <div id="add-node-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-    <div class="bg-white rounded-2xl p-5 sm:p-6 w-full max-w-sm shadow-2xl border border-slate-100 flex flex-col gap-4">
+  <!-- Themed Add Node Modal -->
+  <div id="add-node-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="modal-box rounded-2xl p-5 sm:p-6 w-full max-w-sm flex flex-col gap-4">
       <div class="flex items-center justify-between">
-        <h3 id="add-modal-title" class="font-bold text-slate-800 text-base">Create New Node</h3>
-        <button id="btn-close-modal" class="text-slate-400 hover:text-slate-600 p-1">
+        <h3 id="add-modal-title" class="font-bold text-base">Create New Node</h3>
+        <button id="btn-close-modal" class="opacity-60 hover:opacity-100 p-1 transition-opacity">
           <i class="fa-solid fa-xmark text-lg"></i>
         </button>
       </div>
 
       <!-- Color-Coded Pill Parent Selector Dropdown -->
       <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-semibold text-slate-600">Parent Item</label>
+        <label class="modal-label text-xs font-semibold">Parent Item</label>
         <div id="parent-dropdown-container" class="relative w-full">
-          <button type="button" id="parent-dropdown-btn" class="w-full flex items-center justify-between border border-slate-200 rounded-xl p-2 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-slate-800 transition-all hover:bg-slate-50">
+          <button type="button" id="parent-dropdown-btn" class="modal-input w-full flex items-center justify-between rounded-xl p-2 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
             <span id="parent-dropdown-selected" class="flex items-center gap-1.5">
-              <span class="text-slate-500 font-medium px-2 py-0.5">None (Root Node)</span>
+              <span class="opacity-60 font-medium px-2 py-0.5">None (Root Node)</span>
             </span>
-            <i class="fa-solid fa-chevron-down text-[11px] text-slate-400 mr-1 transition-transform"></i>
+            <i class="fa-solid fa-chevron-down text-[11px] opacity-50 mr-1 transition-transform"></i>
           </button>
           
-          <div id="parent-dropdown-menu" class="hidden absolute top-full left-0 right-0 mt-1 max-h-56 overflow-y-auto bg-white border border-slate-200 rounded-xl shadow-xl z-50 p-1 flex flex-col gap-1">
+          <div id="parent-dropdown-menu" class="modal-dropdown-menu hidden absolute top-full left-0 right-0 mt-1 max-h-56 overflow-y-auto rounded-xl z-50 p-1 flex flex-col gap-1">
             <!-- Dynamically populated with color pills -->
           </div>
         </div>
       </div>
 
       <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-semibold text-slate-600">Node Label</label>
-        <textarea id="node-label-input" rows="2" class="w-full border border-slate-200 rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800" placeholder="e.g. Solution Architect"></textarea>
+        <label class="modal-label text-xs font-semibold">Node Label</label>
+        <textarea id="node-label-input" rows="2" class="modal-input w-full rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="e.g. Solution Architect"></textarea>
       </div>
 
       <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-semibold text-slate-600">Category Color</label>
+        <label class="modal-label text-xs font-semibold">Category Color</label>
         <div class="grid grid-cols-5 gap-2" id="color-options">
-          <button type="button" data-color="red" class="color-choice h-9 rounded-xl border-2 border-red-500 bg-red-50 flex items-center justify-center text-red-600 font-bold text-xs ring-2 ring-indigo-600">Red</button>
-          <button type="button" data-color="green" class="color-choice h-9 rounded-xl border-2 border-green-500 bg-green-50 flex items-center justify-center text-green-600 font-bold text-xs">Green</button>
-          <button type="button" data-color="blue" class="color-choice h-9 rounded-xl border-2 border-blue-500 bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-xs">Blue</button>
-          <button type="button" data-color="purple" class="color-choice h-9 rounded-xl border-2 border-purple-500 bg-purple-50 flex items-center justify-center text-purple-600 font-bold text-xs">Purple</button>
-          <button type="button" data-color="gray" class="color-choice h-9 rounded-xl border-2 border-gray-600 bg-gray-50 flex items-center justify-center text-gray-700 font-bold text-xs">Gray</button>
+          <button type="button" data-color="red" class="color-choice h-9 rounded-xl border-2 border-red-500 bg-red-500/10 flex items-center justify-center text-red-500 font-bold text-xs ring-2 ring-indigo-600">Red</button>
+          <button type="button" data-color="green" class="color-choice h-9 rounded-xl border-2 border-green-500 bg-green-500/10 flex items-center justify-center text-green-500 font-bold text-xs">Green</button>
+          <button type="button" data-color="blue" class="color-choice h-9 rounded-xl border-2 border-blue-500 bg-blue-500/10 flex items-center justify-center text-blue-500 font-bold text-xs">Blue</button>
+          <button type="button" data-color="purple" class="color-choice h-9 rounded-xl border-2 border-purple-500 bg-purple-500/10 flex items-center justify-center text-purple-500 font-bold text-xs">Purple</button>
+          <button type="button" data-color="gray" class="color-choice h-9 rounded-xl border-2 border-gray-500 bg-gray-500/10 flex items-center justify-center text-gray-400 font-bold text-xs">Gray</button>
         </div>
       </div>
 
       <div class="flex justify-end gap-2 pt-2">
-        <button id="btn-cancel-modal" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl">Cancel</button>
+        <button id="btn-cancel-modal" class="modal-btn-cancel px-4 py-2 text-xs font-semibold rounded-xl transition-colors">Cancel</button>
         <button id="btn-confirm-add" class="px-5 py-2 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow">Create Node</button>
       </div>
     </div>
@@ -903,16 +994,16 @@
 
   <!-- Login Modal for Authorized Users -->
   <div id="auth-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[100] flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-2xl p-6 sm:p-7 w-full max-w-sm shadow-2xl border border-slate-100 flex flex-col gap-4 text-slate-800">
+    <div class="modal-box rounded-2xl p-6 sm:p-7 w-full max-w-sm shadow-2xl flex flex-col gap-4">
       <div class="flex items-center gap-2">
         <i class="fa-solid fa-lock text-indigo-600 text-lg"></i>
-        <h3 class="font-bold text-slate-800 text-base">Authorized Sign In</h3>
+        <h3 class="font-bold text-base">Authorized Sign In</h3>
       </div>
-      <p class="text-xs text-slate-500">Sign in with an authorized account to access and edit the whiteboard.</p>
+      <p class="text-xs opacity-60">Sign in with an authorized account to access and edit the whiteboard.</p>
       
       <div class="flex flex-col gap-2.5">
-        <input type="email" id="login-email" placeholder="Email" autocomplete="username" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-        <input type="password" id="login-password" placeholder="Password" autocomplete="current-password" class="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        <input type="email" id="login-email" placeholder="Email" autocomplete="username" class="modal-input w-full rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        <input type="password" id="login-password" placeholder="Password" autocomplete="current-password" class="modal-input w-full rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
       </div>
 
       <p id="auth-error-msg" class="text-xs text-rose-600 hidden font-medium"></p>
@@ -1104,6 +1195,7 @@
       if (state.currentPage === 'hierarchy') {
         renderHierarchyTree();
       }
+      populateParentDropdown(state.modalParentNodeId);
     }
 
     function cycleTheme() {
@@ -1828,17 +1920,17 @@
         if (found) {
           dropdownSelected.innerHTML = getPillMarkup(found, isDark);
         } else {
-          dropdownSelected.innerHTML = `<span class="text-slate-500 font-medium px-2 py-0.5">None (Root Node)</span>`;
+          dropdownSelected.innerHTML = `<span class="opacity-60 font-medium px-2 py-0.5">None (Root Node)</span>`;
         }
       } else {
-        dropdownSelected.innerHTML = `<span class="text-slate-500 font-medium px-2 py-0.5">None (Root Node)</span>`;
+        dropdownSelected.innerHTML = `<span class="opacity-60 font-medium px-2 py-0.5">None (Root Node)</span>`;
       }
 
       dropdownMenu.innerHTML = '';
 
       const noneOption = document.createElement('div');
-      noneOption.className = `p-2 rounded-lg cursor-pointer flex items-center justify-between text-xs hover:bg-slate-100 transition-colors ${!selectedId ? 'bg-slate-50 font-semibold' : ''}`;
-      noneOption.innerHTML = `<span class="text-slate-600 px-1 font-medium">None (Root Node)</span>`;
+      noneOption.className = `modal-dropdown-item p-2 rounded-lg cursor-pointer flex items-center justify-between text-xs transition-colors ${!selectedId ? 'font-semibold' : ''}`;
+      noneOption.innerHTML = `<span class="modal-label px-1 font-medium">None (Root Node)</span>`;
       noneOption.addEventListener('click', (e) => {
         e.stopPropagation();
         selectParentOption(null);
@@ -1847,12 +1939,12 @@
 
       state.nodes.forEach(node => {
         const opt = document.createElement('div');
-        opt.className = `p-1.5 rounded-lg cursor-pointer flex items-center justify-between text-xs hover:bg-slate-100 transition-colors ${selectedId === node.id ? 'bg-slate-50' : ''}`;
+        opt.className = `modal-dropdown-item p-1.5 rounded-lg cursor-pointer flex items-center justify-between text-xs transition-colors ${selectedId === node.id ? 'font-semibold' : ''}`;
         opt.innerHTML = `
           <div class="flex items-center gap-1.5">
             ${getPillMarkup(node, isDark)}
           </div>
-          ${selectedId === node.id ? '<i class="fa-solid fa-check text-indigo-600 text-xs mr-1"></i>' : ''}
+          ${selectedId === node.id ? '<i class="fa-solid fa-check text-indigo-500 text-xs mr-1"></i>' : ''}
         `;
         opt.addEventListener('click', (e) => {
           e.stopPropagation();
