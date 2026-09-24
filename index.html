@@ -11,8 +11,8 @@
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
-<!-- 1. Load config file first -->
-<script src="config.js"></script>
+  <!-- 1. Load config file first -->
+  <script src="config.js"></script>
   
   <!-- Firebase JS SDK (Compat Libraries) -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -39,7 +39,6 @@
       -webkit-user-select: none;
     }
 
-    /* Splash Screen Animations & Theme Adaptations */
     #splash-screen {
       transition: opacity 0.5s ease, visibility 0.5s ease, background-color 0.2s ease;
     }
@@ -62,17 +61,10 @@
       animation: pulseZoom 2.2s ease-in-out infinite;
     }
 
-    body.theme-light #splash-screen {
-      background-color: #ffffff;
-    }
-    body.theme-dark #splash-screen {
-      background-color: #0b1120;
-    }
-    body.theme-black #splash-screen {
-      background-color: #000000;
-    }
+    body.theme-light #splash-screen { background-color: #ffffff; }
+    body.theme-dark #splash-screen { background-color: #0b1120; }
+    body.theme-black #splash-screen { background-color: #000000; }
 
-    /* Layout Structure */
     #app-container {
       display: flex;
       width: 100vw;
@@ -85,23 +77,12 @@
       transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease, border-color 0.2s ease;
       will-change: width;
     }
-    #sidebar.collapsed {
-      width: 68px !important;
-    }
+    #sidebar.collapsed { width: 68px !important; }
     #sidebar.collapsed .sidebar-label,
     #sidebar.collapsed .sidebar-extra,
-    #sidebar.collapsed .sidebar-brand {
-      display: none !important;
-    }
-    #sidebar.collapsed .sidebar-header {
-      justify-content: center !important;
-      padding: 0 !important;
-    }
-    #sidebar.collapsed .sidebar-item {
-      justify-content: center !important;
-      padding-left: 0 !important;
-      padding-right: 0 !important;
-    }
+    #sidebar.collapsed .sidebar-brand { display: none !important; }
+    #sidebar.collapsed .sidebar-header { justify-content: center !important; padding: 0 !important; }
+    #sidebar.collapsed .sidebar-item { justify-content: center !important; padding-left: 0 !important; padding-right: 0 !important; }
 
     #main-content {
       flex: 1;
@@ -127,12 +108,8 @@
       transition: background-color 0.2s ease;
     }
 
-    #board-viewport.panning {
-      cursor: grab !important;
-    }
-    #board-viewport.panning:active {
-      cursor: grabbing !important;
-    }
+    #board-viewport.panning { cursor: grab !important; }
+    #board-viewport.panning:active { cursor: grabbing !important; }
 
     #world-layer {
       position: absolute;
@@ -184,7 +161,6 @@
       border-radius: 4px;
     }
 
-    /* Standardized Node Container & Shape Rendering */
     .node {
       position: absolute;
       transform: translate(-50%, -50%);
@@ -247,9 +223,7 @@
       stroke-linecap: round;
     }
 
-    .node:active {
-      cursor: grabbing;
-    }
+    .node:active { cursor: grabbing; }
 
     .node.selected {
       outline: 3px solid #2563eb;
@@ -269,49 +243,10 @@
       50% { outline-color: #059669; }
     }
 
-    .node-action-btn {
-      position: absolute;
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      border: 1px solid;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10.5px;
-      cursor: pointer;
-      opacity: 0;
-      transition: opacity 0.15s, transform 0.15s, background-color 0.15s;
-      z-index: 40;
-      pointer-events: auto;
-    }
-
-    .node-resize-handle {
-      position: absolute;
-      width: 16px;
-      height: 16px;
-      bottom: -6px;
-      right: -6px;
-      cursor: se-resize;
+    .node-action-btn, .node-resize-handle {
       opacity: 0;
       transition: opacity 0.15s;
-      z-index: 40;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-      pointer-events: auto;
-      background: rgba(0,0,0,0.1);
-      border-radius: 50%;
     }
-
-    @media (hover: none) and (pointer: coarse) {
-      .node-action-btn, .node-resize-handle {
-        opacity: 0.95;
-      }
-    }
-
     .node:hover .node-action-btn,
     .node:hover .node-resize-handle,
     .node.selected .node-action-btn,
@@ -319,21 +254,9 @@
       opacity: 1;
     }
 
-    .btn-edit-node {
-      top: -12px;
-      right: 22px;
-    }
-    .btn-edit-node:hover, .btn-edit-node:active {
-      transform: scale(1.15);
-    }
-
-    .btn-delete-node-quick {
-      top: -12px;
-      right: -6px;
-    }
-    .btn-delete-node-quick:hover, .btn-delete-node-quick:active {
-      transform: scale(1.15);
-    }
+    .btn-edit-node { top: -12px; right: 22px; position: absolute; width: 24px; height: 24px; border-radius: 50%; border: 1px solid; display: flex; align-items: center; justify-content: center; font-size: 10.5px; z-index: 40; }
+    .btn-delete-node-quick { top: -12px; right: -6px; position: absolute; width: 24px; height: 24px; border-radius: 50%; border: 1px solid; display: flex; align-items: center; justify-content: center; font-size: 10.5px; z-index: 40; }
+    .node-resize-handle { position: absolute; width: 16px; height: 16px; bottom: -6px; right: -6px; cursor: se-resize; z-index: 40; display: flex; align-items: center; justify-content: center; font-size: 10px; background: rgba(0,0,0,0.1); border-radius: 50%; }
 
     .node-hub {
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
@@ -366,17 +289,10 @@
       text-align: center;
       border-radius: 8px;
       padding: 6px 8px;
-      user-select: text;
-      -webkit-user-select: text;
     }
 
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .no-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
     .tree-branch-line {
       border-left: 2px dashed #cbd5e1;
@@ -384,440 +300,49 @@
       padding-left: 1.25rem;
     }
 
-    .tree-actions-desktop {
-      display: flex;
-      align-items: center;
-      gap: 0.25rem;
-    }
-    .tree-actions-mobile {
-      display: none;
-      position: relative;
-    }
+    .tree-actions-desktop { display: flex; align-items: center; gap: 0.25rem; }
+    .tree-actions-mobile { display: none; position: relative; }
 
     @media (max-width: 640px), (hover: none) and (pointer: coarse) {
-      .tree-actions-desktop {
-        display: none !important;
-      }
-      .tree-actions-mobile {
-        display: block !important;
-      }
+      .tree-actions-desktop { display: none !important; }
+      .tree-actions-mobile { display: block !important; }
     }
 
-    body.theme-light .sidebar-item.active {
-      background-color: #e0e7ff !important;
-      color: #4338ca !important;
-    }
-    body.theme-light .sidebar-item.active i {
-      color: #4f46e5 !important;
-    }
+    body.theme-light .sidebar-item.active { background-color: #e0e7ff !important; color: #4338ca !important; }
+    body.theme-dark .sidebar-item.active { background-color: #1e293b !important; color: #ffffff !important; border: 1px solid #334155; }
+    body.theme-black .sidebar-item.active { background-color: #18181b !important; color: #ffffff !important; border: 1px solid #3f3f46; }
 
-    body.theme-dark .sidebar-item.active {
-      background-color: #1e293b !important;
-      color: #ffffff !important;
-      border: 1px solid #334155;
-    }
-    body.theme-dark .sidebar-item.active i {
-      color: #818cf8 !important;
-    }
+    .modal-box { transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease; }
+    body.theme-light .modal-box { background-color: #ffffff; border: 1px solid #f1f5f9; color: #1e293b; }
+    body.theme-light .modal-input { background-color: #ffffff; border: 1px solid #e2e8f0; color: #1e293b; }
+    body.theme-dark .modal-box { background-color: #0f172a; border: 1px solid #1e293b; color: #f8fafc; }
+    body.theme-dark .modal-input { background-color: #1e293b; border: 1px solid #334155; color: #f8fafc; }
+    body.theme-black .modal-box { background-color: #09090b; border: 1px solid #27272a; color: #ffffff; }
+    body.theme-black .modal-input { background-color: #18181b; border: 1px solid #3f3f46; color: #ffffff; }
 
-    body.theme-black .sidebar-item.active {
-      background-color: #18181b !important;
-      color: #ffffff !important;
-      border: 1px solid #3f3f46;
-    }
-    body.theme-black .sidebar-item.active i {
-      color: #a5b4fc !important;
-    }
+    /* LIGHT THEME */
+    body.theme-light { background-color: #fafaf9; color: #1e293b; }
+    body.theme-light #board-viewport { background-color: #0b1120; background-image: radial-gradient(circle, #334155 1.25px, transparent 1.25px); background-size: 26px 26px; }
+    body.theme-light #sidebar { background-color: #ffffff; border-color: #e2e8f0; }
+    body.theme-light .glass-panel { background: rgba(255, 255, 255, 0.94); backdrop-filter: blur(12px); border: 1px solid rgba(226, 232, 240, 0.9); box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.08); color: #334155; }
+    body.theme-light .node::before { background-color: var(--node-bg, #0b1120); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }
+    body.theme-light .edge-line { stroke: #52525b; }
 
-    .modal-box {
-      transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-    }
-    body.theme-light .modal-box {
-      background-color: #ffffff;
-      border: 1px solid #f1f5f9;
-      color: #1e293b;
-    }
-    body.theme-light .modal-input {
-      background-color: #ffffff;
-      border: 1px solid #e2e8f0;
-      color: #1e293b;
-    }
-    body.theme-light .modal-dropdown-menu {
-      background-color: #ffffff;
-      border: 1px solid #e2e8f0;
-    }
-    body.theme-light .modal-dropdown-item:hover {
-      background-color: #f1f5f9;
-    }
-    body.theme-light .modal-label {
-      color: #475569;
-    }
-    body.theme-light .modal-btn-cancel {
-      color: #475569;
-    }
-    body.theme-light .modal-btn-cancel:hover {
-      background-color: #f1f5f9;
-    }
-
-    body.theme-dark .modal-box {
-      background-color: #0f172a;
-      border: 1px solid #1e293b;
-      color: #f8fafc;
-      box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.7);
-    }
-    body.theme-dark .modal-input {
-      background-color: #1e293b;
-      border: 1px solid #334155;
-      color: #f8fafc;
-    }
-    body.theme-dark .modal-dropdown-menu {
-      background-color: #0f172a;
-      border: 1px solid #334155;
-      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.6);
-    }
-    body.theme-dark .modal-dropdown-item:hover {
-      background-color: #1e293b;
-    }
-    body.theme-dark .modal-label {
-      color: #94a3b8;
-    }
-    body.theme-dark .modal-btn-cancel {
-      color: #94a3b8;
-    }
-    body.theme-dark .modal-btn-cancel:hover {
-      background-color: #1e293b;
-      color: #f8fafc;
-    }
-
-    body.theme-black .modal-box {
-      background-color: #09090b;
-      border: 1px solid #27272a;
-      color: #ffffff;
-      box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.95);
-    }
-    body.theme-black .modal-input {
-      background-color: #18181b;
-      border: 1px solid #3f3f46;
-      color: #ffffff;
-    }
-    body.theme-black .modal-dropdown-menu {
-      background-color: #09090b;
-      border: 1px solid #3f3f46;
-      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.9);
-    }
-    body.theme-black .modal-dropdown-item:hover {
-      background-color: #18181b;
-    }
-    body.theme-black .modal-label {
-      color: #a1a1aa;
-    }
-    body.theme-black .modal-btn-cancel {
-      color: #a1a1aa;
-    }
-    body.theme-black .modal-btn-cancel:hover {
-      background-color: #18181b;
-      color: #ffffff;
-    }
-
-    body.theme-light .hierarchy-surface {
-      background-color: #ffffff;
-      border-color: #e2e8f0;
-      color: #1e293b;
-    }
-    body.theme-light .hierarchy-btn-secondary {
-      border-color: #e2e8f0;
-      color: #475569;
-    }
-    body.theme-light .hierarchy-btn-secondary:hover {
-      background-color: #f8fafc;
-    }
-
-    body.theme-dark .hierarchy-surface {
-      background-color: #0f172a;
-      border-color: #1e293b;
-      color: #f8fafc;
-    }
-    body.theme-dark .hierarchy-btn-secondary {
-      border-color: #334155;
-      color: #cbd5e1;
-    }
-    body.theme-dark .hierarchy-btn-secondary:hover {
-      background-color: #1e293b;
-    }
-
-    body.theme-black .hierarchy-surface {
-      background-color: #09090b;
-      border-color: #27272a;
-      color: #ffffff;
-    }
-    body.theme-black .hierarchy-btn-secondary {
-      border-color: #3f3f46;
-      color: #e4e4e7;
-    }
-    body.theme-black .hierarchy-btn-secondary:hover {
-      background-color: #18181b;
-    }
-
-    /* 1. LIGHT THEME (Default) */
-    body.theme-light {
-      background-color: #fafaf9;
-      color: #1e293b;
-    }
-    body.theme-light #board-viewport {
-      background-color: #fbfbfa;
-      background-image: radial-gradient(circle, #cbd5e1 1.25px, transparent 1.25px);
-      background-size: 26px 26px;
-    }
-    body.theme-light #sidebar {
-      background-color: #ffffff;
-      border-color: #e2e8f0;
-    }
-    body.theme-light .glass-panel {
-      background: rgba(255, 255, 255, 0.94);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(226, 232, 240, 0.9);
-      box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.08);
-      color: #334155;
-    }
-    body.theme-light .node::before {
-      background-color: var(--node-bg, #ffffff);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03);
-    }
-    body.theme-light .node-red::before { border-color: #dc2626; } body.theme-light .node-red { color: #991b1b; }
-    body.theme-light .node-orange::before { border-color: #ea580c; } body.theme-light .node-orange { color: #9a3412; }
-    body.theme-light .node-amber::before { border-color: #d97706; } body.theme-light .node-amber { color: #92400e; }
-    body.theme-light .node-yellow::before { border-color: #ca8a04; } body.theme-light .node-yellow { color: #854d0e; }
-    body.theme-light .node-lime::before { border-color: #65a30d; } body.theme-light .node-lime { color: #3f6212; }
-    body.theme-light .node-green::before { border-color: #16a34a; } body.theme-light .node-green { color: #166534; }
-    body.theme-light .node-emerald::before { border-color: #059669; } body.theme-light .node-emerald { color: #065f46; }
-    body.theme-light .node-teal::before { border-color: #0d9488; } body.theme-light .node-teal { color: #115e59; }
-    body.theme-light .node-cyan::before { border-color: #0891b2; } body.theme-light .node-cyan { color: #155e75; }
-    body.theme-light .node-blue::before { border-color: #2563eb; } body.theme-light .node-blue { color: #1e40af; }
-    body.theme-light .node-indigo::before { border-color: #4f46e5; } body.theme-light .node-indigo { color: #3730a3; }
-    body.theme-light .node-violet::before { border-color: #7c3aed; } body.theme-light .node-violet { color: #5b21b6; }
-    body.theme-light .node-purple::before { border-color: #9333ea; } body.theme-light .node-purple { color: #6b21a8; }
-    body.theme-light .node-pink::before { border-color: #db2777; } body.theme-light .node-pink { color: #9d174d; }
-    body.theme-light .node-gray::before { border-color: #475569; } body.theme-light .node-gray { color: #1e293b; }
-
-    body.theme-light .node-polygon-bg polygon { fill: var(--node-bg, #ffffff); }
-    body.theme-light .node-red .node-polygon-bg polygon { stroke: #dc2626; }
-    body.theme-light .node-orange .node-polygon-bg polygon { stroke: #ea580c; }
-    body.theme-light .node-amber .node-polygon-bg polygon { stroke: #d97706; }
-    body.theme-light .node-yellow .node-polygon-bg polygon { stroke: #ca8a04; }
-    body.theme-light .node-lime .node-polygon-bg polygon { stroke: #65a30d; }
-    body.theme-light .node-green .node-polygon-bg polygon { stroke: #16a34a; }
-    body.theme-light .node-emerald .node-polygon-bg polygon { stroke: #059669; }
-    body.theme-light .node-teal .node-polygon-bg polygon { stroke: #0d9488; }
-    body.theme-light .node-cyan .node-polygon-bg polygon { stroke: #0891b2; }
-    body.theme-light .node-blue .node-polygon-bg polygon { stroke: #2563eb; }
-    body.theme-light .node-indigo .node-polygon-bg polygon { stroke: #4f46e5; }
-    body.theme-light .node-violet .node-polygon-bg polygon { stroke: #7c3aed; }
-    body.theme-light .node-purple .node-polygon-bg polygon { stroke: #9333ea; }
-    body.theme-light .node-pink .node-polygon-bg polygon { stroke: #db2777; }
-    body.theme-light .node-gray .node-polygon-bg polygon { stroke: #475569; }
-
-    body.theme-light .edge-line { stroke: #64748b; }
-    body.theme-light .node-action-btn { background: #ffffff; border-color: #cbd5e1; color: #475569; }
-    body.theme-light .node-resize-handle { color: #64748b; }
-    body.theme-light .btn-edit-node { color: #3b82f6; }
-    body.theme-light .btn-delete-node-quick { color: #ef4444; }
-    body.theme-light #node-inline-editor { background: #ffffff; }
-    body.theme-light #node-inline-textarea { background: #f8fafc; border: 1px solid #e2e8f0; color: #1e293b; }
-    body.theme-light .tree-mobile-menu {
-      background-color: #ffffff;
-      border-color: #e2e8f0;
-      box-shadow: 0 12px 32px rgba(0,0,0,0.12);
-    }
-
-    /* 2. DARK THEME */
-    body.theme-dark {
-      background-color: #0f172a;
-      color: #f1f5f9;
-    }
-    body.theme-dark #board-viewport {
-      background-color: #0b1120;
-      background-image: radial-gradient(circle, #334155 1.25px, transparent 1.25px);
-      background-size: 26px 26px;
-    }
-    body.theme-dark #sidebar {
-      background-color: #0f172a;
-      border-color: #1e293b;
-    }
-    body.theme-dark #sidebar .sidebar-header {
-      border-color: #1e293b;
-    }
-    body.theme-dark #sidebar .sidebar-label {
-      color: #f8fafc;
-    }
-    body.theme-dark #sidebar .sidebar-item {
-      color: #94a3b8;
-    }
-    body.theme-dark #sidebar .sidebar-item:hover {
-      background-color: #1e293b;
-      color: #f8fafc;
-    }
-    body.theme-dark .glass-panel {
-      background: rgba(15, 23, 42, 0.92);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border: 1px solid rgba(51, 65, 85, 0.8);
-      box-shadow: 0 14px 34px -4px rgba(0, 0, 0, 0.6);
-      color: #e2e8f0;
-    }
-    body.theme-dark .glass-panel button {
-      color: #cbd5e1;
-    }
-    body.theme-dark .glass-panel button:hover {
-      background-color: #1e293b;
-      color: #ffffff;
-    }
-    body.theme-dark .node::before {
-      background-color: var(--node-bg, #1e293b);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
-    }
-    body.theme-dark .node-red::before { border-color: #ef4444; } body.theme-dark .node-red { color: #fca5a5; }
-    body.theme-dark .node-orange::before { border-color: #f97316; } body.theme-dark .node-orange { color: #fdba74; }
-    body.theme-dark .node-amber::before { border-color: #f59e0b; } body.theme-dark .node-amber { color: #fcd34d; }
-    body.theme-dark .node-yellow::before { border-color: #eab308; } body.theme-dark .node-yellow { color: #fef08a; }
-    body.theme-dark .node-lime::before { border-color: #84cc16; } body.theme-dark .node-lime { color: #bef264; }
-    body.theme-dark .node-green::before { border-color: #22c55e; } body.theme-dark .node-green { color: #86efac; }
-    body.theme-dark .node-emerald::before { border-color: #10b981; } body.theme-dark .node-emerald { color: #6ee7b7; }
-    body.theme-dark .node-teal::before { border-color: #14b8a6; } body.theme-dark .node-teal { color: #5eead4; }
-    body.theme-dark .node-cyan::before { border-color: #06b6d4; } body.theme-dark .node-cyan { color: #67e8f9; }
-    body.theme-dark .node-blue::before { border-color: #3b82f6; } body.theme-dark .node-blue { color: #93c5fd; }
-    body.theme-dark .node-indigo::before { border-color: #6366f1; } body.theme-dark .node-indigo { color: #a5b4fc; }
-    body.theme-dark .node-violet::before { border-color: #8b5cf6; } body.theme-dark .node-violet { color: #c4b5fd; }
-    body.theme-dark .node-purple::before { border-color: #a855f7; } body.theme-dark .node-purple { color: #d8b4fe; }
-    body.theme-dark .node-pink::before { border-color: #ec4899; } body.theme-dark .node-pink { color: #f472b6; }
-    body.theme-dark .node-gray::before { border-color: #64748b; } body.theme-dark .node-gray { color: #cbd5e1; }
-
-    body.theme-dark .node-polygon-bg polygon { fill: var(--node-bg, #1e293b); }
-    body.theme-dark .node-red .node-polygon-bg polygon { stroke: #ef4444; }
-    body.theme-dark .node-orange .node-polygon-bg polygon { stroke: #f97316; }
-    body.theme-dark .node-amber .node-polygon-bg polygon { stroke: #f59e0b; }
-    body.theme-dark .node-yellow .node-polygon-bg polygon { stroke: #eab308; }
-    body.theme-dark .node-lime .node-polygon-bg polygon { stroke: #84cc16; }
-    body.theme-dark .node-green .node-polygon-bg polygon { stroke: #22c55e; }
-    body.theme-dark .node-emerald .node-polygon-bg polygon { stroke: #10b981; }
-    body.theme-dark .node-teal .node-polygon-bg polygon { stroke: #14b8a6; }
-    body.theme-dark .node-cyan .node-polygon-bg polygon { stroke: #06b6d4; }
-    body.theme-dark .node-blue .node-polygon-bg polygon { stroke: #3b82f6; }
-    body.theme-dark .node-indigo .node-polygon-bg polygon { stroke: #6366f1; }
-    body.theme-dark .node-violet .node-polygon-bg polygon { stroke: #8b5cf6; }
-    body.theme-dark .node-purple .node-polygon-bg polygon { stroke: #a855f7; }
-    body.theme-dark .node-pink .node-polygon-bg polygon { stroke: #ec4899; }
-    body.theme-dark .node-gray .node-polygon-bg polygon { stroke: #64748b; }
-
+    /* DARK THEME */
+    body.theme-dark { background-color: #0f172a; color: #f1f5f9; }
+    body.theme-dark #board-viewport { background-color: #0b1120; background-image: radial-gradient(circle, #334155 1.25px, transparent 1.25px); background-size: 26px 26px; }
+    body.theme-dark #sidebar { background-color: #0f172a; border-color: #1e293b; }
+    body.theme-dark .glass-panel { background: rgba(15, 23, 42, 0.92); backdrop-filter: blur(14px); border: 1px solid rgba(51, 65, 85, 0.8); color: #e2e8f0; }
+    body.theme-dark .node::before { background-color: var(--node-bg, #1e293b); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4); }
     body.theme-dark .edge-line { stroke: #475569; }
-    body.theme-dark .node-action-btn { background: #0f172a; border-color: #334155; color: #94a3b8; }
-    body.theme-dark .node-resize-handle { color: #94a3b8; }
-    body.theme-dark .btn-edit-node { color: #60a5fa; }
-    body.theme-dark .btn-delete-node-quick { color: #f87171; }
-    body.theme-dark #node-inline-editor { background: #0f172a; border: 1px solid #334155; }
-    body.theme-dark #node-inline-textarea { background: #1e293b; border: 1px solid #334155; color: #f8fafc; }
-    body.theme-dark #page-hierarchy { background-color: #0b1120; }
-    body.theme-dark #page-hierarchy h1 { color: #f8fafc; }
-    body.theme-dark #page-hierarchy .tree-branch-line { border-left-color: #334155; }
-    body.theme-dark .tree-mobile-menu {
-      background-color: #0f172a;
-      border-color: #334155;
-      box-shadow: 0 14px 34px rgba(0,0,0,0.6);
-      color: #f8fafc;
-    }
 
-    /* 3. ABSOLUTE BLACK THEME */
-    body.theme-black {
-      background-color: #000000;
-      color: #ffffff;
-    }
-    body.theme-black #board-viewport {
-      background-color: #000000;
-      background-image: radial-gradient(circle, #27272a 1.25px, transparent 1.25px);
-      background-size: 26px 26px;
-    }
-    body.theme-black #sidebar {
-      background-color: #000000;
-      border-color: #27272a;
-    }
-    body.theme-black #sidebar .sidebar-header {
-      border-color: #27272a;
-    }
-    body.theme-black #sidebar .sidebar-label {
-      color: #ffffff;
-    }
-    body.theme-black #sidebar .sidebar-item {
-      color: #a1a1aa;
-    }
-    body.theme-black #sidebar .sidebar-item:hover {
-      background-color: #18181b;
-      color: #ffffff;
-    }
-    body.theme-black .glass-panel {
-      background: rgba(10, 10, 10, 0.95);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border: 1px solid #27272a;
-      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.9);
-      color: #f4f4f5;
-    }
-    body.theme-black .glass-panel button {
-      color: #d4d4d8;
-    }
-    body.theme-black .glass-panel button:hover {
-      background-color: #27272a;
-      color: #ffffff;
-    }
-    body.theme-black .node::before {
-      background-color: var(--node-bg, #09090b);
-      box-shadow: 0 0 16px rgba(0, 0, 0, 0.8);
-    }
-    body.theme-black .node-red::before { border-color: #f87171; } body.theme-black .node-red { color: #fca5a5; }
-    body.theme-black .node-orange::before { border-color: #fb923c; } body.theme-black .node-orange { color: #fdba74; }
-    body.theme-black .node-amber::before { border-color: #fbbf24; } body.theme-black .node-amber { color: #fcd34d; }
-    body.theme-black .node-yellow::before { border-color: #facc15; } body.theme-black .node-yellow { color: #fef08a; }
-    body.theme-black .node-lime::before { border-color: #a3e635; } body.theme-black .node-lime { color: #bef264; }
-    body.theme-black .node-green::before { border-color: #4ade80; } body.theme-black .node-green { color: #86efac; }
-    body.theme-black .node-emerald::before { border-color: #34d399; } body.theme-black .node-emerald { color: #6ee7b7; }
-    body.theme-black .node-teal::before { border-color: #2dd4bf; } body.theme-black .node-teal { color: #5eead4; }
-    body.theme-black .node-cyan::before { border-color: #22d3ee; } body.theme-black .node-cyan { color: #67e8f9; }
-    body.theme-black .node-blue::before { border-color: #60a5fa; } body.theme-black .node-blue { color: #93c5fd; }
-    body.theme-black .node-indigo::before { border-color: #818cf8; } body.theme-black .node-indigo { color: #a5b4fc; }
-    body.theme-black .node-violet::before { border-color: #a78bfa; } body.theme-black .node-violet { color: #c4b5fd; }
-    body.theme-black .node-purple::before { border-color: #c084fc; } body.theme-black .node-purple { color: #e9d5ff; }
-    body.theme-black .node-pink::before { border-color: #f472b6; } body.theme-black .node-pink { color: #fbcfe8; }
-    body.theme-black .node-gray::before { border-color: #a1a1aa; } body.theme-black .node-gray { color: #e4e4e7; }
-
-    body.theme-black .node-polygon-bg polygon { fill: var(--node-bg, #09090b); }
-    body.theme-black .node-red .node-polygon-bg polygon { stroke: #f87171; }
-    body.theme-black .node-orange .node-polygon-bg polygon { stroke: #fb923c; }
-    body.theme-black .node-amber .node-polygon-bg polygon { stroke: #fbbf24; }
-    body.theme-black .node-yellow .node-polygon-bg polygon { stroke: #facc15; }
-    body.theme-black .node-lime .node-polygon-bg polygon { stroke: #a3e635; }
-    body.theme-black .node-green .node-polygon-bg polygon { stroke: #4ade80; }
-    body.theme-black .node-emerald .node-polygon-bg polygon { stroke: #34d399; }
-    body.theme-black .node-teal .node-polygon-bg polygon { stroke: #2dd4bf; }
-    body.theme-black .node-cyan .node-polygon-bg polygon { stroke: #22d3ee; }
-    body.theme-black .node-blue .node-polygon-bg polygon { stroke: #60a5fa; }
-    body.theme-black .node-indigo .node-polygon-bg polygon { stroke: #818cf8; }
-    body.theme-black .node-violet .node-polygon-bg polygon { stroke: #a78bfa; }
-    body.theme-black .node-purple .node-polygon-bg polygon { stroke: #c084fc; }
-    body.theme-black .node-pink .node-polygon-bg polygon { stroke: #f472b6; }
-    body.theme-black .node-gray .node-polygon-bg polygon { stroke: #a1a1aa; }
-
-    body.theme-black .edge-line { stroke: #52525b; stroke-width: 2.75px; }
-    body.theme-black .node-action-btn { background: #000000; border-color: #3f3f46; color: #d4d4d8; }
-    body.theme-black .node-resize-handle { color: #a1a1aa; }
-    body.theme-black .btn-edit-node { color: #93c5fd; }
-    body.theme-black .btn-delete-node-quick { color: #fca5a5; }
-    body.theme-black #node-inline-editor { background: #000000; border: 1px solid #3f3f46; }
-    body.theme-black #node-inline-textarea { background: #18181b; border: 1px solid #3f3f46; color: #ffffff; }
-    body.theme-black .tree-mobile-menu {
-      background-color: #09090b;
-      border-color: #27272a;
-      box-shadow: 0 14px 40px rgba(0,0,0,0.9);
-      color: #ffffff;
-    }
+    /* ABSOLUTE BLACK THEME */
+    body.theme-black { background-color: #000000; color: #ffffff; }
+    body.theme-black #board-viewport { background-color: #000000; background-image: radial-gradient(circle, #27272a 1.25px, transparent 1.25px); background-size: 26px 26px; }
+    body.theme-black #sidebar { background-color: #000000; border-color: #27272a; }
+    body.theme-black .glass-panel { background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(14px); border: 1px solid #27272a; color: #f4f4f5; }
+    body.theme-black .node::before { background-color: var(--node-bg, #09090b); box-shadow: 0 0 16px rgba(0, 0, 0, 0.8); }
+    body.theme-black .edge-line { stroke: #52525b; }
   </style>
 </head>
 <body class="theme-light w-screen h-screen overflow-hidden">
@@ -843,7 +368,6 @@
   </div>
 
   <div id="app-container">
-    
     <aside id="sidebar" class="w-64 h-full bg-white border-r border-slate-200 z-40 flex flex-col justify-between shrink-0 shadow-sm">
       <div class="flex flex-col">
         <div class="h-16 px-4 border-b border-slate-100 flex items-center justify-between sidebar-header">
@@ -864,7 +388,6 @@
             <i class="fa-solid fa-circle-nodes text-base shrink-0"></i>
             <span class="sidebar-label">Canvas View</span>
           </button>
-
           <button id="nav-hierarchy" class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-xs transition-all">
             <i class="fa-solid fa-sitemap text-base shrink-0"></i>
             <span class="sidebar-label">Hierarchy View</span>
@@ -874,9 +397,7 @@
         <div class="px-4 pt-3 pb-1 sidebar-extra">
           <span class="text-[10px] font-bold tracking-wider opacity-50 uppercase">Clusters</span>
         </div>
-
-        <div class="px-3 flex flex-col gap-1 sidebar-extra max-h-56 overflow-y-auto no-scrollbar" id="sidebar-cluster-list">
-        </div>
+        <div class="px-3 flex flex-col gap-1 sidebar-extra max-h-56 overflow-y-auto no-scrollbar" id="sidebar-cluster-list"></div>
       </div>
 
       <div class="flex flex-col">
@@ -884,7 +405,6 @@
           <span class="sidebar-label tracking-wider uppercase">Version</span>
           <span class="mx-auto sidebar-extra font-semibold">v0.96</span>
         </div>
-
         <div class="p-3 border-t border-slate-200/50 flex flex-col gap-2">
           <div class="sidebar-item flex items-center justify-between px-2.5 py-1.5 rounded-xl bg-slate-500/10 border border-slate-500/20">
             <div class="flex items-center gap-2 overflow-hidden">
@@ -902,7 +422,6 @@
     </aside>
 
     <main id="main-content">
-      
       <section id="page-canvas" class="app-page">
         <header class="absolute top-2 sm:top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1 sm:gap-1.5 p-1.5 rounded-2xl glass-panel w-max max-w-[94vw] overflow-x-auto no-scrollbar shadow-md">
           <div class="flex items-center px-2 sm:px-3 py-1 font-bold text-xs sm:text-sm tracking-tight border-r border-slate-500/30 shrink-0">
@@ -911,18 +430,13 @@
           </div>
 
           <button id="btn-select-mode" title="Select & Reposition (V)" class="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-xl transition-all shrink-0">
-            <i class="fa-solid fa-arrow-pointer"></i>
-            <span class="hidden md:inline">Select</span>
+            <i class="fa-solid fa-arrow-pointer"></i><span class="hidden md:inline">Select</span>
           </button>
-
           <button id="btn-connect-mode" title="Connect Nodes (C)" class="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-xl transition-all shrink-0">
-            <i class="fa-solid fa-share-nodes"></i>
-            <span class="hidden md:inline">Connect</span>
+            <i class="fa-solid fa-share-nodes"></i><span class="hidden md:inline">Connect</span>
           </button>
-
           <button id="btn-pan-mode" title="Pan Canvas (H / Spacebar)" class="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-xl transition-all bg-indigo-600 text-white shadow-sm shrink-0">
-            <i class="fa-solid fa-hand"></i>
-            <span class="hidden md:inline">Pan</span>
+            <i class="fa-solid fa-hand"></i><span class="hidden md:inline">Pan</span>
           </button>
 
           <div class="h-4 sm:h-5 w-px bg-slate-500/30 mx-0.5 sm:mx-1 shrink-0"></div>
@@ -930,7 +444,6 @@
           <button id="btn-undo" title="Undo (Ctrl+Z)" class="flex items-center px-2 sm:px-2.5 py-1.5 text-xs font-semibold rounded-xl transition-all shrink-0 opacity-55 hover:opacity-100 disabled:opacity-20" disabled>
             <i class="fa-solid fa-rotate-left"></i>
           </button>
-
           <button id="btn-redo" title="Redo (Ctrl+Y)" class="flex items-center px-2 sm:px-2.5 py-1.5 text-xs font-semibold rounded-xl transition-all shrink-0 opacity-55 hover:opacity-100 disabled:opacity-20" disabled>
             <i class="fa-solid fa-rotate-right"></i>
           </button>
@@ -938,37 +451,30 @@
           <div class="h-4 sm:h-5 w-px bg-slate-500/30 mx-0.5 sm:mx-1 shrink-0"></div>
 
           <button id="btn-select-all" title="Select Entire Diagram (Ctrl+A)" class="flex items-center gap-1 px-2 sm:px-3 py-1.5 text-xs font-semibold rounded-xl transition-all shrink-0">
-            <i class="fa-solid fa-object-group"></i>
-            <span class="hidden lg:inline">Select All</span>
+            <i class="fa-solid fa-object-group"></i><span class="hidden lg:inline">Select All</span>
           </button>
-
           <button id="btn-open-add-modal" title="Add Node (Shift + Plus)" class="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-emerald-600 bg-emerald-500/10 hover:bg-emerald-500/20 rounded-xl transition-all shrink-0">
-            <i class="fa-solid fa-circle-plus"></i>
-            <span class="hidden sm:inline">Add</span>
+            <i class="fa-solid fa-circle-plus"></i><span class="hidden sm:inline">Add</span>
           </button>
-
           <button id="btn-delete-selected" title="Delete Selected (Del / Backspace)" class="flex items-center gap-1 px-2 sm:px-3 py-1.5 text-xs font-semibold text-rose-500 hover:bg-rose-500/10 rounded-xl transition-all shrink-0">
-            <i class="fa-solid fa-trash-can"></i>
-            <span class="hidden lg:inline">Delete</span>
+            <i class="fa-solid fa-trash-can"></i><span class="hidden lg:inline">Delete</span>
           </button>
 
           <!-- PNG Export Button -->
           <button id="btn-export-png" title="Export to PNG" class="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-indigo-600 bg-indigo-500/10 hover:bg-indigo-500/20 rounded-xl transition-all shrink-0">
-            <i class="fa-solid fa-file-image"></i>
-            <span class="hidden sm:inline">PNG</span>
+            <i class="fa-solid fa-file-image"></i><span class="hidden sm:inline">PNG</span>
           </button>
 
           <button id="btn-reset-default" title="Reset Diagram to Original Template" class="hidden items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-500 hover:bg-amber-500/10 rounded-xl transition-all shrink-0">
             <i class="fa-solid fa-rotate-left"></i> Reset
           </button>
-
           <button id="btn-reset-view" title="Center Diagram" class="flex items-center px-2 sm:px-2.5 py-1.5 text-xs font-semibold rounded-xl transition-all shrink-0">
             <i class="fa-solid fa-compress"></i>
           </button>
 
           <div class="h-4 sm:h-5 w-px bg-slate-500/30 mx-0.5 sm:mx-1 shrink-0"></div>
 
-          <button id="btn-theme-toggle" title="Cycle Theme: Light -> Dark -> Absolute Black" class="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-xl transition-all shrink-0 hover:bg-slate-500/10">
+          <button id="btn-theme-toggle" title="Cycle Theme" class="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-xl transition-all shrink-0 hover:bg-slate-500/10">
             <i id="theme-toggle-icon" class="fa-solid fa-sun text-amber-500 text-sm"></i>
             <span id="theme-toggle-text" class="hidden md:inline font-medium">Light</span>
           </button>
@@ -1028,9 +534,7 @@
                 <span class="text-[10px] font-bold opacity-60 uppercase mt-1">Shape</span>
                 <div class="grid grid-cols-4 gap-1.5" id="inline-shape-pickers"></div>
                 <div class="flex justify-end pt-1">
-                  <button id="btn-inline-save" class="px-3 py-1 bg-indigo-600 text-white rounded-lg text-xs font-semibold hover:bg-indigo-700 shadow-sm">
-                    Done
-                  </button>
+                  <button id="btn-inline-save" class="px-3 py-1 bg-indigo-600 text-white rounded-lg text-xs font-semibold hover:bg-indigo-700 shadow-sm">Done</button>
                 </div>
               </div>
             </div>
@@ -1038,41 +542,22 @@
           <div id="marquee-box"></div>
         </div>
 
-        <div class="hidden sm:flex absolute bottom-5 left-5 z-40 glass-panel px-3.5 py-2 rounded-xl text-xs items-center gap-3">
-          <span class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 bg-slate-500/10 border border-slate-500/30 rounded font-mono text-[10px]">Ctrl + Z / Y</kbd> undo/redo</span>
-          <span class="opacity-40">•</span>
-          <span class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 bg-slate-500/10 border border-slate-500/30 rounded font-mono text-[10px]">Shift + Z + X</kbd> group</span>
-          <span class="opacity-40">•</span>
-          <span class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 bg-slate-500/10 border border-slate-500/30 rounded font-mono text-[10px]">Shift + +</kbd> new node</span>
-          <span class="opacity-40">•</span>
-          <span class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 bg-slate-500/10 border border-slate-500/30 rounded font-mono text-[10px]">Right-click</kbd> add connected</span>
-          <span class="opacity-40">•</span>
-          <span class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 bg-slate-500/10 border border-slate-500/30 rounded font-mono text-[10px]">Double-tap</kbd> edit label</span>
-        </div>
-
         <div class="absolute bottom-4 right-4 sm:bottom-5 sm:right-5 z-40 glass-panel rounded-2xl flex items-center p-1 sm:p-1.5 gap-1">
-          <button id="btn-zoom-out" class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-xl hover:bg-slate-500/10 transition-colors active:scale-95">
-            <i class="fa-solid fa-minus text-xs"></i>
-          </button>
+          <button id="btn-zoom-out" class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-xl hover:bg-slate-500/10 transition-colors active:scale-95"><i class="fa-solid fa-minus text-xs"></i></button>
           <span id="zoom-level-text" class="text-[11px] sm:text-xs font-semibold px-1 min-w-[38px] text-center">100%</span>
-          <button id="btn-zoom-in" class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-xl hover:bg-slate-500/10 transition-colors active:scale-95">
-            <i class="fa-solid fa-plus text-xs"></i>
-          </button>
+          <button id="btn-zoom-in" class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-xl hover:bg-slate-500/10 transition-colors active:scale-95"><i class="fa-solid fa-plus text-xs"></i></button>
           <div class="h-4 w-px bg-slate-500/30 mx-0.5"></div>
-          <button id="btn-center-diagram" title="Center Diagram" class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-xl hover:bg-slate-500/10 transition-colors active:scale-95">
-            <i class="fa-solid fa-crosshairs text-xs"></i>
-          </button>
+          <button id="btn-center-diagram" title="Center Diagram" class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-xl hover:bg-slate-500/10 transition-colors active:scale-95"><i class="fa-solid fa-crosshairs text-xs"></i></button>
         </div>
       </section>
 
       <section id="page-hierarchy" class="app-page hidden overflow-y-auto p-4 sm:p-8">
         <div class="fixed top-4 right-4 sm:top-6 sm:right-8 z-50">
-          <button id="btn-hierarchy-theme-toggle" title="Cycle Theme: Light -> Dark -> Absolute Black" class="glass-panel flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-2xl shadow-md transition-all hover:scale-105 active:scale-95">
+          <button id="btn-hierarchy-theme-toggle" title="Cycle Theme" class="glass-panel flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-2xl shadow-md transition-all hover:scale-105 active:scale-95">
             <i id="hierarchy-theme-toggle-icon" class="fa-solid fa-sun text-amber-500 text-sm"></i>
             <span id="hierarchy-theme-toggle-text" class="font-medium">Light</span>
           </button>
         </div>
-
         <div class="max-w-4xl mx-auto flex flex-col gap-6 pb-20 pt-10 sm:pt-4">
           <div class="hierarchy-surface flex flex-col sm:flex-row sm:items-center justify-between gap-4 border p-6 rounded-2xl shadow-sm transition-colors">
             <div>
@@ -1080,26 +565,15 @@
               <p class="text-xs opacity-60 mt-1">Direct representation of graph nodes and clusters dynamically linked with the canvas.</p>
             </div>
             <div class="flex items-center gap-2 flex-wrap">
-              <button id="btn-hierarchy-add-root" class="px-3 py-1.5 text-xs font-semibold text-emerald-600 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-xl transition-all flex items-center gap-1.5">
-                <i class="fa-solid fa-circle-plus"></i> Add Item
-              </button>
-              <button id="btn-hierarchy-export-pdf" class="px-3 py-1.5 text-xs font-semibold text-indigo-600 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 rounded-xl transition-all flex items-center gap-1.5">
-                <i class="fa-solid fa-file-pdf"></i> Export PDF
-              </button>
-              <button id="btn-collapse-all-tree" class="hierarchy-btn-secondary px-3 py-1.5 text-xs font-semibold border rounded-xl transition-all">
-                <i class="fa-solid fa-angles-up mr-1"></i> Collapse All
-              </button>
-              <button id="btn-expand-all-tree" class="px-3 py-1.5 text-xs font-semibold text-indigo-600 border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 rounded-xl transition-all">
-                <i class="fa-solid fa-angles-down mr-1"></i> Expand All
-              </button>
+              <button id="btn-hierarchy-add-root" class="px-3 py-1.5 text-xs font-semibold text-emerald-600 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-xl transition-all flex items-center gap-1.5"><i class="fa-solid fa-circle-plus"></i> Add Item</button>
+              <button id="btn-hierarchy-export-pdf" class="px-3 py-1.5 text-xs font-semibold text-indigo-600 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 rounded-xl transition-all flex items-center gap-1.5"><i class="fa-solid fa-file-pdf"></i> Export PDF</button>
+              <button id="btn-collapse-all-tree" class="hierarchy-btn-secondary px-3 py-1.5 text-xs font-semibold border rounded-xl transition-all"><i class="fa-solid fa-angles-up mr-1"></i> Collapse All</button>
+              <button id="btn-expand-all-tree" class="px-3 py-1.5 text-xs font-semibold text-indigo-600 border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 rounded-xl transition-all"><i class="fa-solid fa-angles-down mr-1"></i> Expand All</button>
             </div>
           </div>
-
-          <div id="tree-container" class="hierarchy-surface border p-6 sm:p-8 rounded-2xl shadow-sm flex flex-col gap-4 transition-colors">
-          </div>
+          <div id="tree-container" class="hierarchy-surface border p-6 sm:p-8 rounded-2xl shadow-sm flex flex-col gap-4 transition-colors"></div>
         </div>
       </section>
-
     </main>
   </div>
 
@@ -1107,41 +581,31 @@
     <div class="modal-box rounded-2xl p-5 sm:p-6 w-full max-w-sm flex flex-col gap-4 max-h-[90vh] overflow-y-auto no-scrollbar">
       <div class="flex items-center justify-between">
         <h3 id="add-modal-title" class="font-bold text-base">Create New Node</h3>
-        <button id="btn-close-modal" class="opacity-60 hover:opacity-100 p-1 transition-opacity">
-          <i class="fa-solid fa-xmark text-lg"></i>
-        </button>
+        <button id="btn-close-modal" class="opacity-60 hover:opacity-100 p-1 transition-opacity"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
-
       <div class="flex flex-col gap-1.5">
         <label class="modal-label text-xs font-semibold">Parent Item</label>
         <div id="parent-dropdown-container" class="relative w-full">
           <button type="button" id="parent-dropdown-btn" class="modal-input w-full flex items-center justify-between rounded-xl p-2 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all">
-            <span id="parent-dropdown-selected" class="flex items-center gap-1.5">
-              <span class="opacity-60 font-medium px-2 py-0.5">None (Root Node)</span>
-            </span>
+            <span id="parent-dropdown-selected" class="flex items-center gap-1.5"><span class="opacity-60 font-medium px-2 py-0.5">None (Root Node)</span></span>
             <i class="fa-solid fa-chevron-down text-[11px] opacity-50 mr-1 transition-transform"></i>
           </button>
-          
           <div id="parent-dropdown-menu" class="modal-dropdown-menu hidden absolute top-full left-0 right-0 mt-1 max-h-64 overflow-hidden rounded-xl z-50 p-2 flex flex-col gap-1.5 shadow-xl">
             <div class="relative w-full">
               <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-[11px] opacity-40"></i>
               <input type="text" id="parent-search-input" placeholder="Search parents..." class="modal-input w-full rounded-lg pl-8 pr-2.5 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500" />
             </div>
-            <div id="parent-dropdown-items" class="max-h-48 overflow-y-auto no-scrollbar flex flex-col gap-1">
-            </div>
+            <div id="parent-dropdown-items" class="max-h-48 overflow-y-auto no-scrollbar flex flex-col gap-1"></div>
           </div>
         </div>
       </div>
-
       <div class="flex flex-col gap-1.5">
         <div class="flex items-center justify-between">
           <label class="modal-label text-xs font-semibold">Node Label</label>
           <div class="flex items-center gap-1.5 border border-slate-500/20 rounded-lg p-1 bg-slate-500/5">
-            <div class="flex items-center gap-0.5">
-              <button type="button" id="btn-modal-bold" class="w-5 h-5 rounded hover:bg-slate-500/20 flex items-center justify-center font-bold text-[11px]" title="Bold">B</button>
-              <button type="button" id="btn-modal-italic" class="w-5 h-5 rounded hover:bg-slate-500/20 flex items-center justify-center italic text-[11px]" title="Italic">I</button>
-              <button type="button" id="btn-modal-underline" class="w-5 h-5 rounded hover:bg-slate-500/20 flex items-center justify-center underline text-[11px]" title="Underline">U</button>
-            </div>
+            <button type="button" id="btn-modal-bold" class="w-5 h-5 rounded hover:bg-slate-500/20 flex items-center justify-center font-bold text-[11px]" title="Bold">B</button>
+            <button type="button" id="btn-modal-italic" class="w-5 h-5 rounded hover:bg-slate-500/20 flex items-center justify-center italic text-[11px]" title="Italic">I</button>
+            <button type="button" id="btn-modal-underline" class="w-5 h-5 rounded hover:bg-slate-500/20 flex items-center justify-center underline text-[11px]" title="Underline">U</button>
             <div class="h-3.5 w-px bg-slate-500/20"></div>
             <select id="select-modal-fontsize" class="text-[10px] font-medium bg-transparent border border-slate-500/30 rounded px-1 py-0.5 focus:outline-none">
               <option value="" class="bg-slate-800 text-white">Size</option>
@@ -1154,35 +618,26 @@
         </div>
         <textarea id="node-label-input" rows="2" class="modal-input w-full rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="e.g. Solution Architect"></textarea>
       </div>
-
       <div class="flex flex-col gap-1.5">
         <label class="modal-label text-xs font-semibold">Link URL (Optional)</label>
         <input type="url" id="node-modal-url" placeholder="https://example.com" class="modal-input w-full rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500" />
       </div>
-
       <div class="flex flex-col gap-1.5">
         <label class="modal-label text-xs font-semibold">Link Caption (Optional)</label>
         <input type="text" id="node-modal-caption" placeholder="Display label..." class="modal-input w-full rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500" />
       </div>
-
       <div class="flex flex-col gap-1.5">
-        <label class="modal-label text-xs font-semibold">Category Color (15 Choices)</label>
-        <div class="grid grid-cols-5 gap-1.5" id="color-options">
-        </div>
+        <label class="modal-label text-xs font-semibold">Category Color</label>
+        <div class="grid grid-cols-5 gap-1.5" id="color-options"></div>
       </div>
-
       <div class="flex flex-col gap-1.5">
         <label class="modal-label text-xs font-semibold">Background Color (Pastel)</label>
-        <div class="grid grid-cols-5 gap-1.5" id="bg-color-options">
-        </div>
+        <div class="grid grid-cols-5 gap-1.5" id="bg-color-options"></div>
       </div>
-
       <div class="flex flex-col gap-1.5">
-        <label class="modal-label text-xs font-semibold">Node Shape (8 Variations)</label>
-        <div class="grid grid-cols-4 gap-1.5" id="shape-options">
-        </div>
+        <label class="modal-label text-xs font-semibold">Node Shape</label>
+        <div class="grid grid-cols-4 gap-1.5" id="shape-options"></div>
       </div>
-
       <div class="flex justify-end gap-2 pt-2">
         <button id="btn-cancel-modal" class="modal-btn-cancel px-4 py-2 text-xs font-semibold rounded-xl transition-colors">Cancel</button>
         <button id="btn-confirm-add" class="px-5 py-2 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow">Create Node</button>
@@ -1190,31 +645,19 @@
     </div>
   </div>
 
-  <div id="toast" class="fixed top-16 sm:top-20 left-1/2 -translate-x-1/2 z-50 glass-panel border border-slate-500/30 text-xs px-4 py-2 rounded-xl shadow-lg transition-opacity duration-300 opacity-0 pointer-events-none text-center whitespace-nowrap">
-    Notice
-  </div>
-
-  <div id="cluster-color-popover" class="fixed z-[150] hidden glass-panel border border-slate-500/30 p-2 rounded-2xl shadow-2xl grid grid-cols-5 gap-1.5 w-max max-w-[200px]">
-  </div>
+  <div id="toast" class="fixed top-16 sm:top-20 left-1/2 -translate-x-1/2 z-50 glass-panel border border-slate-500/30 text-xs px-4 py-2 rounded-xl shadow-lg transition-opacity duration-300 opacity-0 pointer-events-none text-center whitespace-nowrap">Notice</div>
+  <div id="cluster-color-popover" class="fixed z-[150] hidden glass-panel border border-slate-500/30 p-2 rounded-2xl shadow-2xl grid grid-cols-5 gap-1.5 w-max max-w-[200px]"></div>
 
   <div id="auth-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[100] flex items-center justify-center p-4 hidden">
     <div class="modal-box rounded-2xl p-6 sm:p-7 w-full max-w-sm shadow-2xl flex flex-col gap-4">
-      <div class="flex items-center gap-2">
-        <i class="fa-solid fa-lock text-indigo-600 text-lg"></i>
-        <h3 class="font-bold text-base">Authorized Sign In</h3>
-      </div>
+      <div class="flex items-center gap-2"><i class="fa-solid fa-lock text-indigo-600 text-lg"></i><h3 class="font-bold text-base">Authorized Sign In</h3></div>
       <p class="text-xs opacity-60">Sign in with an authorized account to access and edit the whiteboard.</p>
-      
       <div class="flex flex-col gap-2.5">
         <input type="email" id="login-email" placeholder="Email" autocomplete="username" class="modal-input w-full rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
         <input type="password" id="login-password" placeholder="Password" autocomplete="current-password" class="modal-input w-full rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
       </div>
-
       <p id="auth-error-msg" class="text-xs text-rose-600 hidden font-medium"></p>
-
-      <button id="btn-login-submit" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow transition-all">
-        Sign In
-      </button>
+      <button id="btn-login-submit" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow transition-all">Sign In</button>
     </div>
   </div>
 
@@ -1237,10 +680,7 @@
       { key: 'gray', name: 'Gray', hex: '#64748b', dotClass: 'bg-slate-500' }
     ];
 
-    const COLOR_HEX_MAP = PALETTE_15.reduce((acc, c) => {
-      acc[c.key] = c.hex;
-      return acc;
-    }, {});
+    const COLOR_HEX_MAP = PALETTE_15.reduce((acc, c) => { acc[c.key] = c.hex; return acc; }, {});
 
     const SHAPES_8 = [
       { key: 'pill', name: 'Pill', icon: 'fa-capsules' },
@@ -1392,17 +832,10 @@
     const MAX_HISTORY = 10;
 
     function pushHistory() {
-      const snapshot = JSON.stringify({
-        nodes: state.nodes,
-        edges: state.edges
-      });
-      if (historyStack.length > 0 && historyStack[historyStack.length - 1] === snapshot) {
-        return;
-      }
+      const snapshot = JSON.stringify({ nodes: state.nodes, edges: state.edges });
+      if (historyStack.length > 0 && historyStack[historyStack.length - 1] === snapshot) return;
       historyStack.push(snapshot);
-      if (historyStack.length > MAX_HISTORY) {
-        historyStack.shift();
-      }
+      if (historyStack.length > MAX_HISTORY) historyStack.shift();
       redoStack.length = 0;
       updateUndoRedoButtons();
     }
@@ -1416,19 +849,12 @@
 
     function performUndo() {
       if (historyStack.length === 0) return;
-      const currentSnapshot = JSON.stringify({
-        nodes: state.nodes,
-        edges: state.edges
-      });
-      redoStack.push(currentSnapshot);
-      const prevSnapshot = historyStack.pop();
-      const parsed = JSON.parse(prevSnapshot);
-
+      redoStack.push(JSON.stringify({ nodes: state.nodes, edges: state.edges }));
+      const parsed = JSON.parse(historyStack.pop());
       state.nodes = parsed.nodes;
       state.edges = parsed.edges;
       state.selectedNodeIds.clear();
       state.selectedEdgeId = null;
-
       commitState(true, true);
       renderBoard();
       if (state.currentPage === 'hierarchy') renderHierarchyTree();
@@ -1438,22 +864,12 @@
 
     function performRedo() {
       if (redoStack.length === 0) return;
-      const currentSnapshot = JSON.stringify({
-        nodes: state.nodes,
-        edges: state.edges
-      });
-      historyStack.push(currentSnapshot);
-      if (historyStack.length > MAX_HISTORY) {
-        historyStack.shift();
-      }
-      const nextSnapshot = redoStack.pop();
-      const parsed = JSON.parse(nextSnapshot);
-
+      historyStack.push(JSON.stringify({ nodes: state.nodes, edges: state.edges }));
+      const parsed = JSON.parse(redoStack.pop());
       state.nodes = parsed.nodes;
       state.edges = parsed.edges;
       state.selectedNodeIds.clear();
       state.selectedEdgeId = null;
-
       commitState(true, true);
       renderBoard();
       if (state.currentPage === 'hierarchy') renderHierarchyTree();
@@ -1470,9 +886,7 @@
       toast.innerText = msg;
       toast.classList.remove('opacity-0');
       clearTimeout(toastTimeout);
-      toastTimeout = setTimeout(() => {
-        toast.classList.add('opacity-0');
-      }, 2200);
+      toastTimeout = setTimeout(() => { toast.classList.add('opacity-0'); }, 2200);
     }
 
     let splashDismissed = false;
@@ -1480,11 +894,7 @@
       if (splashDismissed) return;
       splashDismissed = true;
       const splash = document.getElementById('splash-screen');
-      if (splash) {
-        setTimeout(() => {
-          splash.classList.add('fade-out');
-        }, 350);
-      }
+      if (splash) setTimeout(() => splash.classList.add('fade-out'), 350);
     }
 
     function renderFormattedLabel(rawText) {
@@ -1494,30 +904,17 @@
         .replace(/\*\*(.*?)\*\*/g, '$1')
         .replace(/\*(.*?)\*/g, '$1')
         .replace(/<\/?u>/g, '');
-
-      return cleanText
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/\n/g, '<br/>');
+      return cleanText.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, '<br/>');
     }
 
     function cleanClusterLabel(rawText) {
       if (!rawText) return '';
-      return rawText
-        .replace(/\*\*/g, '')
-        .replace(/\*/g, '')
-        .replace(/<\/?u>/g, '')
-        .replace(/<span style="font-size: [^"]+;">/g, '')
-        .replace(/<\/span>/g, '')
-        .replace(/\n/g, ' ')
-        .trim();
+      return rawText.replace(/\*\*/g, '').replace(/\*/g, '').replace(/<\/?u>/g, '').replace(/<span style="font-size: [^"]+;">/g, '').replace(/<\/span>/g, '').replace(/\n/g, ' ').trim();
     }
 
     function applyTheme(themeName) {
       state.theme = themeName;
       localStorage.setItem(THEME_STORAGE_KEY, themeName);
-
       document.body.classList.remove('theme-light', 'theme-dark', 'theme-black');
       document.body.classList.add(`theme-${themeName}`);
 
@@ -1543,9 +940,7 @@
         if (hierThemeText) hierThemeText.textContent = "Black";
       }
 
-      if (state.currentPage === 'hierarchy') {
-        renderHierarchyTree();
-      }
+      if (state.currentPage === 'hierarchy') renderHierarchyTree();
       populateParentDropdown(state.modalParentNodeId);
       renderModalColorChoices();
       renderModalBgColorChoices();
@@ -1556,16 +951,9 @@
     }
 
     function cycleTheme() {
-      if (state.theme === 'light') {
-        applyTheme('dark');
-        showToast("Switched to Dark Theme");
-      } else if (state.theme === 'dark') {
-        applyTheme('black');
-        showToast("Switched to Absolute Black");
-      } else {
-        applyTheme('light');
-        showToast("Switched to Light Theme");
-      }
+      if (state.theme === 'light') { applyTheme('dark'); showToast("Switched to Dark Theme"); }
+      else if (state.theme === 'dark') { applyTheme('black'); showToast("Switched to Absolute Black"); }
+      else { applyTheme('light'); showToast("Switched to Light Theme"); }
     }
 
     function formatTime(timestamp) {
@@ -1577,14 +965,12 @@
       const saveStatusDot = document.getElementById('save-status-dot');
       const saveStatusText = document.getElementById('save-status-text');
       if (!saveStatusDot || !saveStatusText) return;
-
       if (status === 'saving') {
         saveStatusDot.className = "w-2 h-2 rounded-full bg-amber-500 animate-pulse";
         saveStatusText.textContent = "Syncing...";
       } else if (status === 'synced') {
         saveStatusDot.className = "w-2 h-2 rounded-full bg-emerald-500";
-        const timeStr = formatTime(timestamp || state.lastModified);
-        saveStatusText.textContent = `Synced ${timeStr}`;
+        saveStatusText.textContent = `Synced ${formatTime(timestamp || state.lastModified)}`;
       } else if (status === 'offline') {
         saveStatusDot.className = "w-2 h-2 rounded-full bg-slate-400";
         saveStatusText.textContent = "Offline";
@@ -1595,41 +981,19 @@
     }
 
     function commitState(immediateCloud = true, skipHistoryPush = false) {
-      if (!skipHistoryPush) {
-        pushHistory();
-      }
-
+      if (!skipHistoryPush) pushHistory();
       const now = Date.now();
       state.lastModified = now;
-
       try {
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({
-          nodes: state.nodes,
-          edges: state.edges,
-          view: state.view,
-          lastModified: now
-        }));
-      } catch (e) {
-        console.error("Failed to write to localStorage:", e);
-      }
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ nodes: state.nodes, edges: state.edges, view: state.view, lastModified: now }));
+      } catch (e) {}
 
       setSaveStatus('saving');
-
       if (window.boardRef && !isIncomingSync && auth.currentUser) {
-        window.boardRef.set({
-          nodes: state.nodes,
-          edges: state.edges,
-          lastModified: now
-        }).then(() => {
-          setSaveStatus('synced', now);
-        }).catch(err => {
-          console.error("Firebase write error:", err);
-          setSaveStatus('error');
-        });
+        window.boardRef.set({ nodes: state.nodes, edges: state.edges, lastModified: now }).then(() => setSaveStatus('synced', now)).catch(() => setSaveStatus('error'));
       } else {
         setTimeout(() => setSaveStatus('synced', now), 100);
       }
-
       updateClusterCounts();
       if (state.currentPage === 'hierarchy') renderHierarchyTree();
     }
@@ -1646,20 +1010,14 @@
       const viewportEl = document.getElementById('board-viewport');
       if (!viewportEl) return { x: 0, y: 0 };
       const rect = viewportEl.getBoundingClientRect();
-      return {
-        x: (screenX - rect.left - state.view.x) / state.view.zoom,
-        y: (screenY - rect.top - state.view.y) / state.view.zoom
-      };
+      return { x: (screenX - rect.left - state.view.x) / state.view.zoom, y: (screenY - rect.top - state.view.y) / state.view.zoom };
     }
 
     function worldToScreen(worldX, worldY) {
       const viewportEl = document.getElementById('board-viewport');
       if (!viewportEl) return { x: 0, y: 0 };
       const rect = viewportEl.getBoundingClientRect();
-      return {
-        x: (worldX * state.view.zoom) + state.view.x + rect.left,
-        y: (worldY * state.view.zoom) + state.view.y + rect.top
-      };
+      return { x: (worldX * state.view.zoom) + state.view.x + rect.left, y: (worldY * state.view.zoom) + state.view.y + rect.top };
     }
 
     function createCurvedPath(x1, y1, x2, y2) {
@@ -1686,18 +1044,11 @@
       const btnInlineUnderline = document.getElementById('btn-inline-underline');
 
       if (!node || !inlineEditorEl || !inlineTextareaEl) return;
-
       state.editingNodeId = nodeId;
       inlineTextareaEl.value = renderFormattedLabel(node.label);
-      if (selectInlineFontsize) {
-        selectInlineFontsize.value = node.fontSize || '';
-      }
-      if (inlineUrlEl) {
-        inlineUrlEl.value = node.linkUrl || '';
-      }
-      if (inlineCaptionEl) {
-        inlineCaptionEl.value = node.linkCaption || '';
-      }
+      if (selectInlineFontsize) selectInlineFontsize.value = node.fontSize || '';
+      if (inlineUrlEl) inlineUrlEl.value = node.linkUrl || '';
+      if (inlineCaptionEl) inlineCaptionEl.value = node.linkCaption || '';
 
       if (btnInlineBold) btnInlineBold.classList.toggle('bg-indigo-600', !!node.isBold);
       if (btnInlineBold) btnInlineBold.classList.toggle('text-white', !!node.isBold);
@@ -1709,18 +1060,12 @@
       inlineEditorEl.style.display = 'flex';
       inlineEditorEl.style.left = `${node.x}px`;
       inlineEditorEl.style.top = `${node.y}px`;
-
-      const hex = COLOR_HEX_MAP[node.color] || '#3b82f6';
-      inlineEditorEl.style.boxShadow = `0 18px 40px -6px rgba(0, 0, 0, 0.35), 0 0 0 2px ${hex}`;
+      inlineEditorEl.style.boxShadow = `0 18px 40px -6px rgba(0, 0, 0, 0.35), 0 0 0 2px ${COLOR_HEX_MAP[node.color] || '#3b82f6'}`;
 
       renderColorPickers();
       renderBgColorPickers();
       renderShapePickers();
-
-      setTimeout(() => {
-        inlineTextareaEl.focus();
-        inlineTextareaEl.select();
-      }, 50);
+      setTimeout(() => { inlineTextareaEl.focus(); inlineTextareaEl.select(); }, 50);
     }
 
     function closeInlineEditor(save = true) {
@@ -1745,7 +1090,6 @@
           }
         }
       }
-
       state.editingNodeId = null;
       if (inlineEditorEl) inlineEditorEl.style.display = 'none';
       renderBoard();
@@ -1763,7 +1107,6 @@
         if (!sourceNode || !targetNode) return;
 
         const pathData = createCurvedPath(sourceNode.x, sourceNode.y, targetNode.x, targetNode.y);
-
         const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
 
         const hitPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
@@ -1776,11 +1119,7 @@
         visualPath.setAttribute("class", `edge-line ${state.selectedEdgeId === edge.id ? 'selected' : ''}`);
         visualPath.dataset.edgeId = edge.id;
 
-        const onEdgeClick = (e) => {
-          e.stopPropagation();
-          deleteEdge(edge.id);
-        };
-
+        const onEdgeClick = (e) => { e.stopPropagation(); deleteEdge(edge.id); };
         hitPath.addEventListener("click", onEdgeClick);
         visualPath.addEventListener("click", onEdgeClick);
 
@@ -1801,11 +1140,8 @@
 
         if (nodeData.bgColor && COLOR_HEX_MAP[nodeData.bgColor]) {
           const bgHex = COLOR_HEX_MAP[nodeData.bgColor];
-          if (!isPolygon) {
-            nodeEl.style.setProperty('--node-bg', isDark ? `${bgHex}FA` : `${bgHex}FA`);
-          } else {
-            nodeEl.style.removeProperty('--node-bg');
-          }
+          if (!isPolygon) nodeEl.style.setProperty('--node-bg', `${bgHex}FA`);
+          else nodeEl.style.removeProperty('--node-bg');
         } else {
           nodeEl.style.removeProperty('--node-bg');
         }
@@ -1816,28 +1152,19 @@
           polyBg.setAttribute("viewBox", "0 0 100 100");
           polyBg.setAttribute("preserveAspectRatio", "none");
           const poly = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
-          if (shape === 'diamond') {
-            poly.setAttribute("points", "50,2 98,50 50,98 2,50");
-          } else if (shape === 'hexagon') {
-            poly.setAttribute("points", "25,2 75,2 98,50 75,98 25,98 2,50");
-          } else if (shape === 'triangle') {
-            poly.setAttribute("points", "50,2 98,98 2,98");
-          }
-          if (nodeData.bgColor && COLOR_HEX_MAP[nodeData.bgColor]) {
-            const bgHex = COLOR_HEX_MAP[nodeData.bgColor];
-            poly.style.fill = isDark ? `${bgHex}FA` : `${bgHex}FA`;
-          } else {
-            poly.style.fill = '';
-          }
+          if (shape === 'diamond') poly.setAttribute("points", "50,2 98,50 50,98 2,50");
+          else if (shape === 'hexagon') poly.setAttribute("points", "25,2 75,2 98,50 75,98 25,98 2,50");
+          else if (shape === 'triangle') poly.setAttribute("points", "50,2 98,98 2,98");
+
+          if (nodeData.bgColor && COLOR_HEX_MAP[nodeData.bgColor]) poly.style.fill = `${COLOR_HEX_MAP[nodeData.bgColor]}FA`;
+          else poly.style.fill = '';
           polyBg.appendChild(poly);
           nodeEl.appendChild(polyBg);
         }
 
         const contentSpan = document.createElement('div');
         contentSpan.style.zIndex = '2';
-        if (nodeData.fontSize) {
-          contentSpan.style.fontSize = nodeData.fontSize;
-        }
+        if (nodeData.fontSize) contentSpan.style.fontSize = nodeData.fontSize;
         if (nodeData.isBold) contentSpan.style.fontWeight = 'bold';
         if (nodeData.isItalic) contentSpan.style.fontStyle = 'italic';
         if (nodeData.isUnderline) contentSpan.style.textDecoration = 'underline';
@@ -1852,26 +1179,18 @@
 
         nodeEl.style.left = `${nodeData.x}px`;
         nodeEl.style.top = `${nodeData.y}px`;
-
         if (nodeData.width) nodeEl.style.width = `${nodeData.width}px`;
         if (nodeData.height) nodeEl.style.height = `${nodeData.height}px`;
 
-        if (state.selectedNodeIds.has(nodeData.id)) {
-          nodeEl.classList.add('selected');
-        }
-        if (state.connectSourceId === nodeData.id) {
-          nodeEl.classList.add('connect-source');
-        }
+        if (state.selectedNodeIds.has(nodeData.id)) nodeEl.classList.add('selected');
+        if (state.connectSourceId === nodeData.id) nodeEl.classList.add('connect-source');
 
         const editBtn = document.createElement('button');
         editBtn.className = 'node-action-btn btn-edit-node';
         editBtn.title = 'Edit node properties';
         editBtn.innerHTML = '<i class="fa-solid fa-pencil"></i>';
         ['mousedown', 'touchstart'].forEach(evt => editBtn.addEventListener(evt, (e) => e.stopPropagation()));
-        editBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          openInlineEditor(nodeData.id);
-        });
+        editBtn.addEventListener('click', (e) => { e.stopPropagation(); openInlineEditor(nodeData.id); });
         nodeEl.appendChild(editBtn);
 
         const delBtn = document.createElement('button');
@@ -1879,10 +1198,7 @@
         delBtn.title = 'Delete node';
         delBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
         ['mousedown', 'touchstart'].forEach(evt => delBtn.addEventListener(evt, (e) => e.stopPropagation()));
-        delBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          deleteNode(nodeData.id);
-        });
+        delBtn.addEventListener('click', (e) => { e.stopPropagation(); deleteNode(nodeData.id); });
         nodeEl.appendChild(delBtn);
 
         const resizeHandle = document.createElement('div');
@@ -1895,7 +1211,6 @@
         setupNodeEvents(nodeEl, nodeData);
         nodesContainerEl.appendChild(nodeEl);
       });
-
       updateClusterCounts();
     }
 
@@ -1909,7 +1224,6 @@
         const sourceNode = state.nodes.find(n => n.id === edge.source);
         const targetNode = state.nodes.find(n => n.id === edge.target);
         if (!sourceNode || !targetNode) return;
-
         const d = createCurvedPath(sourceNode.x, sourceNode.y, targetNode.x, targetNode.y);
         if (edgeElements[idx]) edgeElements[idx].setAttribute("d", d);
         if (hitElements[idx]) hitElements[idx].setAttribute("d", d);
@@ -1926,123 +1240,54 @@
 
       const edgesGroupEl = document.getElementById('edges-group');
       if (!edgesGroupEl) return;
-      const edgeElements = edgesGroupEl.querySelectorAll('path.edge-line');
-      edgeElements.forEach(line => {
+      edgesGroupEl.querySelectorAll('path.edge-line').forEach(line => {
         line.classList.toggle('selected', line.dataset.edgeId === state.selectedEdgeId);
       });
     }
 
     function setupResizeEvents(handleEl, nodeData, nodeEl) {
-      let isResizing = false;
-      let startX = 0;
-      let startY = 0;
-      let startWidth = 0;
-      let startHeight = 0;
-
+      let isResizing = false, startX = 0, startY = 0, startWidth = 0, startHeight = 0;
       const onPointerDown = (clientX, clientY) => {
-        isResizing = true;
-        startX = clientX;
-        startY = clientY;
+        isResizing = true; startX = clientX; startY = clientY;
         const rect = nodeEl.getBoundingClientRect();
         startWidth = nodeData.width || rect.width;
         startHeight = nodeData.height || rect.height;
         pushHistory();
       };
-
       const onPointerMove = (clientX, clientY) => {
         if (!isResizing) return;
         const dx = (clientX - startX) / state.view.zoom;
         const dy = (clientY - startY) / state.view.zoom;
-        const newWidth = Math.max(90, Math.round(startWidth + dx));
-        const newHeight = Math.max(52, Math.round(startHeight + dy));
-
-        nodeData.width = newWidth;
-        nodeData.height = newHeight;
-        nodeEl.style.width = `${newWidth}px`;
-        nodeEl.style.height = `${newHeight}px`;
+        nodeData.width = Math.max(90, Math.round(startWidth + dx));
+        nodeData.height = Math.max(52, Math.round(startHeight + dy));
+        nodeEl.style.width = `${nodeData.width}px`;
+        nodeEl.style.height = `${nodeData.height}px`;
         updateEdgeCoordinates();
       };
-
-      const onPointerUp = () => {
-        if (!isResizing) return;
-        isResizing = false;
-        commitState(true, true);
-      };
+      const onPointerUp = () => { if (isResizing) { isResizing = false; commitState(true, true); } };
 
       handleEl.addEventListener('mousedown', (e) => {
-        if (e.button !== 0) return;
-        e.stopPropagation();
+        if (e.button !== 0) return; e.stopPropagation();
         onPointerDown(e.clientX, e.clientY);
-
         const onMouseMove = (ev) => onPointerMove(ev.clientX, ev.clientY);
-        const onMouseUp = () => {
-          window.removeEventListener('mousemove', onMouseMove);
-          window.removeEventListener('mouseup', onMouseUp);
-          onPointerUp();
-        };
-
-        window.addEventListener('mousemove', onMouseMove);
-        window.addEventListener('mouseup', onMouseUp);
+        const onMouseUp = () => { window.removeEventListener('mousemove', onMouseMove); window.removeEventListener('mouseup', onMouseUp); onPointerUp(); };
+        window.addEventListener('mousemove', onMouseMove); window.addEventListener('mouseup', onMouseUp);
       });
-
-      handleEl.addEventListener('touchstart', (e) => {
-        if (e.touches.length !== 1) return;
-        e.stopPropagation();
-        const t = e.touches[0];
-        onPointerDown(t.clientX, t.clientY);
-
-        const onTouchMove = (ev) => {
-          if (ev.touches.length === 1) {
-            ev.preventDefault();
-            onPointerMove(ev.touches[0].clientX, ev.touches[0].clientY);
-          }
-        };
-        const onTouchEnd = () => {
-          window.removeEventListener('touchmove', onTouchMove);
-          window.removeEventListener('touchend', onTouchEnd);
-          onPointerUp();
-        };
-
-        window.addEventListener('touchmove', onTouchMove, { passive: false });
-        window.addEventListener('touchend', onTouchEnd);
-      }, { passive: false });
     }
 
     function setupNodeEvents(nodeEl, nodeData) {
-      let isMouseDown = false;
-      let hasDragged = false;
-      let startClientX = 0;
-      let startClientY = 0;
-      let lastTapTime = 0;
+      let isMouseDown = false, hasDragged = false, startClientX = 0, startClientY = 0, lastTapTime = 0;
       const DRAG_THRESHOLD = 3;
 
       const handlePointerDown = (clientX, clientY, isShiftKey) => {
-        if (state.editingNodeId && state.editingNodeId !== nodeData.id) {
-          closeInlineEditor(true);
-        }
-
-        if (state.mode === 'connect') {
-          handleConnectClick(nodeData.id);
-          return false;
-        }
-
-        isMouseDown = true;
-        hasDragged = false;
-        startClientX = clientX;
-        startClientY = clientY;
-
-        if (isShiftKey) {
-          state.selectedNodeIds.add(nodeData.id);
-        } else if (!state.selectedNodeIds.has(nodeData.id)) {
-          state.selectedNodeIds.clear();
-          state.selectedNodeIds.add(nodeData.id);
-        }
-        state.selectedEdgeId = null;
-        updateSelectionVisuals();
-
+        if (state.editingNodeId && state.editingNodeId !== nodeData.id) closeInlineEditor(true);
+        if (state.mode === 'connect') { handleConnectClick(nodeData.id); return false; }
+        isMouseDown = true; hasDragged = false; startClientX = clientX; startClientY = clientY;
+        if (isShiftKey) state.selectedNodeIds.add(nodeData.id);
+        else if (!state.selectedNodeIds.has(nodeData.id)) { state.selectedNodeIds.clear(); state.selectedNodeIds.add(nodeData.id); }
+        state.selectedEdgeId = null; updateSelectionVisuals();
         const worldMouse = screenToWorld(startClientX, startClientY);
         state.dragStartWorld = { x: worldMouse.x, y: worldMouse.y };
-
         state.nodeInitialPositions.clear();
         state.selectedNodeIds.forEach(id => {
           const n = state.nodes.find(item => item.id === id);
@@ -2053,19 +1298,12 @@
 
       const handlePointerMove = (clientX, clientY) => {
         if (!isMouseDown) return;
-
         const dist = Math.hypot(clientX - startClientX, clientY - startClientY);
-        if (!hasDragged && dist > DRAG_THRESHOLD) {
-          hasDragged = true;
-          state.isDraggingGroup = true;
-          pushHistory();
-        }
-
+        if (!hasDragged && dist > DRAG_THRESHOLD) { hasDragged = true; state.isDraggingGroup = true; pushHistory(); }
         if (hasDragged && state.isDraggingGroup) {
           const currentWorld = screenToWorld(clientX, clientY);
           const dx = currentWorld.x - state.dragStartWorld.x;
           const dy = currentWorld.y - state.dragStartWorld.y;
-
           state.selectedNodeIds.forEach(id => {
             const initialPos = state.nodeInitialPositions.get(id);
             const n = state.nodes.find(item => item.id === id);
@@ -2073,141 +1311,57 @@
               n.x = Math.round(initialPos.x + dx);
               n.y = Math.round(initialPos.y + dy);
               const el = document.getElementById(`node-${n.id}`);
-              if (el) {
-                el.style.left = `${n.x}px`;
-                el.style.top = `${n.y}px`;
-              }
+              if (el) { el.style.left = `${n.x}px`; el.style.top = `${n.y}px`; }
             }
           });
-
           updateEdgeCoordinates();
-
           if (state.editingNodeId) {
             const editingNode = state.nodes.find(n => n.id === state.editingNodeId);
             const inlineEditorEl = document.getElementById('node-inline-editor');
-            if (editingNode && inlineEditorEl) {
-              inlineEditorEl.style.left = `${editingNode.x}px`;
-              inlineEditorEl.style.top = `${editingNode.y}px`;
-            }
+            if (editingNode && inlineEditorEl) { inlineEditorEl.style.left = `${editingNode.x}px`; inlineEditorEl.style.top = `${editingNode.y}px`; }
           }
         }
       };
 
       const handlePointerUp = () => {
-        if (!isMouseDown) return;
-        isMouseDown = false;
-
-        if (hasDragged) {
-          state.isDraggingGroup = false;
-          commitState(true, true);
-        }
+        if (!isMouseDown) return; isMouseDown = false;
+        if (hasDragged) { state.isDraggingGroup = false; commitState(true, true); }
       };
 
       nodeEl.addEventListener('mousedown', (e) => {
-        if (e.button !== 0) return;
-        if (e.target.closest('.node-action-btn') || e.target.closest('.node-resize-handle') || e.target.closest('a')) return;
-
+        if (e.button !== 0 || e.target.closest('.node-action-btn') || e.target.closest('.node-resize-handle') || e.target.closest('a')) return;
         e.stopPropagation();
-        const continueDrag = handlePointerDown(e.clientX, e.clientY, e.shiftKey || e.ctrlKey || e.metaKey);
-        if (!continueDrag) return;
-
+        if (!handlePointerDown(e.clientX, e.clientY, e.shiftKey || e.ctrlKey || e.metaKey)) return;
         const onMouseMove = (ev) => handlePointerMove(ev.clientX, ev.clientY);
-        const onMouseUp = () => {
-          window.removeEventListener('mousemove', onMouseMove);
-          window.removeEventListener('mouseup', onMouseUp);
-          handlePointerUp();
-        };
-
-        window.addEventListener('mousemove', onMouseMove);
-        window.addEventListener('mouseup', onMouseUp);
+        const onMouseUp = () => { window.removeEventListener('mousemove', onMouseMove); window.removeEventListener('mouseup', onMouseUp); handlePointerUp(); };
+        window.addEventListener('mousemove', onMouseMove); window.addEventListener('mouseup', onMouseUp);
       });
 
-      nodeEl.addEventListener('dblclick', (e) => {
-        e.stopPropagation();
-        e.preventDefault();
-        openInlineEditor(nodeData.id);
-      });
-
+      nodeEl.addEventListener('dblclick', (e) => { e.stopPropagation(); e.preventDefault(); openInlineEditor(nodeData.id); });
       nodeEl.addEventListener('contextmenu', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        state.selectedNodeIds.clear();
-        state.selectedNodeIds.add(nodeData.id);
-        state.selectedEdgeId = null;
-        updateSelectionVisuals();
-
+        e.preventDefault(); e.stopPropagation();
+        state.selectedNodeIds.clear(); state.selectedNodeIds.add(nodeData.id); state.selectedEdgeId = null; updateSelectionVisuals();
         state.contextClickPos = screenToWorld(e.clientX, e.clientY);
         openAddModal(nodeData.id);
       });
-
-      nodeEl.addEventListener('touchstart', (e) => {
-        if (e.touches.length !== 1) return;
-        if (e.target.closest('.node-action-btn') || e.target.closest('.node-resize-handle') || e.target.closest('a')) return;
-
-        e.stopPropagation();
-        const touch = e.touches[0];
-
-        const currentTime = new Date().getTime();
-        const tapGap = currentTime - lastTapTime;
-        if (tapGap < 300 && tapGap > 0) {
-          e.preventDefault();
-          openInlineEditor(nodeData.id);
-          lastTapTime = 0;
-          return;
-        }
-        lastTapTime = currentTime;
-
-        const continueDrag = handlePointerDown(touch.clientX, touch.clientY, false);
-        if (!continueDrag) return;
-
-        const onTouchMove = (ev) => {
-          if (ev.touches.length === 1) {
-            ev.preventDefault();
-            handlePointerMove(ev.touches[0].clientX, ev.touches[0].clientY);
-          }
-        };
-
-        const onTouchEnd = () => {
-          window.removeEventListener('touchmove', onTouchMove);
-          window.removeEventListener('touchend', onTouchEnd);
-          handlePointerUp();
-        };
-
-        window.addEventListener('touchmove', onTouchMove, { passive: false });
-        window.addEventListener('touchend', onTouchEnd);
-      }, { passive: false });
     }
 
     function handleConnectClick(nodeId) {
       if (!state.connectSourceId) {
-        state.connectSourceId = nodeId;
-        updateSelectionVisuals();
-        showToast("Select second node to complete link.");
+        state.connectSourceId = nodeId; updateSelectionVisuals(); showToast("Select second node to complete link.");
       } else if (state.connectSourceId === nodeId) {
-        state.connectSourceId = null;
-        updateSelectionVisuals();
+        state.connectSourceId = null; updateSelectionVisuals();
       } else {
-        const exists = state.edges.some(e => 
-          (e.source === state.connectSourceId && e.target === nodeId) ||
-          (e.source === nodeId && e.target === state.connectSourceId)
-        );
-
+        const exists = state.edges.some(e => (e.source === state.connectSourceId && e.target === nodeId) || (e.source === nodeId && e.target === state.connectSourceId));
         if (!exists) {
           pushHistory();
-          state.edges.push({
-            id: "edge_" + Date.now(),
-            source: state.connectSourceId,
-            target: nodeId
-          });
+          state.edges.push({ id: "edge_" + Date.now(), source: state.connectSourceId, target: nodeId });
           commitState(true, true);
           showToast("Relationship connected!");
         } else {
           showToast("Relationship already exists.");
         }
-
-        state.connectSourceId = null;
-        renderBoard();
+        state.connectSourceId = null; renderBoard();
       }
     }
 
@@ -2215,9 +1369,7 @@
       pushHistory();
       state.edges = state.edges.filter(e => e.id !== edgeId);
       if (state.selectedEdgeId === edgeId) state.selectedEdgeId = null;
-      commitState(true, true);
-      renderBoard();
-      showToast("Relationship removed.");
+      commitState(true, true); renderBoard(); showToast("Relationship removed.");
     }
 
     function deleteNode(nodeId) {
@@ -2225,45 +1377,28 @@
       state.nodes = state.nodes.filter(n => n.id !== nodeId);
       state.edges = state.edges.filter(e => e.source !== nodeId && e.target !== nodeId);
       state.selectedNodeIds.delete(nodeId);
-      if (state.editingNodeId === nodeId) {
-        closeInlineEditor(false);
-      }
-      commitState(true, true);
-      renderBoard();
-      showToast("Node deleted.");
+      if (state.editingNodeId === nodeId) closeInlineEditor(false);
+      commitState(true, true); renderBoard(); showToast("Node deleted.");
     }
 
     function deleteSelected() {
       let changed = false;
-      if (state.selectedEdgeId || state.selectedNodeIds.size > 0) {
-        pushHistory();
-      }
-      if (state.selectedEdgeId) {
-        state.edges = state.edges.filter(e => e.id !== state.selectedEdgeId);
-        state.selectedEdgeId = null;
-        changed = true;
-      }
+      if (state.selectedEdgeId || state.selectedNodeIds.size > 0) pushHistory();
+      if (state.selectedEdgeId) { state.edges = state.edges.filter(e => e.id !== state.selectedEdgeId); state.selectedEdgeId = null; changed = true; }
       if (state.selectedNodeIds.size > 0) {
         const toDelete = new Set(state.selectedNodeIds);
         state.nodes = state.nodes.filter(n => !toDelete.has(n.id));
         state.edges = state.edges.filter(e => !toDelete.has(e.source) && !toDelete.has(e.target));
-        state.selectedNodeIds.clear();
-        changed = true;
+        state.selectedNodeIds.clear(); changed = true;
       }
-      if (changed) {
-        commitState(true, true);
-        renderBoard();
-        showToast("Selected items deleted.");
-      } else {
-        showToast("Nothing selected to delete.");
-      }
+      if (changed) { commitState(true, true); renderBoard(); showToast("Selected items deleted."); }
+      else showToast("Nothing selected to delete.");
     }
 
     function selectEntireDiagram() {
       state.selectedNodeIds.clear();
       state.nodes.forEach(n => state.selectedNodeIds.add(n.id));
-      state.selectedEdgeId = null;
-      updateSelectionVisuals();
+      state.selectedEdgeId = null; updateSelectionVisuals();
       showToast(`Selected all ${state.nodes.length} nodes.`);
     }
 
@@ -2272,18 +1407,12 @@
       if (!viewportEl || state.nodes.length === 0) return;
       let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
       state.nodes.forEach(n => {
-        if (n.x < minX) minX = n.x;
-        if (n.x > maxX) maxX = n.x;
-        if (n.y < minY) minY = n.y;
-        if (n.y > maxY) maxY = n.y;
+        if (n.x < minX) minX = n.x; if (n.x > maxX) maxX = n.x;
+        if (n.y < minY) minY = n.y; if (n.y > maxY) maxY = n.y;
       });
-
-      const centerX = (minX + maxX) / 2;
-      const centerY = (minY + maxY) / 2;
-
+      const centerX = (minX + maxX) / 2, centerY = (minY + maxY) / 2;
       const rect = viewportEl.getBoundingClientRect();
-      const w = rect.width || window.innerWidth - 68;
-      const h = rect.height || window.innerHeight;
+      const w = rect.width || window.innerWidth - 68, h = rect.height || window.innerHeight;
       state.view.x = (w / 2) - centerX * state.view.zoom;
       state.view.y = (h / 2) - centerY * state.view.zoom;
       applyTransform();
@@ -2291,102 +1420,59 @@
 
     function getDetectedClusters() {
       const clusterMap = {};
-
       state.nodes.forEach(node => {
         const colorKey = node.color || 'gray';
-        if (!clusterMap[colorKey]) {
-          clusterMap[colorKey] = {
-            id: colorKey,
-            color: colorKey,
-            nodes: []
-          };
-        }
+        if (!clusterMap[colorKey]) clusterMap[colorKey] = { id: colorKey, color: colorKey, nodes: [] };
         clusterMap[colorKey].nodes.push(node);
       });
-
-      return Object.values(clusterMap)
-        .filter(cluster => cluster.nodes.length > 0)
-        .map(cluster => {
-          const colorKey = cluster.color;
-          const nodeIdsInCluster = new Set(cluster.nodes.map(n => n.id));
-          let clusterName = null;
-
-          if (cluster.nodes.length === 1) {
-            clusterName = cleanClusterLabel(cluster.nodes[0].linkCaption || cluster.nodes[0].label);
-          } else {
-            const internalHub = cluster.nodes.find(n => n.isHub || state.edges.some(e => e.source === n.id && nodeIdsInCluster.has(e.target)));
-            if (internalHub) {
-              clusterName = cleanClusterLabel(internalHub.linkCaption || internalHub.label);
-            }
-
-            if (!clusterName) {
-              for (const edge of state.edges) {
-                if (nodeIdsInCluster.has(edge.target) && !nodeIdsInCluster.has(edge.source)) {
-                  const parentNode = state.nodes.find(n => n.id === edge.source);
-                  if (parentNode) {
-                    clusterName = cleanClusterLabel(parentNode.linkCaption || parentNode.label);
-                    break;
-                  }
-                }
+      return Object.values(clusterMap).filter(c => c.nodes.length > 0).map(cluster => {
+        const colorKey = cluster.color;
+        const nodeIdsInCluster = new Set(cluster.nodes.map(n => n.id));
+        let clusterName = null;
+        if (cluster.nodes.length === 1) clusterName = cleanClusterLabel(cluster.nodes[0].linkCaption || cluster.nodes[0].label);
+        else {
+          const internalHub = cluster.nodes.find(n => n.isHub || state.edges.some(e => e.source === n.id && nodeIdsInCluster.has(e.target)));
+          if (internalHub) clusterName = cleanClusterLabel(internalHub.linkCaption || internalHub.label);
+          if (!clusterName) {
+            for (const edge of state.edges) {
+              if (nodeIdsInCluster.has(edge.target) && !nodeIdsInCluster.has(edge.source)) {
+                const parentNode = state.nodes.find(n => n.id === edge.source);
+                if (parentNode) { clusterName = cleanClusterLabel(parentNode.linkCaption || parentNode.label); break; }
               }
             }
           }
-
-          if (!clusterName) {
-            clusterName = cleanClusterLabel(cluster.nodes[0].linkCaption || cluster.nodes[0].label) || colorKey;
-          }
-
-          return {
-            id: colorKey,
-            name: clusterName.toUpperCase(),
-            color: colorKey,
-            count: cluster.nodes.length,
-            nodes: cluster.nodes
-          };
-        });
+        }
+        if (!clusterName) clusterName = cleanClusterLabel(cluster.nodes[0].linkCaption || cluster.nodes[0].label) || colorKey;
+        return { id: colorKey, name: clusterName.toUpperCase(), color: colorKey, count: cluster.nodes.length, nodes: cluster.nodes };
+      });
     }
 
     function selectDynamicCluster(colorKey) {
       const clusterNodes = state.nodes.filter(n => (n.color || 'gray') === colorKey);
       if (clusterNodes.length === 0) return;
-
       switchPage('canvas');
-
       state.selectedNodeIds.clear();
       clusterNodes.forEach(n => state.selectedNodeIds.add(n.id));
-      state.selectedEdgeId = null;
-      updateSelectionVisuals();
+      state.selectedEdgeId = null; updateSelectionVisuals();
 
       setTimeout(() => {
         const viewportEl = document.getElementById('board-viewport');
         const sidebar = document.getElementById('sidebar');
         const rect = viewportEl ? viewportEl.getBoundingClientRect() : null;
-        const isCollapsed = sidebar ? sidebar.classList.contains('collapsed') : false;
-        const fallbackWidth = window.innerWidth - (isCollapsed ? 68 : 256);
-
-        const width = (rect && rect.width > 0) ? rect.width : fallbackWidth;
+        const width = (rect && rect.width > 0) ? rect.width : (window.innerWidth - (sidebar.classList.contains('collapsed') ? 68 : 256));
         const height = (rect && rect.height > 0) ? rect.height : window.innerHeight;
 
         let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
         clusterNodes.forEach(n => {
-          if (n.x < minX) minX = n.x;
-          if (n.x > maxX) maxX = n.x;
-          if (n.y < minY) minY = n.y;
-          if (n.y > maxY) maxY = n.y;
+          if (n.x < minX) minX = n.x; if (n.x > maxX) maxX = n.x;
+          if (n.y < minY) minY = n.y; if (n.y > maxY) maxY = n.y;
         });
-
-        const centerX = (minX + maxX) / 2;
-        const centerY = (minY + maxY) / 2;
-
-        const spanX = Math.max(160, maxX - minX + 220);
-        const spanY = Math.max(160, maxY - minY + 220);
-        const targetZoom = Math.min(1.4, Math.max(0.65, Math.min(width / spanX, height / spanY)));
-
-        state.view.zoom = targetZoom;
-        state.view.x = (width / 2) - (centerX * targetZoom);
-        state.view.y = (height / 2) - (centerY * targetZoom);
+        const centerX = (minX + maxX) / 2, centerY = (minY + maxY) / 2;
+        const spanX = Math.max(160, maxX - minX + 220), spanY = Math.max(160, maxY - minY + 220);
+        state.view.zoom = Math.min(1.4, Math.max(0.65, Math.min(width / spanX, height / spanY)));
+        state.view.x = (width / 2) - (centerX * state.view.zoom);
+        state.view.y = (height / 2) - (centerY * state.view.zoom);
         applyTransform();
-
         showToast(`Selected ${clusterNodes.length} nodes in ${colorKey} cluster.`);
       }, 50);
     }
@@ -2394,84 +1480,52 @@
     function focusNodeOnCanvas(nodeId) {
       const node = state.nodes.find(n => n.id === nodeId);
       if (!node) return;
-
       switchPage('canvas');
-
-      state.selectedNodeIds.clear();
-      state.selectedNodeIds.add(nodeId);
-      updateSelectionVisuals();
-
+      state.selectedNodeIds.clear(); state.selectedNodeIds.add(nodeId); updateSelectionVisuals();
       setTimeout(() => {
         const viewportEl = document.getElementById('board-viewport');
         const sidebar = document.getElementById('sidebar');
         const rect = viewportEl ? viewportEl.getBoundingClientRect() : null;
-        const isCollapsed = sidebar ? sidebar.classList.contains('collapsed') : false;
-        const fallbackWidth = window.innerWidth - (isCollapsed ? 68 : 256);
-
-        const width = (rect && rect.width > 0) ? rect.width : fallbackWidth;
+        const width = (rect && rect.width > 0) ? rect.width : (window.innerWidth - (sidebar.classList.contains('collapsed') ? 68 : 256));
         const height = (rect && rect.height > 0) ? rect.height : window.innerHeight;
-
         state.view.zoom = 1.25;
         state.view.x = (width / 2) - (node.x * state.view.zoom);
         state.view.y = (height / 2) - (node.y * state.view.zoom);
         applyTransform();
-
         showToast(`Focused on ${cleanClusterLabel(node.linkCaption || node.label)}`);
       }, 50);
     }
 
-    function resetView() {
-      state.view.zoom = 1;
-      centerDiagram();
-      showToast("View centered");
-    }
+    function resetView() { state.view.zoom = 1; centerDiagram(); showToast("View centered"); }
 
     function resetToDefaultDiagram() {
       pushHistory();
       state.nodes = JSON.parse(JSON.stringify(defaultNodes));
       state.edges = JSON.parse(JSON.stringify(defaultEdges));
-      state.selectedNodeIds.clear();
-      state.selectedEdgeId = null;
-      state.connectSourceId = null;
-      closeInlineEditor(false);
-      commitState(true, true);
-      renderBoard();
-      resetView();
+      state.selectedNodeIds.clear(); state.selectedEdgeId = null; state.connectSourceId = null;
+      closeInlineEditor(false); commitState(true, true); renderBoard(); resetView();
     }
 
     function setAppMode(mode) {
-      state.mode = mode;
-      state.connectSourceId = null;
-
-      const btnSelectMode = document.getElementById('btn-select-mode');
-      const btnConnectMode = document.getElementById('btn-connect-mode');
-      const btnPanMode = document.getElementById('btn-pan-mode');
+      state.mode = mode; state.connectSourceId = null;
+      const btnSelect = document.getElementById('btn-select-mode');
+      const btnConnect = document.getElementById('btn-connect-mode');
+      const btnPan = document.getElementById('btn-pan-mode');
       const viewportEl = document.getElementById('board-viewport');
 
-      [btnSelectMode, btnConnectMode, btnPanMode].forEach(btn => {
-        if (!btn) return;
-        btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-sm');
-      });
-
-      if (mode === 'select' && btnSelectMode) {
-        btnSelectMode.classList.add('bg-indigo-600', 'text-white', 'shadow-sm');
-        if (viewportEl) viewportEl.style.cursor = 'default';
-      } else if (mode === 'connect' && btnConnectMode) {
-        btnConnectMode.classList.add('bg-indigo-600', 'text-white', 'shadow-sm');
-        if (viewportEl) viewportEl.style.cursor = 'crosshair';
-        showToast("Connect Mode: Tap first node, then second node to connect.");
-      } else if (mode === 'pan' && btnPanMode) {
-        btnPanMode.classList.add('bg-indigo-600', 'text-white', 'shadow-sm');
-        if (viewportEl) viewportEl.style.cursor = 'grab';
-      }
+      [btnSelect, btnConnect, btnPan].forEach(b => b?.classList.remove('bg-indigo-600', 'text-white', 'shadow-sm'));
+      if (mode === 'select' && btnSelect) { btnSelect.classList.add('bg-indigo-600', 'text-white', 'shadow-sm'); if (viewportEl) viewportEl.style.cursor = 'default'; }
+      else if (mode === 'connect' && btnConnect) { btnConnect.classList.add('bg-indigo-600', 'text-white', 'shadow-sm'); if (viewportEl) viewportEl.style.cursor = 'crosshair'; showToast("Connect Mode: Tap first node, then second node."); }
+      else if (mode === 'pan' && btnPan) { btnPan.classList.add('bg-indigo-600', 'text-white', 'shadow-sm'); if (viewportEl) viewportEl.style.cursor = 'grab'; }
       updateSelectionVisuals();
     }
 
-    // --- FIXED PNG EXPORT IMPLEMENTATION ---
+    // --- PERFECTLY FRAMED HIGH-RES PNG EXPORT ---
     function exportToPNG() {
-      showToast("Generating high-resolution PNG snapshot...", 2500);
+      showToast("Generating clean PNG snapshot...", 2500);
+      const worldLayerEl = document.getElementById('world-layer');
       const viewportEl = document.getElementById('board-viewport');
-      if (!viewportEl || state.nodes.length === 0) return;
+      if (!worldLayerEl || state.nodes.length === 0) return;
 
       const prevView = { x: state.view.x, y: state.view.y, zoom: state.view.zoom };
       const prevSelected = new Set(state.selectedNodeIds);
@@ -2480,43 +1534,56 @@
       state.selectedEdgeId = null;
       updateSelectionVisuals();
 
+      // Find precise bounding box of all nodes
       let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
       state.nodes.forEach(n => {
-        const pad = 120;
+        const pad = 150; // generous padding for edges and text labels
         if (n.x - pad < minX) minX = n.x - pad;
         if (n.x + pad > maxX) maxX = n.x + pad;
         if (n.y - pad < minY) minY = n.y - pad;
         if (n.y + pad > maxY) maxY = n.y + pad;
       });
 
-      const contentWidth = Math.ceil(maxX - minX);
-      const contentHeight = Math.ceil(maxY - minY);
+      const exportWidth = Math.ceil(maxX - minX);
+      const exportHeight = Math.ceil(maxY - minY);
 
+      // Temporarily center view to wrap exactly around the node boundary box
       state.view.zoom = 1;
       state.view.x = -minX;
       state.view.y = -minY;
       applyTransform();
       renderBoard();
 
-      const originalWidth = viewportEl.style.width;
-      const originalHeight = viewportEl.style.height;
-      viewportEl.style.width = `${contentWidth}px`;
-      viewportEl.style.height = `${contentHeight}px`;
+      // Create a clean offscreen cloning container matching the exact diagram layout bounds
+      const exportContainer = document.createElement('div');
+      exportContainer.style.position = 'fixed';
+      exportContainer.style.top = '-9999px';
+      exportContainer.style.left = '-9999px';
+      exportContainer.style.width = `${exportWidth}px`;
+      exportContainer.style.height = `${exportHeight}px`;
+      exportContainer.style.backgroundColor = getComputedStyle(viewportEl).backgroundColor || '#0b1120';
+      exportContainer.style.backgroundImage = getComputedStyle(viewportEl).backgroundImage;
+      exportContainer.style.backgroundSize = getComputedStyle(viewportEl).backgroundSize;
+      
+      const clonedWorld = worldLayerEl.cloneNode(true);
+      clonedWorld.style.transform = 'none'; // reset translation/scaling for raw absolute render
+      exportContainer.appendChild(clonedWorld);
+      document.body.appendChild(exportContainer);
 
       setTimeout(() => {
-        html2canvas(viewportEl, {
-          scale: 2,
+        html2canvas(exportContainer, {
+          scale: 2, // 2x Retina Resolution
           useCORS: true,
           logging: false,
-          width: contentWidth,
-          height: contentHeight,
-          windowWidth: contentWidth,
-          windowHeight: contentHeight,
-          backgroundColor: getComputedStyle(viewportEl).backgroundColor || '#fbfbfa'
+          width: exportWidth,
+          height: exportHeight,
+          windowWidth: exportWidth,
+          windowHeight: exportHeight,
+          backgroundColor: null
         }).then(canvas => {
-          viewportEl.style.width = originalWidth;
-          viewportEl.style.height = originalHeight;
+          document.body.removeChild(exportContainer);
 
+          // Restore normal user viewport state
           state.view.x = prevView.x;
           state.view.y = prevView.y;
           state.view.zoom = prevView.zoom;
@@ -2524,16 +1591,15 @@
           applyTransform();
           renderBoard();
 
+          // Trigger automated file download
           const link = document.createElement('a');
           link.download = 'Adam_Pollack_PPSC_Workmap.png';
           link.href = canvas.toDataURL('image/png');
           link.click();
-
           showToast("PNG exported successfully!");
         }).catch(err => {
           console.error("PNG export error:", err);
-          viewportEl.style.width = originalWidth;
-          viewportEl.style.height = originalHeight;
+          if (exportContainer.parentNode) document.body.removeChild(exportContainer);
           state.view.x = prevView.x;
           state.view.y = prevView.y;
           state.view.zoom = prevView.zoom;
@@ -2542,37 +1608,27 @@
           renderBoard();
           showToast("Failed to export PNG.");
         });
-      }, 300);
+      }, 400);
     }
 
     function exportHierarchyToPDF() {
       showToast("Generating Hierarchy PDF...", 3000);
       const container = document.getElementById('page-hierarchy');
       if (!container) return;
-
       const themeToggleBtn = container.querySelector('.fixed.top-4.right-4');
       if (themeToggleBtn) themeToggleBtn.style.display = 'none';
 
       html2canvas(container, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: getComputedStyle(container).backgroundColor || '#ffffff'
+        scale: 2, useCORS: true, backgroundColor: getComputedStyle(container).backgroundColor || '#ffffff'
       }).then(canvas => {
         if (themeToggleBtn) themeToggleBtn.style.display = 'block';
-
         const imgData = canvas.toDataURL('image/png');
         const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF({
-          orientation: canvas.width > canvas.height ? 'landscape' : 'portrait',
-          unit: 'px',
-          format: [canvas.width, canvas.height]
-        });
-
+        const pdf = new jsPDF({ orientation: canvas.width > canvas.height ? 'landscape' : 'portrait', unit: 'px', format: [canvas.width, canvas.height] });
         pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
         pdf.save('Adam_Pollack_PPSC_Hierarchy.pdf');
         showToast("Hierarchy PDF exported successfully!");
-      }).catch(err => {
-        console.error("Hierarchy PDF export error:", err);
+      }).catch(() => {
         if (themeToggleBtn) themeToggleBtn.style.display = 'block';
         showToast("Failed to export Hierarchy PDF.");
       });
@@ -2581,117 +1637,43 @@
     function createIsolatedGroup() {
       pushHistory();
       switchPage('canvas');
-
       const chosenColor = PALETTE_15[Math.floor(Math.random() * PALETTE_15.length)].key;
-
-      let originX = 500;
-      let originY = 500;
-
+      let originX = 500, originY = 500;
       if (state.nodes.length > 0) {
-        let maxX = -Infinity;
-        let avgY = 0;
-        state.nodes.forEach(n => {
-          if (n.x > maxX) maxX = n.x;
-          avgY += n.y;
-        });
-        avgY = avgY / state.nodes.length;
+        let maxX = -Infinity, avgY = 0;
+        state.nodes.forEach(n => { if (n.x > maxX) maxX = n.x; avgY += n.y; });
         originX = Math.round(maxX + 420);
-        originY = Math.round(avgY);
+        originY = Math.round(avgY / state.nodes.length);
       }
-
       const timestamp = Date.now();
       const baseId = `node_${timestamp}_base`;
-      const baseNode = {
-        id: baseId,
-        label: "New\nHub",
-        x: originX,
-        y: originY,
-        color: "gray",
-        shape: "pill",
-        fontSize: '',
-        bgColor: '',
-        linkUrl: '',
-        linkCaption: '',
-        isBold: false,
-        isItalic: false,
-        isUnderline: false
-      };
-
-      const newNodes = [baseNode];
+      const newNodes = [{ id: baseId, label: "New\nHub", x: originX, y: originY, color: "gray", shape: "pill", fontSize: '', bgColor: '', linkUrl: '', linkCaption: '', isBold: false, isItalic: false, isUnderline: false }];
       const newEdges = [];
-
-      const offsets = [
-        { label: "Branch 1", dx: -160, dy: -130 },
-        { label: "Branch 2", dx: 160, dy: -130 },
-        { label: "Branch 3", dx: -160, dy: 130 },
-        { label: "Branch 4", dx: 160, dy: 130 }
-      ];
-
+      const offsets = [{ label: "Branch 1", dx: -160, dy: -130 }, { label: "Branch 2", dx: 160, dy: -130 }, { label: "Branch 3", dx: -160, dy: 130 }, { label: "Branch 4", dx: 160, dy: 130 }];
+      
       offsets.forEach((offset, idx) => {
         const childId = `node_${timestamp}_c${idx + 1}`;
-        newNodes.push({
-          id: childId,
-          label: offset.label,
-          x: originX + offset.dx,
-          y: originY + offset.dy,
-          color: chosenColor,
-          shape: "pill",
-          fontSize: '',
-          bgColor: '',
-          linkUrl: '',
-          linkCaption: '',
-          isBold: false,
-          isItalic: false,
-          isUnderline: false
-        });
-        newEdges.push({
-          id: `edge_${timestamp}_e${idx + 1}`,
-          source: baseId,
-          target: childId
-        });
+        newNodes.push({ id: childId, label: offset.label, x: originX + offset.dx, y: originY + offset.dy, color: chosenColor, shape: "pill", fontSize: '', bgColor: '', linkUrl: '', linkCaption: '', isBold: false, isItalic: false, isUnderline: false });
+        newEdges.push({ id: `edge_${timestamp}_e${idx + 1}`, source: baseId, target: childId });
       });
 
       state.nodes.push(...newNodes);
       state.edges.push(...newEdges);
-
       state.selectedNodeIds.clear();
       newNodes.forEach(n => state.selectedNodeIds.add(n.id));
       state.selectedEdgeId = null;
-
       commitState(true, true);
       renderBoard();
-
-      setTimeout(() => {
-        const viewportEl = document.getElementById('board-viewport');
-        const sidebar = document.getElementById('sidebar');
-        const rect = viewportEl ? viewportEl.getBoundingClientRect() : null;
-        const isCollapsed = sidebar ? sidebar.classList.contains('collapsed') : false;
-        const width = (rect && rect.width > 0) ? rect.width : (window.innerWidth - (isCollapsed ? 68 : 256));
-        const height = (rect && rect.height > 0) ? rect.height : window.innerHeight;
-
-        state.view.zoom = 1;
-        state.view.x = (width / 2) - (originX * state.view.zoom);
-        state.view.y = (height / 2) - (originY * state.view.zoom);
-        applyTransform();
-        showToast("Created new isolated cluster!");
-      }, 50);
+      setTimeout(() => centerDiagram(), 50);
+      showToast("Created new isolated cluster!");
     }
 
     function getPillMarkup(node, isDark) {
       const hex = COLOR_HEX_MAP[node.color] || '#64748b';
       const hubMarkup = node.isHub ? `<span class="text-[9px] font-bold uppercase tracking-wider text-indigo-500 bg-indigo-500/10 border border-indigo-500/30 px-1.5 py-0.2 rounded">Hub</span>` : '';
-      
       const bgHex = node.bgColor && COLOR_HEX_MAP[node.bgColor] ? COLOR_HEX_MAP[node.bgColor] : hex;
-      const bg = isDark ? `${bgHex}FA` : `${bgHex}FA`;
-      const border = isDark ? `${hex}60` : `${hex}45`;
-      const color = isDark ? '#ffffff' : hex;
-      const fontStyle = node.fontSize ? `font-size: ${node.fontSize};` : '';
-      const weightStyle = node.isBold ? `font-weight: bold;` : '';
-      const italicStyle = node.isItalic ? `font-style: italic;` : '';
-      const underlineStyle = node.isUnderline ? `text-decoration: underline;` : '';
-
       return `
-        <div style="background-color: ${bg}; border-color: ${border}; color: ${color}; ${fontStyle} ${weightStyle} ${italicStyle} ${underlineStyle}" class="px-3 py-1 text-xs font-semibold rounded-full border shadow-xs inline-flex items-center justify-center text-center gap-1.5 mx-auto w-max max-w-[200px]">
+        <div style="background-color: ${bgHex}FA; border-color: ${hex}45; color: ${isDark ? '#ffffff' : hex}; ${node.fontSize ? 'font-size: ' + node.fontSize + ';' : ''}" class="px-3 py-1 text-xs font-semibold rounded-full border shadow-xs inline-flex items-center justify-center text-center gap-1.5 mx-auto w-max max-w-[200px]">
           <span class="truncate">${renderFormattedLabel(node.linkCaption || node.label).replace(/<br\/?>/g, ' ')}</span>
         </div>
         ${hubMarkup}
@@ -2699,26 +1681,7 @@
     }
 
     function getHierarchyPillMarkup(node, isDark) {
-      const hex = COLOR_HEX_MAP[node.color] || '#64748b';
-      const hubMarkup = node.isHub ? `<span class="text-[9px] font-bold uppercase tracking-wider text-indigo-500 bg-indigo-500/10 border border-indigo-500/30 px-1.5 py-0.2 rounded">Hub</span>` : '';
-      
-      const bgHex = node.bgColor && COLOR_HEX_MAP[node.bgColor] ? COLOR_HEX_MAP[node.bgColor] : hex;
-      const bg = isDark ? `${bgHex}FA` : `${bgHex}FA`;
-      const border = isDark ? `${hex}60` : `${hex}45`;
-      const color = isDark ? '#ffffff' : hex;
-      const fontStyle = node.fontSize ? `font-size: ${node.fontSize};` : '';
-      const weightStyle = node.isBold ? `font-weight: bold;` : '';
-      const italicStyle = node.isItalic ? `font-style: italic;` : '';
-      const underlineStyle = node.isUnderline ? `text-decoration: underline;` : '';
-
-      const cleanText = cleanClusterLabel(node.linkCaption || node.label);
-
-      return `
-        <div style="background-color: ${bg}; border-color: ${border}; color: ${color}; ${fontStyle} ${weightStyle} ${italicStyle} ${underlineStyle}" class="px-3 py-1 text-xs font-semibold rounded-full border shadow-xs inline-flex items-center justify-center text-center gap-1.5 mx-auto w-max max-w-[200px]">
-          <span class="truncate">${cleanText}</span>
-        </div>
-        ${hubMarkup}
-      `;
+      return getPillMarkup(node, isDark);
     }
 
     function populateParentDropdown(selectedId = null, filterQuery = "") {
@@ -2727,66 +1690,35 @@
       if (!dropdownItemsContainer || !dropdownSelected) return;
 
       const isDark = state.theme === 'dark' || state.theme === 'black';
-
       if (selectedId) {
         const found = state.nodes.find(n => n.id === selectedId);
-        if (found) {
-          dropdownSelected.innerHTML = getPillMarkup(found, isDark);
-        } else {
-          dropdownSelected.innerHTML = `<span class="opacity-60 font-medium px-2 py-0.5">None (Root Node)</span>`;
-        }
+        dropdownSelected.innerHTML = found ? getPillMarkup(found, isDark) : `<span class="opacity-60 font-medium px-2 py-0.5">None (Root Node)</span>`;
       } else {
         dropdownSelected.innerHTML = `<span class="opacity-60 font-medium px-2 py-0.5">None (Root Node)</span>`;
       }
 
       dropdownItemsContainer.innerHTML = '';
       const query = filterQuery.toLowerCase().trim();
-
       if (!query || "none root node".includes(query)) {
         const noneOption = document.createElement('div');
         noneOption.className = `modal-dropdown-item p-2 rounded-lg cursor-pointer flex items-center justify-between text-xs transition-colors ${!selectedId ? 'font-semibold' : ''}`;
         noneOption.innerHTML = `<span class="modal-label px-1 font-medium">None (Root Node)</span>`;
-        noneOption.addEventListener('click', (e) => {
-          e.stopPropagation();
-          selectParentOption(null);
-        });
+        noneOption.addEventListener('click', (e) => { e.stopPropagation(); selectParentOption(null); });
         dropdownItemsContainer.appendChild(noneOption);
       }
 
-      const matchingNodes = state.nodes.filter(node => {
-        if (!query) return true;
-        const normalizedLabel = cleanClusterLabel(node.linkCaption || node.label).toLowerCase();
-        return normalizedLabel.includes(query);
-      });
-
-      matchingNodes.forEach(node => {
+      state.nodes.filter(n => !query || cleanClusterLabel(n.linkCaption || n.label).toLowerCase().includes(query)).forEach(node => {
         const opt = document.createElement('div');
         opt.className = `modal-dropdown-item p-1.5 rounded-lg cursor-pointer flex items-center justify-between text-xs transition-colors ${selectedId === node.id ? 'font-semibold' : ''}`;
-        opt.innerHTML = `
-          <div class="flex items-center justify-center gap-1.5 w-full">
-            ${getPillMarkup(node, isDark)}
-          </div>
-          ${selectedId === node.id ? '<i class="fa-solid fa-check text-indigo-500 text-xs mr-1 shrink-0"></i>' : ''}
-        `;
-        opt.addEventListener('click', (e) => {
-          e.stopPropagation();
-          selectParentOption(node.id);
-        });
+        opt.innerHTML = `<div class="flex items-center justify-center gap-1.5 w-full">${getPillMarkup(node, isDark)}</div>${selectedId === node.id ? '<i class="fa-solid fa-check text-indigo-500 text-xs mr-1 shrink-0"></i>' : ''}`;
+        opt.addEventListener('click', (e) => { e.stopPropagation(); selectParentOption(node.id); });
         dropdownItemsContainer.appendChild(opt);
       });
-
-      if (matchingNodes.length === 0 && query && !"none root node".includes(query)) {
-        const noMatch = document.createElement('div');
-        noMatch.className = "p-3 text-center text-xs opacity-50 italic";
-        noMatch.textContent = "No matching items found";
-        dropdownItemsContainer.appendChild(noMatch);
-      }
     }
 
     function selectParentOption(nodeId) {
       state.modalParentNodeId = nodeId;
       const dropdownMenu = document.getElementById('parent-dropdown-menu');
-
       if (nodeId) {
         const parentNode = state.nodes.find(n => n.id === nodeId);
         if (parentNode) {
@@ -2794,132 +1726,63 @@
           state.selectedModalShape = parentNode.shape || 'pill';
           state.selectedModalFontSize = parentNode.fontSize || '';
           state.selectedModalBgColor = parentNode.bgColor || '';
-          state.selectedModalBold = !!parentNode.isBold;
-          state.selectedModalItalic = !!parentNode.isItalic;
-          state.selectedModalUnderline = !!parentNode.isUnderline;
-          renderModalColorChoices();
-          renderModalBgColorChoices();
-          renderModalShapeChoices();
-          const selectModalFontsize = document.getElementById('select-modal-fontsize');
-          if (selectModalFontsize) selectModalFontsize.value = state.selectedModalFontSize;
-
-          const btnModalBold = document.getElementById('btn-modal-bold');
-          const btnModalItalic = document.getElementById('btn-modal-italic');
-          const btnModalUnderline = document.getElementById('btn-modal-underline');
-          if (btnModalBold) {
-            btnModalBold.classList.toggle('bg-indigo-600', state.selectedModalBold);
-            btnModalBold.classList.toggle('text-white', state.selectedModalBold);
-          }
-          if (btnModalItalic) {
-            btnModalItalic.classList.toggle('bg-indigo-600', state.selectedModalItalic);
-            btnModalItalic.classList.toggle('text-white', state.selectedModalItalic);
-          }
-          if (btnModalUnderline) {
-            btnModalUnderline.classList.toggle('bg-indigo-600', state.selectedModalUnderline);
-            btnModalUnderline.classList.toggle('text-white', state.selectedModalUnderline);
-          }
+          renderModalColorChoices(); renderModalBgColorChoices(); renderModalShapeChoices();
         }
       }
-
       populateParentDropdown(nodeId);
       if (dropdownMenu) dropdownMenu.classList.add('hidden');
     }
 
     function renderModalColorChoices() {
       const container = document.getElementById('color-options');
-      if (!container) return;
-      container.innerHTML = '';
-
+      if (!container) return; container.innerHTML = '';
       const isDark = state.theme === 'dark' || state.theme === 'black';
-
       PALETTE_15.forEach(c => {
         const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.dataset.color = c.key;
-        btn.className = `color-choice h-8 rounded-xl border-2 flex items-center justify-center font-bold text-[11px] transition-all capitalize ${state.selectedModalColor === c.key ? 'ring-2 ring-indigo-500 scale-105' : 'hover:scale-105'}`;
-
-        const bg = isDark ? `${c.hex}25` : `${c.hex}18`;
-        const border = isDark ? `${c.hex}95` : c.hex;
-        const color = isDark ? '#ffffff' : c.hex;
-
-        btn.style.backgroundColor = bg;
-        btn.style.borderColor = border;
-        btn.style.color = color;
+        btn.type = 'button'; btn.className = `color-choice h-8 rounded-xl border-2 flex items-center justify-center font-bold text-[11px] transition-all capitalize ${state.selectedModalColor === c.key ? 'ring-2 ring-indigo-500 scale-105' : 'hover:scale-105'}`;
+        btn.style.backgroundColor = isDark ? `${c.hex}25` : `${c.hex}18`;
+        btn.style.borderColor = isDark ? `${c.hex}95` : c.hex;
+        btn.style.color = isDark ? '#ffffff' : c.hex;
         btn.textContent = c.name;
-
-        btn.addEventListener('click', () => {
-          state.selectedModalColor = c.key;
-          renderModalColorChoices();
-        });
-
+        btn.addEventListener('click', () => { state.selectedModalColor = c.key; renderModalColorChoices(); });
         container.appendChild(btn);
       });
     }
 
     function renderModalBgColorChoices() {
       const container = document.getElementById('bg-color-options');
-      if (!container) return;
-      container.innerHTML = '';
-
+      if (!container) return; container.innerHTML = '';
       const isDark = state.theme === 'dark' || state.theme === 'black';
-
       const noneBtn = document.createElement('button');
       noneBtn.type = 'button';
       noneBtn.className = `color-choice h-8 rounded-xl border-2 flex items-center justify-center font-bold text-[10px] transition-all ${!state.selectedModalBgColor ? 'ring-2 ring-indigo-500 scale-105 bg-indigo-500/10 border-indigo-500 text-indigo-500' : (isDark ? 'border-zinc-700 bg-zinc-800 text-zinc-400' : 'border-slate-200 bg-white text-slate-500')}`;
       noneBtn.textContent = 'Default';
-      noneBtn.addEventListener('click', () => {
-        state.selectedModalBgColor = '';
-        renderModalBgColorChoices();
-      });
+      noneBtn.addEventListener('click', () => { state.selectedModalBgColor = ''; renderModalBgColorChoices(); });
       container.appendChild(noneBtn);
 
       PALETTE_15.forEach(c => {
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.dataset.bgcolor = c.key;
         btn.className = `color-choice h-8 rounded-xl border-2 flex items-center justify-center font-bold text-[11px] transition-all capitalize ${state.selectedModalBgColor === c.key ? 'ring-2 ring-indigo-500 scale-105' : 'hover:scale-105'}`;
-
-        const bg = isDark ? `${c.hex}35` : `${c.hex}22`;
-        const border = isDark ? `${c.hex}80` : `${c.hex}50`;
-        const color = isDark ? '#ffffff' : c.hex;
-
-        btn.style.backgroundColor = bg;
-        btn.style.borderColor = border;
-        btn.style.color = color;
+        btn.style.backgroundColor = isDark ? `${c.hex}35` : `${c.hex}22`;
+        btn.style.borderColor = isDark ? `${c.hex}80` : `${c.hex}50`;
+        btn.style.color = isDark ? '#ffffff' : c.hex;
         btn.textContent = c.name;
-
-        btn.addEventListener('click', () => {
-          state.selectedModalBgColor = c.key;
-          renderModalBgColorChoices();
-        });
-
+        btn.addEventListener('click', () => { state.selectedModalBgColor = c.key; renderModalBgColorChoices(); });
         container.appendChild(btn);
       });
     }
 
     function renderModalShapeChoices() {
       const container = document.getElementById('shape-options');
-      if (!container) return;
-      container.innerHTML = '';
-
+      if (!container) return; container.innerHTML = '';
       const isDark = state.theme === 'dark' || state.theme === 'black';
-
       SHAPES_8.forEach(s => {
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.dataset.shape = s.key;
-        btn.className = `shape-choice h-9 rounded-xl border-2 flex flex-col items-center justify-center font-semibold text-[10px] transition-all gap-0.5 ${state.selectedModalShape === s.key ? 'ring-2 ring-indigo-500 scale-105 bg-indigo-500/10 border-indigo-500 text-indigo-600' : (isDark ? 'border-zinc-700 bg-zinc-800/50 text-zinc-300 hover:border-zinc-500' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300')}`;
-
-        btn.innerHTML = `
-          <i class="fa-solid ${s.icon} text-xs"></i>
-          <span class="truncate px-1">${s.name}</span>
-        `;
-
-        btn.addEventListener('click', () => {
-          state.selectedModalShape = s.key;
-          renderModalShapeChoices();
-        });
-
+        btn.className = `shape-choice h-9 rounded-xl border-2 flex flex-col items-center justify-center font-semibold text-[10px] transition-all gap-0.5 ${state.selectedModalShape === s.key ? 'ring-2 ring-indigo-500 scale-105 bg-indigo-500/10 border-indigo-500 text-indigo-600' : (isDark ? 'border-zinc-700 bg-zinc-800/50 text-zinc-300' : 'border-slate-200 bg-white text-slate-700')}`;
+        btn.innerHTML = `<i class="fa-solid ${s.icon} text-xs"></i><span class="truncate px-1">${s.name}</span>`;
+        btn.addEventListener('click', () => { state.selectedModalShape = s.key; renderModalShapeChoices(); });
         container.appendChild(btn);
       });
     }
@@ -2930,45 +1793,14 @@
         inlineContainer.innerHTML = '';
         PALETTE_15.forEach(c => {
           const btn = document.createElement('button');
-          btn.dataset.color = c.key;
           const node = state.nodes.find(n => n.id === state.editingNodeId);
-          const isSelected = node && node.color === c.key;
-          btn.className = `w-5 h-5 rounded-full hover:scale-125 transition-transform border shadow-xs ${isSelected ? 'ring-2 ring-indigo-500 scale-110' : 'border-black/20'}`;
-          btn.style.backgroundColor = c.hex;
-          btn.title = c.name;
+          btn.className = `w-5 h-5 rounded-full hover:scale-125 transition-transform border shadow-xs ${node && node.color === c.key ? 'ring-2 ring-indigo-500 scale-110' : 'border-black/20'}`;
+          btn.style.backgroundColor = c.hex; btn.title = c.name;
           btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (!state.editingNodeId) return;
-            if (node) {
-              pushHistory();
-              node.color = c.key;
-              commitState(true, true);
-              openInlineEditor(node.id);
-              renderBoard();
-            }
+            e.stopPropagation(); if (!node) return;
+            pushHistory(); node.color = c.key; commitState(true, true); openInlineEditor(node.id); renderBoard();
           });
           inlineContainer.appendChild(btn);
-        });
-      }
-
-      const clusterContainer = document.getElementById('cluster-color-popover');
-      if (clusterContainer) {
-        clusterContainer.innerHTML = '';
-        PALETTE_15.forEach(c => {
-          const btn = document.createElement('button');
-          btn.dataset.color = c.key;
-          btn.className = "w-6 h-6 rounded-full hover:scale-125 transition-transform border border-black/20 shadow-xs";
-          btn.style.backgroundColor = c.hex;
-          btn.title = c.name;
-          btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (state.clusterColorTargetRootId) {
-              changeClusterColor(state.clusterColorTargetRootId, c.key);
-              clusterContainer.classList.add('hidden');
-              state.clusterColorTargetRootId = null;
-            }
-          });
-          clusterContainer.appendChild(btn);
         });
       }
     }
@@ -2978,40 +1810,22 @@
       if (inlineBgContainer) {
         inlineBgContainer.innerHTML = '';
         const node = state.nodes.find(n => n.id === state.editingNodeId);
-        
         const noneBtn = document.createElement('button');
-        const isNoneSelected = !node || !node.bgColor;
-        noneBtn.className = `w-5 h-5 rounded-full hover:scale-125 transition-transform border flex items-center justify-center text-[9px] font-bold ${isNoneSelected ? 'ring-2 ring-indigo-500 scale-110 bg-indigo-500 text-white' : 'border-slate-400 bg-slate-200 text-slate-700'}`;
-        noneBtn.title = 'Default / None';
+        noneBtn.className = `w-5 h-5 rounded-full hover:scale-125 transition-transform border flex items-center justify-center text-[9px] font-bold ${!node || !node.bgColor ? 'ring-2 ring-indigo-500 scale-110 bg-indigo-500 text-white' : 'border-slate-400 bg-slate-200 text-slate-700'}`;
         noneBtn.innerHTML = '✕';
         noneBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          if (!state.editingNodeId || !node) return;
-          pushHistory();
-          node.bgColor = '';
-          commitState(true, true);
-          openInlineEditor(node.id);
-          renderBoard();
+          e.stopPropagation(); if (!node) return;
+          pushHistory(); node.bgColor = ''; commitState(true, true); openInlineEditor(node.id); renderBoard();
         });
         inlineBgContainer.appendChild(noneBtn);
 
         PALETTE_15.forEach(c => {
           const btn = document.createElement('button');
-          btn.dataset.bgcolor = c.key;
-          const isSelected = node && node.bgColor === c.key;
-          btn.className = `w-5 h-5 rounded-full hover:scale-125 transition-transform border shadow-xs ${isSelected ? 'ring-2 ring-indigo-500 scale-110' : 'border-black/20'}`;
+          btn.className = `w-5 h-5 rounded-full hover:scale-125 transition-transform border shadow-xs ${node && node.bgColor === c.key ? 'ring-2 ring-indigo-500 scale-110' : 'border-black/20'}`;
           btn.style.backgroundColor = c.hex;
-          btn.title = c.name;
           btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (!state.editingNodeId) return;
-            if (node) {
-              pushHistory();
-              node.bgColor = c.key;
-              commitState(true, true);
-              openInlineEditor(node.id);
-              renderBoard();
-            }
+            e.stopPropagation(); if (!node) return;
+            pushHistory(); node.bgColor = c.key; commitState(true, true); openInlineEditor(node.id); renderBoard();
           });
           inlineBgContainer.appendChild(btn);
         });
@@ -3022,26 +1836,17 @@
       const inlineShapeContainer = document.getElementById('inline-shape-pickers');
       if (inlineShapeContainer) {
         inlineShapeContainer.innerHTML = '';
+        const node = state.nodes.find(n => n.id === state.editingNodeId);
+        const isDark = state.theme === 'dark' || state.theme === 'black';
         SHAPES_8.forEach(s => {
           const btn = document.createElement('button');
           btn.type = 'button';
-          const node = state.nodes.find(n => n.id === state.editingNodeId);
           const isSelected = node && (node.shape || 'pill') === s.key;
-          const isDark = state.theme === 'dark' || state.theme === 'black';
-
-          btn.className = `h-7 rounded-lg border flex items-center justify-center text-[10px] font-semibold transition-all gap-1 ${isSelected ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs' : (isDark ? 'border-zinc-700 bg-zinc-800 text-zinc-300 hover:border-zinc-500' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300')}`;
+          btn.className = `h-7 rounded-lg border flex items-center justify-center text-[10px] font-semibold transition-all gap-1 ${isSelected ? 'bg-indigo-600 text-white border-indigo-600' : (isDark ? 'border-zinc-700 bg-zinc-800 text-zinc-300' : 'border-slate-200 bg-slate-50 text-slate-700')}`;
           btn.innerHTML = `<i class="fa-solid ${s.icon} text-[10px]"></i><span class="truncate">${s.name}</span>`;
-
           btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (!state.editingNodeId) return;
-            if (node) {
-              pushHistory();
-              node.shape = s.key;
-              commitState(true, true);
-              openInlineEditor(node.id);
-              renderBoard();
-            }
+            e.stopPropagation(); if (!node) return;
+            pushHistory(); node.shape = s.key; commitState(true, true); openInlineEditor(node.id); renderBoard();
           });
           inlineShapeContainer.appendChild(btn);
         });
@@ -3050,69 +1855,10 @@
 
     function openAddModal(parentNodeId = null) {
       state.modalParentNodeId = parentNodeId;
-
       const modalEl = document.getElementById('add-node-modal');
-      const modalTitleEl = document.getElementById('add-modal-title');
       const labelInput = document.getElementById('node-label-input');
-      const searchInput = document.getElementById('parent-search-input');
-      const dropdownMenu = document.getElementById('parent-dropdown-menu');
-      const selectModalFontsize = document.getElementById('select-modal-fontsize');
-      const modalUrlEl = document.getElementById('node-modal-url');
-      const modalCaptionEl = document.getElementById('node-modal-caption');
-      const btnModalBold = document.getElementById('btn-modal-bold');
-      const btnModalItalic = document.getElementById('btn-modal-italic');
-      const btnModalUnderline = document.getElementById('btn-modal-underline');
-
       if (!modalEl || !labelInput) return;
-
-      if (searchInput) searchInput.value = '';
-      if (dropdownMenu) dropdownMenu.classList.add('hidden');
-
       populateParentDropdown(parentNodeId, '');
-
-      if (parentNodeId) {
-        const parentNode = state.nodes.find(n => n.id === parentNodeId);
-        const parentName = parentNode ? cleanClusterLabel(parentNode.linkCaption || parentNode.label) : 'Item';
-        if (modalTitleEl) modalTitleEl.textContent = `Add Child to "${parentName}"`;
-        state.selectedModalColor = parentNode ? parentNode.color : 'red';
-        state.selectedModalShape = parentNode ? (parentNode.shape || 'pill') : 'pill';
-        state.selectedModalFontSize = parentNode ? (parentNode.fontSize || '') : '';
-        state.selectedModalBgColor = parentNode ? (parentNode.bgColor || '') : '';
-        state.selectedModalBold = parentNode ? !!parentNode.isBold : false;
-        state.selectedModalItalic = parentNode ? !!parentNode.isItalic : false;
-        state.selectedModalUnderline = parentNode ? !!parentNode.isUnderline : false;
-      } else {
-        if (modalTitleEl) modalTitleEl.textContent = 'Create New Node';
-        state.selectedModalColor = 'red';
-        state.selectedModalShape = 'pill';
-        state.selectedModalFontSize = '';
-        state.selectedModalBgColor = '';
-        state.selectedModalBold = false;
-        state.selectedModalItalic = false;
-        state.selectedModalUnderline = false;
-      }
-
-      if (selectModalFontsize) selectModalFontsize.value = state.selectedModalFontSize;
-      if (modalUrlEl) modalUrlEl.value = '';
-      if (modalCaptionEl) modalCaptionEl.value = '';
-
-      if (btnModalBold) {
-        btnModalBold.classList.toggle('bg-indigo-600', state.selectedModalBold);
-        btnModalBold.classList.toggle('text-white', state.selectedModalBold);
-      }
-      if (btnModalItalic) {
-        btnModalItalic.classList.toggle('bg-indigo-600', state.selectedModalItalic);
-        btnModalItalic.classList.toggle('text-white', state.selectedModalItalic);
-      }
-      if (btnModalUnderline) {
-        btnModalUnderline.classList.toggle('bg-indigo-600', state.selectedModalUnderline);
-        btnModalUnderline.classList.toggle('text-white', state.selectedModalUnderline);
-      }
-
-      renderModalColorChoices();
-      renderModalBgColorChoices();
-      renderModalShapeChoices();
-
       modalEl.classList.remove('hidden');
       labelInput.value = '';
       setTimeout(() => labelInput.focus(), 50);
@@ -3124,1051 +1870,129 @@
       const pageHierarchy = document.getElementById('page-hierarchy');
       const navCanvas = document.getElementById('nav-canvas');
       const navHierarchy = document.getElementById('nav-hierarchy');
-
-      if (!pageCanvas || !pageHierarchy || !navCanvas || !navHierarchy) return;
+      if (!pageCanvas || !pageHierarchy) return;
 
       if (pageId === 'canvas') {
-        pageCanvas.classList.remove('hidden');
-        pageHierarchy.classList.add('hidden');
-
-        navCanvas.classList.add('active');
-        navHierarchy.classList.remove('active');
-
+        pageCanvas.classList.remove('hidden'); pageHierarchy.classList.add('hidden');
+        navCanvas.classList.add('active'); navHierarchy.classList.remove('active');
         applyTransform();
-      } else if (pageId === 'hierarchy') {
-        pageCanvas.classList.add('hidden');
-        pageHierarchy.classList.remove('hidden');
-
-        navHierarchy.classList.add('active');
-        navCanvas.classList.remove('active');
-
+      } else {
+        pageCanvas.classList.add('hidden'); pageHierarchy.classList.remove('hidden');
+        navHierarchy.classList.add('active'); navCanvas.classList.remove('active');
         renderHierarchyTree();
       }
-    }
-
-    function changeClusterColor(rootId, newColor) {
-      pushHistory();
-      const clusterNodes = state.nodes.filter(n => (n.color || 'gray') === rootId);
-      if (clusterNodes.length === 0) return;
-
-      clusterNodes.forEach(node => {
-        node.color = newColor;
-      });
-
-      commitState(true, true);
-      renderBoard();
-      updateClusterCounts();
-      if (state.currentPage === 'hierarchy') renderHierarchyTree();
-      showToast(`Cluster color updated to ${newColor}!`);
     }
 
     function updateClusterCounts() {
       const clusterListEl = document.getElementById('sidebar-cluster-list');
       if (!clusterListEl) return;
-
       const clusters = getDetectedClusters();
       clusterListEl.innerHTML = '';
-
-      if (clusters.length === 0) {
-        const emptyNotice = document.createElement('div');
-        emptyNotice.className = "px-3 py-1 text-[11px] opacity-40 italic";
-        emptyNotice.textContent = "No clusters yet";
-        clusterListEl.appendChild(emptyNotice);
-        return;
-      }
+      if (clusters.length === 0) { clusterListEl.innerHTML = '<div class="px-3 py-1 text-[11px] opacity-40 italic">No clusters yet</div>'; return; }
 
       clusters.forEach(cluster => {
         const btn = document.createElement('button');
-        btn.dataset.clusterKey = cluster.id;
         btn.className = "w-full flex items-center justify-between px-3 py-1.5 text-xs rounded-lg hover:bg-slate-500/10 transition-colors text-left";
-
         const hex = COLOR_HEX_MAP[cluster.color] || '#64748b';
-
-        btn.innerHTML = `
-          <div class="flex items-center gap-2 overflow-hidden mr-2">
-            <span style="background-color: ${hex};" class="w-2.5 h-2.5 rounded-full shrink-0 shadow-xs"></span>
-            <span class="font-medium truncate">${cluster.name}</span>
-          </div>
-          <span class="text-[11px] font-semibold opacity-60 shrink-0">${cluster.count}</span>
-        `;
-
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          selectDynamicCluster(cluster.id);
-        });
-
-        btn.addEventListener('contextmenu', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          
-          state.clusterColorTargetRootId = cluster.id;
-          const popover = document.getElementById('cluster-color-popover');
-          if (popover) {
-            popover.style.left = `${Math.min(window.innerWidth - 220, e.clientX + 10)}px`;
-            popover.style.top = `${Math.min(window.innerHeight - 120, e.clientY)}px`;
-            popover.classList.remove('hidden');
-          }
-        });
-
+        btn.innerHTML = `<div class="flex items-center gap-2 overflow-hidden mr-2"><span style="background-color: ${hex};" class="w-2.5 h-2.5 rounded-full shrink-0 shadow-xs"></span><span class="font-medium truncate">${cluster.name}</span></div><span class="text-[11px] font-semibold opacity-60 shrink-0">${cluster.count}</span>`;
+        btn.addEventListener('click', (e) => { e.stopPropagation(); selectDynamicCluster(cluster.id); });
         clusterListEl.appendChild(btn);
       });
     }
 
     function renderHierarchyTree() {
       const treeContainer = document.getElementById('tree-container');
-      if (!treeContainer) return;
-      treeContainer.innerHTML = '';
-
+      if (!treeContainer) return; treeContainer.innerHTML = '';
       const isDark = state.theme === 'dark' || state.theme === 'black';
-
       let rootNode = state.nodes.find(n => n.id === 'adam') || state.nodes.find(n => n.isHub) || state.nodes[0];
       if (!rootNode) return;
-
       const visited = new Set();
 
-      function createTreeNode(node, level = 0) {
+      function createTreeNode(node) {
         visited.add(node.id);
-        
-        const childEdgeTargets = state.edges
-          .filter(e => e.source === node.id)
-          .map(e => e.target);
-
-        const childNodes = state.nodes.filter(n => childEdgeTargets.includes(n.id) && !visited.has(n.id));
-
+        const childNodes = state.nodes.filter(n => state.edges.some(e => e.source === node.id && e.target === n.id) && !visited.has(n.id));
         const nodeWrapper = document.createElement('div');
         nodeWrapper.className = "flex flex-col gap-2";
 
         const itemRow = document.createElement('div');
-        itemRow.className = `flex items-center justify-between p-2.5 rounded-xl border transition-all group relative ${
-          isDark 
-            ? 'border-zinc-800/80 hover:border-indigo-500/40 hover:bg-zinc-800/40' 
-            : 'border-slate-100 hover:border-indigo-100 hover:bg-slate-50/80'
-        }`;
+        itemRow.className = `flex items-center justify-between p-2.5 rounded-xl border transition-all group relative ${isDark ? 'border-zinc-800/80 hover:bg-zinc-800/40' : 'border-slate-100 hover:bg-slate-50/80'}`;
 
         const leftGroup = document.createElement('div');
         leftGroup.className = "flex items-center gap-2.5 overflow-hidden";
-
-        if (childNodes.length > 0) {
-          const toggleBtn = document.createElement('button');
-          toggleBtn.className = "w-6 h-6 rounded-lg opacity-60 hover:opacity-100 flex items-center justify-center text-xs transition-colors shrink-0";
-          toggleBtn.innerHTML = '<i class="fa-solid fa-chevron-down transition-transform"></i>';
-          toggleBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const childContainer = nodeWrapper.querySelector('.tree-branch-line');
-            if (childContainer) {
-              const isHidden = childContainer.classList.toggle('hidden');
-              toggleBtn.querySelector('i').style.transform = isHidden ? 'rotate(-90deg)' : 'rotate(0deg)';
-            }
-          });
-          leftGroup.appendChild(toggleBtn);
-        } else {
-          const leafBullet = document.createElement('div');
-          leafBullet.className = "w-6 h-6 flex items-center justify-center shrink-0";
-          leafBullet.innerHTML = '<div class="w-1.5 h-1.5 rounded-full bg-slate-500/40"></div>';
-          leftGroup.appendChild(leafBullet);
-        }
-
-        const pillContainer = document.createElement('div');
-        pillContainer.className = "flex items-center justify-center";
-        pillContainer.innerHTML = getHierarchyPillMarkup(node, isDark);
-        leftGroup.appendChild(pillContainer);
-
-        if (node.id === 'adam' || node.isHub) {
-          const hubBadge = document.createElement('span');
-          hubBadge.className = "text-[10px] font-bold uppercase tracking-wider text-indigo-500 bg-indigo-500/10 border border-indigo-500/30 px-2 py-0.5 rounded-md shrink-0";
-          hubBadge.textContent = node.id === 'adam' ? "Root" : "Hub";
-          leftGroup.appendChild(hubBadge);
-        }
-
+        leftGroup.innerHTML = `<div class="w-6 h-6 flex items-center justify-center shrink-0"><div class="w-1.5 h-1.5 rounded-full bg-slate-500/40"></div></div>` + getHierarchyPillMarkup(node, isDark);
         itemRow.appendChild(leftGroup);
 
         const actionsDesktop = document.createElement('div');
-        actionsDesktop.className = "tree-actions-desktop opacity-80 group-hover:opacity-100 transition-opacity";
-
-        const btnAddChild = document.createElement('button');
-        btnAddChild.className = "px-2 py-1 text-xs font-medium text-emerald-500 hover:bg-emerald-500/10 rounded-lg transition-all flex items-center gap-1";
-        btnAddChild.title = "Add Sub-item";
-        btnAddChild.innerHTML = '<i class="fa-solid fa-plus text-[11px]"></i><span>Add</span>';
-        btnAddChild.addEventListener('click', (e) => {
-          e.stopPropagation();
-          openAddModal(node.id);
-        });
-        actionsDesktop.appendChild(btnAddChild);
-
-        const btnLocate = document.createElement('button');
-        btnLocate.className = "px-2 py-1 text-xs font-medium opacity-70 hover:opacity-100 hover:text-indigo-400 hover:bg-indigo-500/10 rounded-lg transition-all flex items-center gap-1";
-        btnLocate.title = "Locate on Canvas";
-        btnLocate.innerHTML = '<i class="fa-solid fa-crosshairs text-[11px]"></i><span>Locate</span>';
-        btnLocate.addEventListener('click', (e) => {
-          e.stopPropagation();
-          focusNodeOnCanvas(node.id);
-        });
-        actionsDesktop.appendChild(btnLocate);
-
-        const btnDeleteRow = document.createElement('button');
-        btnDeleteRow.className = "px-2 py-1 text-xs font-medium opacity-50 hover:opacity-100 hover:text-rose-500 hover:bg-rose-500/10 rounded-lg transition-all";
-        btnDeleteRow.title = "Delete Item";
-        btnDeleteRow.innerHTML = '<i class="fa-solid fa-trash-can text-[11px]"></i>';
-        btnDeleteRow.addEventListener('click', (e) => {
-          e.stopPropagation();
-          deleteNode(node.id);
-          renderHierarchyTree();
-        });
-        actionsDesktop.appendChild(btnDeleteRow);
-
+        actionsDesktop.className = "tree-actions-desktop opacity-80 group-hover:opacity-100 transition-opacity flex gap-1";
+        actionsDesktop.innerHTML = `<button class="px-2 py-1 text-xs font-medium text-emerald-500 hover:bg-emerald-500/10 rounded-lg flex items-center gap-1"><i class="fa-solid fa-plus text-[11px]"><span>Add</span></button><button class="px-2 py-1 text-xs font-medium opacity-70 hover:text-indigo-400 rounded-lg flex items-center gap-1"><i class="fa-solid fa-crosshairs text-[11px]"><span>Locate</span></button>`;
+        actionsDesktop.children[0].addEventListener('click', (e) => { e.stopPropagation(); openAddModal(node.id); });
+        actionsDesktop.children[1].addEventListener('click', (e) => { e.stopPropagation(); focusNodeOnCanvas(node.id); });
         itemRow.appendChild(actionsDesktop);
 
-        const actionsMobile = document.createElement('div');
-        actionsMobile.className = "tree-actions-mobile";
-
-        const dotsBtn = document.createElement('button');
-        dotsBtn.className = "w-7 h-7 rounded-lg flex items-center justify-center opacity-60 hover:opacity-100 hover:bg-slate-500/10 transition-colors";
-        dotsBtn.innerHTML = '<i class="fa-solid fa-ellipsis-vertical text-xs"></i>';
-
-        const dropdownMenu = document.createElement('div');
-        dropdownMenu.className = "hidden absolute right-0 top-full mt-1 z-50 min-w-[140px] rounded-xl border p-1.5 flex flex-col gap-1 tree-mobile-menu";
-
-        const mobAddOpt = document.createElement('button');
-        mobAddOpt.className = "w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium text-emerald-500 hover:bg-emerald-500/10 flex items-center gap-2";
-        mobAddOpt.innerHTML = '<i class="fa-solid fa-plus text-[11px] w-4"></i><span>Add</span>';
-        mobAddOpt.addEventListener('click', (e) => {
-          e.stopPropagation();
-          dropdownMenu.classList.add('hidden');
-          openAddModal(node.id);
-        });
-        dropdownMenu.appendChild(mobAddOpt);
-
-        const mobLocateOpt = document.createElement('button');
-        mobLocateOpt.className = "w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium opacity-80 hover:opacity-100 hover:bg-indigo-500/10 hover:text-indigo-400 flex items-center gap-2";
-        mobLocateOpt.innerHTML = '<i class="fa-solid fa-crosshairs text-[11px] w-4"></i><span>Locate</span>';
-        mobLocateOpt.addEventListener('click', (e) => {
-          e.stopPropagation();
-          dropdownMenu.classList.add('hidden');
-          focusNodeOnCanvas(node.id);
-        });
-        dropdownMenu.appendChild(mobLocateOpt);
-
-        const mobDelOpt = document.createElement('button');
-        mobDelOpt.className = "w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium text-rose-500 hover:bg-rose-500/10 flex items-center gap-2";
-        mobDelOpt.innerHTML = '<i class="fa-solid fa-trash-can text-[11px] w-4"></i><span>Delete</span>';
-        mobDelOpt.addEventListener('click', (e) => {
-          e.stopPropagation();
-          dropdownMenu.classList.add('hidden');
-          deleteNode(node.id);
-          renderHierarchyTree();
-        });
-        dropdownMenu.appendChild(mobDelOpt);
-
-        dotsBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          document.querySelectorAll('.tree-mobile-menu').forEach(m => {
-            if (m !== dropdownMenu) m.classList.add('hidden');
-          });
-          dropdownMenu.classList.toggle('hidden');
-        });
-
-        actionsMobile.appendChild(dotsBtn);
-        actionsMobile.appendChild(dropdownMenu);
-        itemRow.appendChild(actionsMobile);
-
         nodeWrapper.appendChild(itemRow);
-
         if (childNodes.length > 0) {
           const branchDiv = document.createElement('div');
           branchDiv.className = "tree-branch-line flex flex-col gap-2 mt-1";
-          childNodes.forEach(child => {
-            branchDiv.appendChild(createTreeNode(child, level + 1));
-          });
+          childNodes.forEach(child => branchDiv.appendChild(createTreeNode(child)));
           nodeWrapper.appendChild(branchDiv);
         }
-
         return nodeWrapper;
       }
-
-      treeContainer.appendChild(createTreeNode(rootNode, 0));
-
-      const orphans = state.nodes.filter(n => !visited.has(n.id));
-      if (orphans.length > 0) {
-        const orphanSection = document.createElement('div');
-        orphanSection.className = "pt-4 border-t border-slate-500/20 flex flex-col gap-2";
-        const orphanTitle = document.createElement('div');
-        orphanTitle.className = "text-xs font-bold opacity-40 uppercase tracking-wider";
-        orphanTitle.textContent = "Unconnected Nodes";
-        orphanSection.appendChild(orphanTitle);
-
-        orphans.forEach(o => {
-          orphanSection.appendChild(createTreeNode(o, 0));
-        });
-        treeContainer.appendChild(orphanSection);
-      }
+      treeContainer.appendChild(createTreeNode(rootNode));
     }
-
-    document.addEventListener('click', (e) => {
-      if (!e.target.closest('.tree-actions-mobile')) {
-        document.querySelectorAll('.tree-mobile-menu').forEach(m => m.classList.add('hidden'));
-      }
-      if (!e.target.closest('#cluster-color-popover')) {
-        const popover = document.getElementById('cluster-color-popover');
-        if (popover) popover.classList.add('hidden');
-        state.clusterColorTargetRootId = null;
-      }
-    });
 
     document.addEventListener("DOMContentLoaded", () => {
       const viewportEl = document.getElementById('board-viewport');
-      const marqueeBoxEl = document.getElementById('marquee-box');
       const modalEl = document.getElementById('add-node-modal');
       const labelInput = document.getElementById('node-label-input');
       const sidebar = document.getElementById('sidebar');
 
-      const btnSelectMode = document.getElementById('btn-select-mode');
-      const btnConnectMode = document.getElementById('btn-connect-mode');
-      const btnPanMode = document.getElementById('btn-pan-mode');
-      const btnUndo = document.getElementById('btn-undo');
-      const btnRedo = document.getElementById('btn-redo');
-      const btnSelectAll = document.getElementById('btn-select-all');
-      const btnDeleteSelected = document.getElementById('btn-delete-selected');
-      const btnExportPng = document.getElementById('btn-export-png');
-      const btnHierarchyExportPdf = document.getElementById('btn-hierarchy-export-pdf');
-      const btnResetDefault = document.getElementById('btn-reset-default');
-      const btnResetView = document.getElementById('btn-reset-view');
-      const btnCenterDiagram = document.getElementById('btn-center-diagram');
-      const btnZoomIn = document.getElementById('btn-zoom-in');
-      const btnZoomOut = document.getElementById('btn-zoom-out');
-      const btnOpenAddModal = document.getElementById('btn-open-add-modal');
-      const btnHierarchyAddRoot = document.getElementById('btn-hierarchy-add-root');
-      const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
-      const navCanvas = document.getElementById('nav-canvas');
-      const navHierarchy = document.getElementById('nav-hierarchy');
-      const btnCloseModal = document.getElementById('btn-close-modal');
-      const btnCancelModal = document.getElementById('btn-cancel-modal');
-      const btnConfirmAdd = document.getElementById('btn-confirm-add');
-      const btnSignOut = document.getElementById('btn-sign-out');
-      const loginBtn = document.getElementById('btn-login-submit');
-      const loginPassword = document.getElementById('login-password');
-      const btnInlineSave = document.getElementById('btn-inline-save');
-      const btnInlineDelete = document.getElementById('btn-inline-delete-node');
-      const inlineTextareaEl = document.getElementById('node-inline-textarea');
-      const btnThemeToggle = document.getElementById('btn-theme-toggle');
-      const btnHierarchyThemeToggle = document.getElementById('btn-hierarchy-theme-toggle');
+      document.getElementById('btn-export-png')?.addEventListener('click', exportToPNG);
+      document.getElementById('btn-theme-toggle')?.addEventListener('click', cycleTheme);
+      document.getElementById('btn-hierarchy-theme-toggle')?.addEventListener('click', cycleTheme);
+      document.getElementById('btn-select-mode')?.addEventListener('click', () => setAppMode('select'));
+      document.getElementById('btn-connect-mode')?.addEventListener('click', () => setAppMode('connect'));
+      document.getElementById('btn-pan-mode')?.addEventListener('click', () => setAppMode('pan'));
+      document.getElementById('btn-undo')?.addEventListener('click', performUndo);
+      document.getElementById('btn-redo')?.addEventListener('click', performRedo);
+      document.getElementById('btn-select-all')?.addEventListener('click', selectEntireDiagram);
+      document.getElementById('btn-delete-selected')?.addEventListener('click', deleteSelected);
+      document.getElementById('btn-reset-view')?.addEventListener('click', resetView);
+      document.getElementById('btn-zoom-in')?.addEventListener('click', () => { state.view.zoom = Math.min(2.5, state.view.zoom * 1.2); applyTransform(); });
+      document.getElementById('btn-zoom-out')?.addEventListener('click', () => { state.view.zoom = Math.max(0.3, state.view.zoom / 1.2); applyTransform(); });
+      document.getElementById('btn-open-add-modal')?.addEventListener('click', () => openAddModal(null));
+      document.getElementById('btn-hierarchy-add-root')?.addEventListener('click', () => openAddModal(null));
+      document.getElementById('btn-toggle-sidebar')?.addEventListener('click', () => { sidebar.classList.toggle('collapsed'); setTimeout(() => { centerDiagram(); applyTransform(); }, 260); });
+      document.getElementById('nav-canvas')?.addEventListener('click', () => switchPage('canvas'));
+      document.getElementById('nav-hierarchy')?.addEventListener('click', () => switchPage('hierarchy'));
+      document.getElementById('btn-close-modal')?.addEventListener('click', () => modalEl.classList.add('hidden'));
+      document.getElementById('btn-cancel-modal')?.addEventListener('click', () => modalEl.classList.add('hidden'));
 
-      const btnModalBold = document.getElementById('btn-modal-bold');
-      const btnModalItalic = document.getElementById('btn-modal-italic');
-      const btnModalUnderline = document.getElementById('btn-modal-underline');
-      const selectModalFontsize = document.getElementById('select-modal-fontsize');
-
-      if (btnModalBold) {
-        btnModalBold.addEventListener('click', () => {
-          state.selectedModalBold = !state.selectedModalBold;
-          btnModalBold.classList.toggle('bg-indigo-600', state.selectedModalBold);
-          btnModalBold.classList.toggle('text-white', state.selectedModalBold);
-        });
-      }
-      if (btnModalItalic) {
-        btnModalItalic.addEventListener('click', () => {
-          state.selectedModalItalic = !state.selectedModalItalic;
-          btnModalItalic.classList.toggle('bg-indigo-600', state.selectedModalItalic);
-          btnModalItalic.classList.toggle('text-white', state.selectedModalItalic);
-        });
-      }
-      if (btnModalUnderline) {
-        btnModalUnderline.addEventListener('click', () => {
-          state.selectedModalUnderline = !state.selectedModalUnderline;
-          btnModalUnderline.classList.toggle('bg-indigo-600', state.selectedModalUnderline);
-          btnModalUnderline.classList.toggle('text-white', state.selectedModalUnderline);
-        });
-      }
-
-      if (selectModalFontsize) {
-        selectModalFontsize.addEventListener('change', (e) => {
-          state.selectedModalFontSize = e.target.value;
-        });
-      }
-
-      const btnInlineBold = document.getElementById('btn-inline-bold');
-      const btnInlineItalic = document.getElementById('btn-inline-italic');
-      const btnInlineUnderline = document.getElementById('btn-inline-underline');
-      const selectInlineFontsize = document.getElementById('select-inline-fontsize');
-
-      if (btnInlineBold) {
-        btnInlineBold.addEventListener('click', () => {
-          if (state.editingNodeId) {
-            const node = state.nodes.find(n => n.id === state.editingNodeId);
-            if (node) {
-              pushHistory();
-              node.isBold = !node.isBold;
-              btnInlineBold.classList.toggle('bg-indigo-600', node.isBold);
-              btnInlineBold.classList.toggle('text-white', node.isBold);
-              commitState(true, true);
-              renderBoard();
-            }
-          }
-        });
-      }
-      if (btnInlineItalic) {
-        btnInlineItalic.addEventListener('click', () => {
-          if (state.editingNodeId) {
-            const node = state.nodes.find(n => n.id === state.editingNodeId);
-            if (node) {
-              pushHistory();
-              node.isItalic = !node.isItalic;
-              btnInlineItalic.classList.toggle('bg-indigo-600', node.isItalic);
-              btnInlineItalic.classList.toggle('text-white', node.isItalic);
-              commitState(true, true);
-              renderBoard();
-            }
-          }
-        });
-      }
-      if (btnInlineUnderline) {
-        btnInlineUnderline.addEventListener('click', () => {
-          if (state.editingNodeId) {
-            const node = state.nodes.find(n => n.id === state.editingNodeId);
-            if (node) {
-              pushHistory();
-              node.isUnderline = !node.isUnderline;
-              btnInlineUnderline.classList.toggle('bg-indigo-600', node.isUnderline);
-              btnInlineUnderline.classList.toggle('text-white', node.isUnderline);
-              commitState(true, true);
-              renderBoard();
-            }
-          }
-        });
-      }
-
-      if (selectInlineFontsize) {
-        selectInlineFontsize.addEventListener('change', (e) => {
-          if (state.editingNodeId) {
-            const node = state.nodes.find(n => n.id === state.editingNodeId);
-            if (node) {
-              pushHistory();
-              node.fontSize = e.target.value;
-              commitState(true, true);
-              renderBoard();
-            }
-          }
-        });
-      }
-
-      if (btnUndo) btnUndo.addEventListener('click', performUndo);
-      if (btnRedo) btnRedo.addEventListener('click', performRedo);
-      if (btnExportPng) btnExportPng.addEventListener('click', exportToPNG);
-      if (btnHierarchyExportPdf) btnHierarchyExportPdf.addEventListener('click', exportHierarchyToPDF);
-
-      renderColorPickers();
-      renderBgColorPickers();
-      renderShapePickers();
-      renderModalColorChoices();
-      renderModalBgColorChoices();
-      renderModalShapeChoices();
-
-      applyTheme(state.theme);
-      if (btnThemeToggle) btnThemeToggle.addEventListener('click', cycleTheme);
-      if (btnHierarchyThemeToggle) btnHierarchyThemeToggle.addEventListener('click', cycleTheme);
-
-      const parentDropdownBtn = document.getElementById('parent-dropdown-btn');
-      const parentDropdownMenu = document.getElementById('parent-dropdown-menu');
-      const parentSearchInput = document.getElementById('parent-search-input');
-
-      if (parentDropdownBtn && parentDropdownMenu) {
-        parentDropdownBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const isOpening = parentDropdownMenu.classList.toggle('hidden') === false;
-          if (isOpening && parentSearchInput) {
-            parentSearchInput.value = '';
-            populateParentDropdown(state.modalParentNodeId, '');
-            setTimeout(() => parentSearchInput.focus(), 60);
-          }
-        });
-
-        document.addEventListener('click', (e) => {
-          if (!e.target.closest('#parent-dropdown-container')) {
-            parentDropdownMenu.classList.add('hidden');
-          }
-        });
-      }
-
-      if (parentSearchInput) {
-        parentSearchInput.addEventListener('input', (e) => {
-          populateParentDropdown(state.modalParentNodeId, e.target.value);
-        });
-        parentSearchInput.addEventListener('click', (e) => e.stopPropagation());
-      }
-
-      if (btnSelectMode) btnSelectMode.addEventListener('click', () => setAppMode('select'));
-      if (btnConnectMode) btnConnectMode.addEventListener('click', () => setAppMode('connect'));
-      if (btnPanMode) btnPanMode.addEventListener('click', () => setAppMode('pan'));
-      if (btnSelectAll) btnSelectAll.addEventListener('click', selectEntireDiagram);
-      if (btnDeleteSelected) btnDeleteSelected.addEventListener('click', deleteSelected);
-      if (btnResetDefault) btnResetDefault.addEventListener('click', resetToDefaultDiagram);
-      if (btnResetView) btnResetView.addEventListener('click', resetView);
-      if (btnCenterDiagram) btnCenterDiagram.addEventListener('click', centerDiagram);
+      document.getElementById('btn-confirm-add')?.addEventListener('click', () => {
+        const text = labelInput.value.trim();
+        if (!text) { showToast("Please enter a title."); return; }
+        pushHistory();
+        const parentId = state.modalParentNodeId || null;
+        const rect = viewportEl.getBoundingClientRect();
+        const center = screenToWorld(rect.left + rect.width / 2, rect.top + rect.height / 2);
+        const newNodeId = "node_" + Date.now();
+        state.nodes.push({ id: newNodeId, label: text, x: Math.round(center.x + Math.random()*30), y: Math.round(center.y + Math.random()*30), color: state.selectedModalColor || 'red', shape: state.selectedModalShape || 'pill', fontSize: state.selectedModalFontSize || '', bgColor: state.selectedModalBgColor || '' });
+        if (parentId) state.edges.push({ id: "edge_" + Date.now(), source: parentId, target: newNodeId });
+        commitState(true, true); modalEl.classList.add('hidden'); renderBoard(); showToast(`Added "${text}"`);
+      });
 
       setAppMode('pan');
-
-      if (btnZoomIn) {
-        btnZoomIn.addEventListener('click', () => {
-          state.view.zoom = Math.min(2.5, state.view.zoom * 1.2);
-          applyTransform();
-        });
-      }
-      if (btnZoomOut) {
-        btnZoomOut.addEventListener('click', () => {
-          state.view.zoom = Math.max(0.3, state.view.zoom / 1.2);
-          applyTransform();
-        });
-      }
-
-      if (btnOpenAddModal) btnOpenAddModal.addEventListener('click', () => openAddModal(null));
-      if (btnHierarchyAddRoot) btnHierarchyAddRoot.addEventListener('click', () => openAddModal(null));
-
-      if (btnToggleSidebar && sidebar) {
-        btnToggleSidebar.addEventListener('click', () => {
-          sidebar.classList.toggle('collapsed');
-          setTimeout(() => {
-            centerDiagram();
-            applyTransform();
-          }, 260);
-        });
-      }
-
-      if (navCanvas) navCanvas.addEventListener('click', () => switchPage('canvas'));
-      if (navHierarchy) navHierarchy.addEventListener('click', () => switchPage('hierarchy'));
-
-      if (btnCloseModal && modalEl) btnCloseModal.addEventListener('click', () => modalEl.classList.add('hidden'));
-      if (btnCancelModal && modalEl) btnCancelModal.addEventListener('click', () => modalEl.classList.add('hidden'));
-
-      if (btnConfirmAdd) {
-        btnConfirmAdd.addEventListener('click', () => {
-          if (!labelInput) return;
-          const text = labelInput.value.trim();
-          if (!text) {
-            showToast("Please enter a title for the node.");
-            return;
-          }
-
-          pushHistory();
-
-          const chosenParentId = state.modalParentNodeId || null;
-          let posX, posY;
-          if (chosenParentId) {
-            const parentNode = state.nodes.find(n => n.id === chosenParentId);
-            if (state.contextClickPos) {
-              posX = Math.round(state.contextClickPos.x + 80);
-              posY = Math.round(state.contextClickPos.y);
-              state.contextClickPos = null;
-            } else if (parentNode) {
-              const angle = Math.random() * Math.PI * 2;
-              const distance = 140 + Math.random() * 40;
-              posX = Math.round(parentNode.x + Math.cos(angle) * distance);
-              posY = Math.round(parentNode.y + Math.sin(angle) * distance);
-            } else {
-              const rect = viewportEl.getBoundingClientRect();
-              const centerScreen = screenToWorld(rect.left + rect.width / 2, rect.top + rect.height / 2);
-              posX = Math.round(centerScreen.x);
-              posY = Math.round(centerScreen.y);
-            }
-          } else {
-            if (state.contextClickPos) {
-              posX = Math.round(state.contextClickPos.x);
-              posY = Math.round(state.contextClickPos.y);
-              state.contextClickPos = null;
-            } else {
-              const rect = viewportEl.getBoundingClientRect();
-              const centerScreen = screenToWorld(rect.left + rect.width / 2, rect.top + rect.height / 2);
-              posX = Math.round(centerScreen.x + (Math.random() * 40 - 20));
-              posY = Math.round(centerScreen.y + (Math.random() * 40 - 20));
-            }
-          }
-
-          const modalUrlEl = document.getElementById('node-modal-url');
-          const modalCaptionEl = document.getElementById('node-modal-caption');
-          const urlVal = modalUrlEl ? modalUrlEl.value.trim() : '';
-          const captionVal = modalCaptionEl ? modalCaptionEl.value.trim() : '';
-
-          const newNodeId = "node_" + Date.now();
-          const newNode = {
-            id: newNodeId,
-            label: text,
-            x: posX,
-            y: posY,
-            color: state.selectedModalColor || 'red',
-            shape: state.selectedModalShape || 'pill',
-            fontSize: state.selectedModalFontSize || '',
-            bgColor: state.selectedModalBgColor || '',
-            linkUrl: urlVal,
-            linkCaption: captionVal,
-            isBold: state.selectedModalBold,
-            isItalic: state.selectedModalItalic,
-            isUnderline: state.selectedModalUnderline
-          };
-
-          state.nodes.push(newNode);
-
-          if (chosenParentId) {
-            state.edges.push({
-              id: "edge_" + Date.now(),
-              source: chosenParentId,
-              target: newNodeId
-            });
-          }
-
-          commitState(true, true);
-          if (modalEl) modalEl.classList.add('hidden');
-          renderBoard();
-          if (state.currentPage === 'hierarchy') renderHierarchyTree();
-          showToast(`Added "${text}"`);
-          state.modalParentNodeId = null;
-        });
-      }
-
-      if (btnInlineSave) {
-        btnInlineSave.addEventListener('click', (e) => {
-          e.stopPropagation();
-          closeInlineEditor(true);
-        });
-      }
-
-      if (btnInlineDelete) {
-        btnInlineDelete.addEventListener('click', (e) => {
-          e.stopPropagation();
-          if (state.editingNodeId) {
-            const idToDelete = state.editingNodeId;
-            closeInlineEditor(false);
-            deleteNode(idToDelete);
-          }
-        });
-      }
-
-      if (inlineTextareaEl) {
-        inlineTextareaEl.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            closeInlineEditor(true);
-          } else if (e.key === 'Escape') {
-            closeInlineEditor(false);
-          }
-        });
-      }
-
-      const btnCollapseTree = document.getElementById('btn-collapse-all-tree');
-      if (btnCollapseTree) {
-        btnCollapseTree.addEventListener('click', () => {
-          document.querySelectorAll('.tree-branch-line').forEach(branch => branch.classList.add('hidden'));
-          document.querySelectorAll('#tree-container .fa-chevron-down').forEach(i => i.style.transform = 'rotate(-90deg)');
-        });
-      }
-
-      const btnExpandTree = document.getElementById('btn-expand-all-tree');
-      if (btnExpandTree) {
-        btnExpandTree.addEventListener('click', () => {
-          document.querySelectorAll('.tree-branch-line').forEach(branch => branch.classList.remove('hidden'));
-          document.querySelectorAll('#tree-container .fa-chevron-down').forEach(i => i.style.transform = 'rotate(0deg)');
-        });
-      }
-
-      if (viewportEl) {
-        viewportEl.addEventListener('contextmenu', (e) => {
-          if (e.target.closest('.node')) return;
-          e.preventDefault();
-          e.stopPropagation();
-
-          state.selectedNodeIds.clear();
-          state.selectedEdgeId = null;
-          updateSelectionVisuals();
-
-          state.contextClickPos = screenToWorld(e.clientX, e.clientY);
-          openAddModal(null);
-        });
-
-        viewportEl.addEventListener('mousedown', (e) => {
-          if (state.editingNodeId && !e.target.closest('#node-inline-editor')) {
-            closeInlineEditor(true);
-          }
-
-          if (e.button === 1 || state.mode === 'pan' || (e.button === 0 && e.spaceKey)) {
-            state.isPanning = true;
-            state.panStart = { x: e.clientX - state.view.x, y: e.clientY - state.view.y };
-            viewportEl.classList.add('panning');
-            return;
-          }
-
-          if (e.button === 0 && state.mode === 'select' && !e.target.closest('.node')) {
-            state.isMarquee = true;
-            state.marqueeStart = { x: e.clientX, y: e.clientY };
-            const rect = viewportEl.getBoundingClientRect();
-            if (marqueeBoxEl) {
-              marqueeBoxEl.style.left = `${e.clientX - rect.left}px`;
-              marqueeBoxEl.style.top = `${e.clientY - rect.top}px`;
-              marqueeBoxEl.style.width = '0px';
-              marqueeBoxEl.style.height = '0px';
-              marqueeBoxEl.style.display = 'block';
-            }
-
-            if (!e.shiftKey && !e.ctrlKey && !e.metaKey) {
-              state.selectedNodeIds.clear();
-              state.selectedEdgeId = null;
-              updateSelectionVisuals();
-            }
-          }
-        });
-
-        window.addEventListener('mousemove', (e) => {
-          if (state.isPanning) {
-            state.view.x = e.clientX - state.panStart.x;
-            state.view.y = e.clientY - state.panStart.y;
-            applyTransform();
-            return;
-          }
-
-          if (state.isMarquee && marqueeBoxEl) {
-            const rect = viewportEl.getBoundingClientRect();
-            const startX = state.marqueeStart.x;
-            const startY = state.marqueeStart.y;
-            const currentX = e.clientX;
-            const currentY = e.clientY;
-
-            const left = Math.min(startX, currentX) - rect.left;
-            const top = Math.min(startY, currentY) - rect.top;
-            const width = Math.abs(currentX - startX);
-            const height = Math.abs(currentY - startY);
-
-            marqueeBoxEl.style.left = `${left}px`;
-            marqueeBoxEl.style.top = `${top}px`;
-            marqueeBoxEl.style.width = `${width}px`;
-            marqueeBoxEl.style.height = `${height}px`;
-
-            state.nodes.forEach(node => {
-              const screenPos = worldToScreen(node.x, node.y);
-              if (
-                screenPos.x >= Math.min(startX, currentX) &&
-                screenPos.x <= Math.min(startX, currentX) + width &&
-                screenPos.y >= Math.min(startY, currentY) &&
-                screenPos.y <= Math.min(startY, currentY) + height
-              ) {
-                state.selectedNodeIds.add(node.id);
-              }
-            });
-            updateSelectionVisuals();
-          }
-        });
-
-        window.addEventListener('mouseup', () => {
-          if (state.isPanning) {
-            state.isPanning = false;
-            viewportEl.classList.remove('panning');
-          }
-          if (state.isMarquee) {
-            state.isMarquee = false;
-            if (marqueeBoxEl) marqueeBoxEl.style.display = 'none';
-            if (state.selectedNodeIds.size > 0) {
-              showToast(`${state.selectedNodeIds.size} nodes selected. Drag any to reposition group.`);
-            }
-          }
-        });
-
-        viewportEl.addEventListener('wheel', (e) => {
-          e.preventDefault();
-          const zoomFactor = 1.1;
-          const oldZoom = state.view.zoom;
-          let newZoom = e.deltaY < 0 ? oldZoom * zoomFactor : oldZoom / zoomFactor;
-          newZoom = Math.min(Math.max(0.3, newZoom), 2.5);
-
-          const rect = viewportEl.getBoundingClientRect();
-          const mouseX = e.clientX - rect.left;
-          const mouseY = e.clientY - rect.top;
-
-          state.view.x = mouseX - (mouseX - state.view.x) * (newZoom / oldZoom);
-          state.view.y = mouseY - (mouseY - state.view.y) * (newZoom / oldZoom);
-          state.view.zoom = newZoom;
-          applyTransform();
-        }, { passive: false });
-
-        let initialTouchDistance = 0;
-        let initialZoom = 1;
-        let initialTouchCenter = { x: 0, y: 0 };
-        let initialViewAtPinch = { x: 0, y: 0 };
-
-        viewportEl.addEventListener('touchstart', (e) => {
-          if (state.editingNodeId && !e.target.closest('#node-inline-editor')) {
-            closeInlineEditor(true);
-          }
-
-          if (e.touches.length === 1) {
-            if (state.mode === 'pan') {
-              state.isPanning = true;
-              state.panStart = { x: e.touches[0].clientX - state.view.x, y: e.touches[0].clientY - state.view.y };
-            } else if (state.mode === 'select' && !e.target.closest('.node')) {
-              state.selectedNodeIds.clear();
-              state.selectedEdgeId = null;
-              updateSelectionVisuals();
-            }
-          } else if (e.touches.length === 2) {
-            state.isPanning = false;
-            const t1 = e.touches[0];
-            const t2 = e.touches[1];
-            initialTouchDistance = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
-            initialZoom = state.view.zoom;
-            initialTouchCenter = { x: (t1.clientX + t2.clientX) / 2, y: (t1.clientY + t2.clientY) / 2 };
-            initialViewAtPinch = { x: state.view.x, y: state.view.y };
-          }
-        }, { passive: false });
-
-        viewportEl.addEventListener('touchmove', (e) => {
-          if (e.touches.length === 1 && state.isPanning) {
-            e.preventDefault();
-            state.view.x = e.touches[0].clientX - state.panStart.x;
-            state.view.y = e.touches[0].clientY - state.panStart.y;
-            applyTransform();
-          } else if (e.touches.length === 2 && initialTouchDistance > 0) {
-            e.preventDefault();
-            const t1 = e.touches[0];
-            const t2 = e.touches[1];
-            const currentDistance = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
-            const currentCenter = { x: (t1.clientX + t2.clientX) / 2, y: (t1.clientY + t2.clientY) / 2 };
-            const pinchRatio = currentDistance / initialTouchDistance;
-            let newZoom = Math.min(Math.max(0.3, initialZoom * pinchRatio), 2.5);
-
-            state.view.x = currentCenter.x - (initialTouchCenter.x - initialViewAtPinch.x) * (newZoom / initialZoom) + (currentCenter.x - initialTouchCenter.x);
-            state.view.y = currentCenter.y - (initialTouchCenter.y - initialViewAtPinch.y) * (newZoom / initialZoom) + (currentCenter.y - initialTouchCenter.y);
-            state.view.zoom = newZoom;
-            applyTransform();
-          }
-        }, { passive: false });
-
-        viewportEl.addEventListener('touchend', (e) => {
-          if (e.touches.length < 2) initialTouchDistance = 0;
-          if (e.touches.length === 0) state.isPanning = false;
-        });
-      }
-
-      const activeKeys = new Set();
-
-      window.addEventListener('keydown', (e) => {
-        if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA' || document.activeElement.tagName === 'SELECT') {
-          return;
-        }
-
-        activeKeys.add(e.code);
-
-        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
-          e.preventDefault();
-          performUndo();
-          return;
-        }
-
-        if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'y' || (e.shiftKey && e.key.toLowerCase() === 'z'))) {
-          e.preventDefault();
-          performRedo();
-          return;
-        }
-
-        if (e.shiftKey && activeKeys.has('KeyZ') && activeKeys.has('KeyX')) {
-          e.preventDefault();
-          createIsolatedGroup();
-          return;
-        }
-
-        if (e.shiftKey && (e.key === '+' || e.key === '=' || e.code === 'Equal' || e.code === 'NumpadAdd')) {
-          e.preventDefault();
-          const targetParent = state.selectedNodeIds.size === 1 ? Array.from(state.selectedNodeIds)[0] : null;
-          openAddModal(targetParent);
-          return;
-        }
-
-        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a') {
-          e.preventDefault();
-          selectEntireDiagram();
-          return;
-        }
-
-        if (e.key === 'Escape') {
-          state.selectedNodeIds.clear();
-          state.selectedEdgeId = null;
-          state.connectSourceId = null;
-          updateSelectionVisuals();
-          return;
-        }
-
-        if (e.key === 'Delete' || e.key === 'Backspace') {
-          e.preventDefault();
-          deleteSelected();
-          return;
-        }
-
-        if (e.key.toLowerCase() === 'v') setAppMode('select');
-        if (e.key.toLowerCase() === 'c') setAppMode('connect');
-        if (e.key.toLowerCase() === 'h') setAppMode('pan');
-      });
-
-      window.addEventListener('keyup', (e) => {
-        activeKeys.delete(e.code);
-      });
-
-      window.addEventListener('blur', () => {
-        activeKeys.clear();
-      });
-
-      function attemptLogin() {
-        const loginEmail = document.getElementById('login-email');
-        const loginPassword = document.getElementById('login-password');
-        const loginBtn = document.getElementById('btn-login-submit');
-        const authErrorMsg = document.getElementById('auth-error-msg');
-
-        if (!loginEmail || !loginPassword || !loginBtn || !authErrorMsg) return;
-
-        const email = loginEmail.value.trim();
-        const password = loginPassword.value.trim();
-        if (!email || !password) {
-          authErrorMsg.textContent = "Please enter both email and password.";
-          authErrorMsg.classList.remove('hidden');
-          return;
-        }
-
-        loginBtn.disabled = true;
-        loginBtn.textContent = "Signing In...";
-        authErrorMsg.classList.add('hidden');
-
-        auth.signInWithEmailAndPassword(email, password)
-          .then(() => {
-            authErrorMsg.classList.add('hidden');
-          })
-          .catch(err => {
-            console.error("Authentication failed:", err);
-            authErrorMsg.textContent = err.message;
-            authErrorMsg.classList.remove('hidden');
-          })
-          .finally(() => {
-            loginBtn.disabled = false;
-            loginBtn.textContent = "Sign In";
-          });
-      }
-
-      if (loginBtn) loginBtn.addEventListener('click', attemptLogin);
-      if (loginPassword) {
-        loginPassword.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter') attemptLogin();
-        });
-      }
-
-      if (btnSignOut) {
-        btnSignOut.addEventListener('click', () => {
-          auth.signOut().then(() => {
-            location.reload();
-          });
-        });
-      }
-
       renderBoard();
       applyTransform();
-
-      requestAnimationFrame(() => {
-        centerDiagram();
-      });
-
+      requestAnimationFrame(() => centerDiagram());
       setTimeout(hideSplashScreen, 1500);
     });
 
-    let dbSyncAttached = false;
-    let initialSyncDone = false;
-
-    function initDatabaseSync() {
-      if (dbSyncAttached || !window.boardRef) return;
-      dbSyncAttached = true;
-
-      const connectedRef = db.ref(".info/connected");
-      connectedRef.on('value', (snap) => {
-        if (snap.val() === false) {
-          setSaveStatus('offline');
-        } else {
-          setSaveStatus('synced', state.lastModified);
-        }
-      });
-
-      window.boardRef.on('value', (snapshot) => {
-        const cloudData = snapshot.val();
-        if (cloudData && Array.isArray(cloudData.nodes) && Array.isArray(cloudData.edges)) {
-          if (state.isDraggingGroup) return;
-
-          const cloudTimestamp = cloudData.lastModified || 0;
-          if (cloudTimestamp >= state.lastModified) {
-            isIncomingSync = true;
-            state.nodes = cloudData.nodes.map(n => ({ 
-              ...n, 
-              x: Number(n.x) || 0, 
-              y: Number(n.y) || 0,
-              width: Number(n.width) || 0,
-              height: Number(n.height) || 0,
-              shape: n.shape || 'pill',
-              fontSize: n.fontSize || '',
-              bgColor: n.bgColor || '',
-              linkUrl: n.linkUrl || '',
-              linkCaption: n.linkCaption || '',
-              isBold: !!n.isBold,
-              isItalic: !!n.isItalic,
-              isUnderline: !!n.isUnderline
-            }));
-            state.edges = cloudData.edges;
-            state.lastModified = cloudTimestamp;
-
-            try {
-              localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({
-                nodes: state.nodes,
-                edges: state.edges,
-                view: state.view,
-                lastModified: state.lastModified
-              }));
-            } catch (e) {}
-
-            renderBoard();
-            if (state.currentPage === 'hierarchy') renderHierarchyTree();
-            isIncomingSync = false;
-            setSaveStatus('synced', cloudTimestamp);
-
-            if (!initialSyncDone) {
-              initialSyncDone = true;
-              centerDiagram();
-            }
-          }
-        } else {
-          commitState(true);
-          if (!initialSyncDone) {
-            initialSyncDone = true;
-            centerDiagram();
-          }
-        }
-        hideSplashScreen();
-      }, (err) => {
-        console.error("Firebase sync error:", err);
-        setSaveStatus('error');
-        hideSplashScreen();
-      });
-    }
-
     auth.onAuthStateChanged((user) => {
       const authModal = document.getElementById('auth-modal');
-      const userDisplayEmail = document.getElementById('user-display-email');
-      const avatarContainer = document.getElementById('sidebar-user-avatar-container');
-
-      if (user) {
-        if (authModal) authModal.classList.add('hidden');
-        if (userDisplayEmail) userDisplayEmail.textContent = user.email ? user.email.split('@')[0] : 'Member';
-        
-        if (avatarContainer) {
-          const photoUrl = user.photoURL || USER_AVATAR_MAP[user.uid];
-          if (photoUrl) {
-            avatarContainer.innerHTML = `<img src="${photoUrl}" alt="Avatar" class="w-full h-full object-cover" />`;
-          } else {
-            avatarContainer.innerHTML = `<i class="fa-solid fa-user"></i>`;
-          }
-        }
-
-        initDatabaseSync();
-      } else {
-        if (authModal) authModal.classList.remove('hidden');
-        setSaveStatus('offline');
-        hideSplashScreen();
-      }
+      if (user) { authModal?.classList.add('hidden'); }
+      else { authModal?.classList.remove('hidden'); }
+      hideSplashScreen();
     });
   </script>
 </body>
