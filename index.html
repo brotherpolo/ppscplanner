@@ -900,14 +900,14 @@
         <!-- Version Code positioned just above the border line -->
         <div class="px-4 py-1.5 flex items-center justify-between text-[11px] font-mono font-medium opacity-40 select-none">
           <span class="sidebar-label tracking-wider uppercase">Version</span>
-          <span class="mx-auto sidebar-extra font-semibold">v0.92</span>
+          <span class="mx-auto sidebar-extra font-semibold">v0.9</span>
         </div>
 
         <div class="p-3 border-t border-slate-200/50 flex flex-col gap-2">
           <div class="sidebar-item flex items-center justify-between px-2.5 py-1.5 rounded-xl bg-slate-500/10 border border-slate-500/20">
             <div class="flex items-center gap-2 overflow-hidden">
-              <div class="w-7 h-7 rounded-lg bg-slate-500/20 flex items-center justify-center text-xs shrink-0">
-                <i class="fa-solid fa-user-check"></i>
+              <div id="sidebar-user-avatar-container" class="w-7 h-7 rounded-lg bg-slate-500/20 flex items-center justify-center text-xs shrink-0 overflow-hidden">
+                <i class="fa-solid fa-user" id="sidebar-default-user-icon"></i>
               </div>
               <span id="user-display-email" class="text-xs font-semibold truncate sidebar-label max-w-[120px]">user</span>
             </div>
@@ -1244,6 +1244,12 @@
       { key: 'hexagon', name: 'Hexagon', icon: 'fa-cube' },
       { key: 'triangle', name: 'Triangle', icon: 'fa-play fa-rotate-270' }
     ];
+
+    // --- USER PROFILE IMAGES MAPPING BY UID (Optional custom mapping) ---
+    // You can also assign user.photoURL to store pictures per logged-in account
+    const USER_AVATAR_MAP = {
+      // "YOUR_FIREBASE_UID_HERE": "adam.jpeg"
+    };
 
     // --- 1. FIREBASE CONFIGURATION ---
     const firebaseConfig = {
@@ -3788,9 +3794,22 @@
     auth.onAuthStateChanged((user) => {
       const authModal = document.getElementById('auth-modal');
       const userDisplayEmail = document.getElementById('user-display-email');
+      const avatarContainer = document.getElementById('sidebar-user-avatar-container');
+
       if (user) {
         if (authModal) authModal.classList.add('hidden');
         if (userDisplayEmail) userDisplayEmail.textContent = user.email ? user.email.split('@')[0] : 'Member';
+        
+        // Dynamically bind user profile image based on UID or photoURL
+        if (avatarContainer) {
+          const photoUrl = user.photoURL || USER_AVATAR_MAP[user.uid];
+          if (photoUrl) {
+            avatarContainer.innerHTML = `<img src="${photoUrl}" alt="Avatar" class="w-full h-full object-cover" />`;
+          } else {
+            avatarContainer.innerHTML = `<i class="fa-solid fa-user"></i>`;
+          }
+        }
+
         initDatabaseSync();
       } else {
         if (authModal) authModal.classList.remove('hidden');
