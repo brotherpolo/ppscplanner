@@ -2119,22 +2119,54 @@
       updateSelectionVisuals();
     }
 
-    // --- EXPORT TO PDF FUNCTION ---
+    // --- FULL MAP DYNAMIC EXPORT TO PDF ---
     function exportToPDF() {
-      showToast("Generating PDF, please wait...");
-      const viewportEl = document.getElementById('board-viewport');
-      if (!viewportEl) return;
+      showToast("Generating full map PDF, please wait...");
+      const worldLayerEl = document.getElementById('world-layer');
+      if (!worldLayerEl || state.nodes.length === 0) return;
 
+      // 1. Calculate bounding box of all nodes to wrap the full diagram
+      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+      state.nodes.forEach(n => {
+        const pad = 120; // Padding for node widths and labels
+        if (n.x - pad < minX) minX = n.x - pad;
+        if (n.x + pad > maxX) maxX = n.x + pad;
+        if (n.y - pad < minY) minY = n.y - pad;
+        if (n.y + pad > maxY) maxY = n.y + pad;
+      });
+
+      const mapWidth = maxX - minX;
+      const mapHeight = maxY - minY;
+
+      // 2. Temporarily clone world layer into an offscreen container centered for snapshotting
+      const exportContainer = document.createElement('div');
+      exportContainer.style.position = 'fixed';
+      exportContainer.style.left = '-9999px';
+      exportContainer.style.top = '-9999px';
+      exportContainer.style.width = `${mapWidth}px`;
+      exportContainer.style.height = `${mapHeight}px`;
+      exportContainer.style.backgroundColor = getComputedStyle(document.getElementById('board-viewport')).backgroundColor || '#fbfbfa';
+      exportContainer.style.backgroundImage = getComputedStyle(document.getElementById('board-viewport')).backgroundImage;
+      exportContainer.style.backgroundSize = getComputedStyle(document.getElementById('board-viewport')).backgroundSize;
+
+      const cloneWorld = worldLayerEl.cloneNode(true);
+      // Reset transform and shift all coordinates so top-left of bounding box is 0,0
+      cloneWorld.style.transform = `translate(${-minX}px, ${-minY}px) scale(1)`;
+      exportContainer.appendChild(cloneWorld);
+      document.body.appendChild(exportContainer);
+
+      // Clear selections for clean export look
       const prevSelected = new Set(state.selectedNodeIds);
       state.selectedNodeIds.clear();
       state.selectedEdgeId = null;
       updateSelectionVisuals();
 
-      html2canvas(viewportEl, {
+      html2canvas(exportContainer, {
         scale: 2,
         useCORS: true,
-        backgroundColor: getComputedStyle(document.body).backgroundColor || '#fbfbfa'
+        backgroundColor: null
       }).then(canvas => {
+        document.body.removeChild(exportContainer);
         state.selectedNodeIds = prevSelected;
         updateSelectionVisuals();
 
@@ -2147,10 +2179,11 @@
         });
 
         pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-        pdf.save('Adam_Pollack_PPSC_Workmap.pdf');
-        showToast("PDF exported successfully!");
+        pdf.save('Adam_Pollack_PPSC_Workmap_Full.pdf');
+        showToast("Full map PDF exported successfully!");
       }).catch(err => {
         console.error("PDF export error:", err);
+        if (exportContainer.parentNode) document.body.removeChild(exportContainer);
         state.selectedNodeIds = prevSelected;
         updateSelectionVisuals();
         showToast("Failed to export PDF.");
