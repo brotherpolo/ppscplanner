@@ -900,7 +900,7 @@
         <!-- Version Code positioned just above the border line -->
         <div class="px-4 py-1.5 flex items-center justify-between text-[11px] font-mono font-medium opacity-40 select-none">
           <span class="sidebar-label tracking-wider uppercase">Version</span>
-          <span class="mx-auto sidebar-extra font-semibold">v0.93</span>
+          <span class="mx-auto sidebar-extra font-semibold">v0.9</span>
         </div>
 
         <div class="p-3 border-t border-slate-200/50 flex flex-col gap-2">
@@ -1248,9 +1248,10 @@
       { key: 'triangle', name: 'Triangle', icon: 'fa-play fa-rotate-270' }
     ];
 
-    // --- USER PROFILE IMAGES MAPPING BY UID (Optional custom mapping) ---
+  // --- USER PROFILE IMAGES MAPPING BY UID ---
     const USER_AVATAR_MAP = {
-      // "YOUR_FIREBASE_UID_HERE": "adam.jpeg"
+      "mrnrYxtNwuV8vgru9Gr2KkJ1HzI2": "adam.jpeg",
+      "b0Ji8It6eQOt0G3pvyvqrpWUF1m2": "taylor.jpg" // Make sure this image file is also in your project folder!
     };
 
     // --- 1. FIREBASE CONFIGURATION ---
@@ -2614,7 +2615,7 @@
       }, 50);
     }
 
-    // Helper: Dynamic Pill HTML for all 15 colors
+    // Helper: Dynamic Pill HTML for all 15 colors with centered layout
     function getPillMarkup(node, isDark) {
       const hex = COLOR_HEX_MAP[node.color] || '#64748b';
       const hubMarkup = node.isHub ? `<span class="text-[9px] font-bold uppercase tracking-wider text-indigo-500 bg-indigo-500/10 border border-indigo-500/30 px-1.5 py-0.2 rounded">Hub</span>` : '';
@@ -2624,9 +2625,9 @@
       const color = isDark ? '#ffffff' : hex;
 
       return `
-        <span style="background-color: ${bg}; border-color: ${border}; color: ${color};" class="px-2.5 py-0.5 text-xs font-semibold rounded-full border shadow-xs inline-flex items-center gap-1.5">
-          <span>${node.label.replace(/\n/g, ' ')}</span>
-        </span>
+        <div style="background-color: ${bg}; border-color: ${border}; color: ${color};" class="px-3 py-1 text-xs font-semibold rounded-full border shadow-xs inline-flex items-center justify-center text-center gap-1.5 mx-auto w-max max-w-[200px]">
+          <span class="truncate">${node.label.replace(/\n/g, ' ')}</span>
+        </div>
         ${hubMarkup}
       `;
     }
@@ -2677,10 +2678,10 @@
         const opt = document.createElement('div');
         opt.className = `modal-dropdown-item p-1.5 rounded-lg cursor-pointer flex items-center justify-between text-xs transition-colors ${selectedId === node.id ? 'font-semibold' : ''}`;
         opt.innerHTML = `
-          <div class="flex items-center gap-1.5">
+          <div class="flex items-center justify-center gap-1.5 w-full">
             ${getPillMarkup(node, isDark)}
           </div>
-          ${selectedId === node.id ? '<i class="fa-solid fa-check text-indigo-500 text-xs mr-1"></i>' : ''}
+          ${selectedId === node.id ? '<i class="fa-solid fa-check text-indigo-500 text-xs mr-1 shrink-0"></i>' : ''}
         `;
         opt.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -3049,13 +3050,14 @@
           leftGroup.appendChild(leafBullet);
         }
 
-        const pill = document.createElement('div');
-        pill.innerHTML = getPillMarkup(node, isDark);
-        leftGroup.appendChild(pill);
+        const pillContainer = document.createElement('div');
+        pillContainer.className = "flex items-center justify-center";
+        pillContainer.innerHTML = getPillMarkup(node, isDark);
+        leftGroup.appendChild(pillContainer);
 
         if (node.id === 'adam' || node.isHub) {
           const hubBadge = document.createElement('span');
-          hubBadge.className = "text-[10px] font-bold uppercase tracking-wider text-indigo-500 bg-indigo-500/10 border border-indigo-500/30 px-2 py-0.5 rounded-md";
+          hubBadge.className = "text-[10px] font-bold uppercase tracking-wider text-indigo-500 bg-indigo-500/10 border border-indigo-500/30 px-2 py-0.5 rounded-md shrink-0";
           hubBadge.textContent = node.id === 'adam' ? "Root" : "Hub";
           leftGroup.appendChild(hubBadge);
         }
