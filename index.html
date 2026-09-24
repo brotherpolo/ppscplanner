@@ -1864,7 +1864,7 @@
         if (nodeData.bgColor && COLOR_HEX_MAP[nodeData.bgColor]) {
           const bgHex = COLOR_HEX_MAP[nodeData.bgColor];
           if (!isPolygon) {
-            nodeEl.style.setProperty('--node-bg', isDark ? `${bgHex}28` : `${bgHex}18`);
+            nodeEl.style.setProperty('--node-bg', isDark ? `${bgHex}90` : `${bgHex}90`);
           } else {
             nodeEl.style.removeProperty('--node-bg');
           }
@@ -1887,7 +1887,7 @@
           }
           if (nodeData.bgColor && COLOR_HEX_MAP[nodeData.bgColor]) {
             const bgHex = COLOR_HEX_MAP[nodeData.bgColor];
-            poly.style.fill = isDark ? `${bgHex}28` : `${bgHex}18`;
+            poly.style.fill = isDark ? `${bgHex}90` : `${bgHex}90`;
           } else {
             poly.style.fill = '';
           }
@@ -2768,7 +2768,7 @@
       const hubMarkup = node.isHub ? `<span class="text-[9px] font-bold uppercase tracking-wider text-indigo-500 bg-indigo-500/10 border border-indigo-500/30 px-1.5 py-0.2 rounded">Hub</span>` : '';
       
       const bgHex = node.bgColor && COLOR_HEX_MAP[node.bgColor] ? COLOR_HEX_MAP[node.bgColor] : hex;
-      const bg = isDark ? `${bgHex}28` : `${bgHex}18`;
+      const bg = isDark ? `${bgHex}90` : `${bgHex}90`;
       const border = isDark ? `${hex}60` : `${hex}45`;
       const color = isDark ? '#ffffff' : hex;
       const fontStyle = node.fontSize ? `font-size: ${node.fontSize};` : '';
