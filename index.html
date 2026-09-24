@@ -219,6 +219,7 @@
       50% { outline-color: #059669; }
     }
 
+    /* Node Hover Action Buttons on Canvas */
     .node-action-btn {
       position: absolute;
       width: 24px;
@@ -314,6 +315,26 @@
       padding-left: 1.25rem;
     }
 
+    /* Hierarchy Row Actions: Mobile vs Desktop */
+    .tree-actions-desktop {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    .tree-actions-mobile {
+      display: none;
+      position: relative;
+    }
+
+    @media (max-width: 640px), (hover: none) and (pointer: coarse) {
+      .tree-actions-desktop {
+        display: none !important;
+      }
+      .tree-actions-mobile {
+        display: block !important;
+      }
+    }
+
     /* 1. LIGHT THEME (Default) */
     body.theme-light {
       background-color: #fafaf9;
@@ -346,11 +367,16 @@
     body.theme-light .node-purple { border-color: #7c3aed; color: #5b21b6; }
     body.theme-light .node-gray { border-color: #374151; color: #1f2937; }
     body.theme-light .edge-line { stroke: #64748b; }
-    body.theme-light .node-action-btn { background: #ffffff; border-color: #cbd5e1; }
+    body.theme-light .node-action-btn { background: #ffffff; border-color: #cbd5e1; color: #475569; }
     body.theme-light .btn-edit-node { color: #3b82f6; }
     body.theme-light .btn-delete-node-quick { color: #ef4444; }
     body.theme-light #node-inline-editor { background: #ffffff; }
     body.theme-light #node-inline-textarea { background: #f8fafc; border: 1px solid #e2e8f0; color: #1e293b; }
+    body.theme-light .tree-mobile-menu {
+      background-color: #ffffff;
+      border-color: #e2e8f0;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.12);
+    }
 
     /* 2. DARK THEME */
     body.theme-dark {
@@ -404,7 +430,7 @@
     body.theme-dark .node-purple { border-color: #a855f7; color: #d8b4fe; }
     body.theme-dark .node-gray { border-color: #64748b; color: #cbd5e1; }
     body.theme-dark .edge-line { stroke: #475569; }
-    body.theme-dark .node-action-btn { background: #0f172a; border-color: #334155; }
+    body.theme-dark .node-action-btn { background: #0f172a; border-color: #334155; color: #94a3b8; }
     body.theme-dark .btn-edit-node { color: #60a5fa; }
     body.theme-dark .btn-delete-node-quick { color: #f87171; }
     body.theme-dark #node-inline-editor { background: #0f172a; border: 1px solid #334155; }
@@ -413,6 +439,12 @@
     body.theme-dark #page-hierarchy .bg-white { background-color: #0f172a !important; border-color: #1e293b !important; }
     body.theme-dark #page-hierarchy h1 { color: #f8fafc; }
     body.theme-dark #page-hierarchy .tree-branch-line { border-left-color: #334155; }
+    body.theme-dark .tree-mobile-menu {
+      background-color: #0f172a;
+      border-color: #334155;
+      box-shadow: 0 14px 34px rgba(0,0,0,0.6);
+      color: #f8fafc;
+    }
 
     /* 3. ABSOLUTE BLACK THEME */
     body.theme-black {
@@ -466,7 +498,7 @@
     body.theme-black .node-purple { border-color: #c084fc; color: #e9d5ff; }
     body.theme-black .node-gray { border-color: #a1a1aa; color: #e4e4e7; }
     body.theme-black .edge-line { stroke: #52525b; stroke-width: 2.75px; }
-    body.theme-black .node-action-btn { background: #000000; border-color: #3f3f46; }
+    body.theme-black .node-action-btn { background: #000000; border-color: #3f3f46; color: #d4d4d8; }
     body.theme-black .btn-edit-node { color: #93c5fd; }
     body.theme-black .btn-delete-node-quick { color: #fca5a5; }
     body.theme-black #node-inline-editor { background: #000000; border: 1px solid #3f3f46; }
@@ -475,6 +507,12 @@
     body.theme-black #page-hierarchy .bg-white { background-color: #09090b !important; border-color: #27272a !important; }
     body.theme-black #page-hierarchy h1 { color: #ffffff; }
     body.theme-black #page-hierarchy .tree-branch-line { border-left-color: #3f3f46; }
+    body.theme-black .tree-mobile-menu {
+      background-color: #09090b;
+      border-color: #27272a;
+      box-shadow: 0 14px 40px rgba(0,0,0,0.9);
+      color: #ffffff;
+    }
   </style>
 </head>
 <body class="theme-light w-screen h-screen overflow-hidden">
@@ -482,7 +520,7 @@
   <!-- Fullscreen Initial Loading Splash Screen -->
   <div id="splash-screen" class="fixed inset-0 z-[200] bg-white flex flex-col items-center justify-center p-6 select-none">
     <div class="flex flex-col items-center gap-6">
-      <img src="novaralogo.png" alt="Novara" class="w-64 max-w-[70vw] object-contain animate-pulse-zoom drop-shadow-sm" />
+      <img src="novara.png" alt="Novara" class="w-64 max-w-[70vw] object-contain animate-pulse-zoom drop-shadow-sm" />
       <div class="flex items-center gap-2">
         <div class="w-2 h-2 rounded-full bg-indigo-600 animate-bounce" style="animation-delay: 0s;"></div>
         <div class="w-2 h-2 rounded-full bg-indigo-600 animate-bounce" style="animation-delay: 0.15s;"></div>
@@ -1651,7 +1689,6 @@
 
       const isDark = state.theme === 'dark' || state.theme === 'black';
 
-      // Update Selected Display
       if (selectedId) {
         const found = state.nodes.find(n => n.id === selectedId);
         if (found) {
@@ -1663,10 +1700,8 @@
         dropdownSelected.innerHTML = `<span class="text-slate-500 font-medium px-2 py-0.5">None (Root Node)</span>`;
       }
 
-      // Populate Items
       dropdownMenu.innerHTML = '';
 
-      // Option: Root (None)
       const noneOption = document.createElement('div');
       noneOption.className = `p-2 rounded-lg cursor-pointer flex items-center justify-between text-xs hover:bg-slate-100 transition-colors ${!selectedId ? 'bg-slate-50 font-semibold' : ''}`;
       noneOption.innerHTML = `<span class="text-slate-600 px-1 font-medium">None (Root Node)</span>`;
@@ -1676,7 +1711,6 @@
       });
       dropdownMenu.appendChild(noneOption);
 
-      // Node Options
       state.nodes.forEach(node => {
         const opt = document.createElement('div');
         opt.className = `p-1.5 rounded-lg cursor-pointer flex items-center justify-between text-xs hover:bg-slate-100 transition-colors ${selectedId === node.id ? 'bg-slate-50' : ''}`;
@@ -1796,6 +1830,7 @@
       if (cRfp) cRfp.textContent = rfp;
     }
 
+    // --- HIERARCHY TREE BUILDER WITH RESPONSIVE 3-DOT MENU ---
     function renderHierarchyTree() {
       const treeContainer = document.getElementById('tree-container');
       if (!treeContainer) return;
@@ -1837,7 +1872,7 @@
         nodeWrapper.className = "flex flex-col gap-2";
 
         const itemRow = document.createElement('div');
-        itemRow.className = `flex items-center justify-between p-2.5 rounded-xl border transition-all group ${
+        itemRow.className = `flex items-center justify-between p-2.5 rounded-xl border transition-all group relative ${
           isDark 
             ? 'border-zinc-800/80 hover:border-indigo-500/40 hover:bg-zinc-800/40' 
             : 'border-slate-100 hover:border-indigo-100 hover:bg-slate-50/80'
@@ -1880,28 +1915,29 @@
 
         itemRow.appendChild(leftGroup);
 
-        const actionsGroup = document.createElement('div');
-        actionsGroup.className = "flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity";
+        // --- DESKTOP VIEW ACTIONS (Horizontal: + Add, Locate, Delete) ---
+        const actionsDesktop = document.createElement('div');
+        actionsDesktop.className = "tree-actions-desktop opacity-80 group-hover:opacity-100 transition-opacity";
 
         const btnAddChild = document.createElement('button');
         btnAddChild.className = "px-2 py-1 text-xs font-medium text-emerald-500 hover:bg-emerald-500/10 rounded-lg transition-all flex items-center gap-1";
         btnAddChild.title = "Add Sub-item";
-        btnAddChild.innerHTML = '<i class="fa-solid fa-plus text-[11px]"></i><span class="hidden sm:inline">Add</span>';
+        btnAddChild.innerHTML = '<i class="fa-solid fa-plus text-[11px]"></i><span>Add</span>';
         btnAddChild.addEventListener('click', (e) => {
           e.stopPropagation();
           openAddModal(node.id);
         });
-        actionsGroup.appendChild(btnAddChild);
+        actionsDesktop.appendChild(btnAddChild);
 
         const btnLocate = document.createElement('button');
         btnLocate.className = "px-2 py-1 text-xs font-medium opacity-70 hover:opacity-100 hover:text-indigo-400 hover:bg-indigo-500/10 rounded-lg transition-all flex items-center gap-1";
         btnLocate.title = "Locate on Canvas";
-        btnLocate.innerHTML = '<i class="fa-solid fa-crosshairs text-[11px]"></i><span class="hidden sm:inline">Locate</span>';
+        btnLocate.innerHTML = '<i class="fa-solid fa-crosshairs text-[11px]"></i><span>Locate</span>';
         btnLocate.addEventListener('click', (e) => {
           e.stopPropagation();
           focusNodeOnCanvas(node.id);
         });
-        actionsGroup.appendChild(btnLocate);
+        actionsDesktop.appendChild(btnLocate);
 
         const btnDeleteRow = document.createElement('button');
         btnDeleteRow.className = "px-2 py-1 text-xs font-medium opacity-50 hover:opacity-100 hover:text-rose-500 hover:bg-rose-500/10 rounded-lg transition-all";
@@ -1912,9 +1948,68 @@
           deleteNode(node.id);
           renderHierarchyTree();
         });
-        actionsGroup.appendChild(btnDeleteRow);
+        actionsDesktop.appendChild(btnDeleteRow);
 
-        itemRow.appendChild(actionsGroup);
+        itemRow.appendChild(actionsDesktop);
+
+        // --- MOBILE VIEW ACTIONS (Single 3-Dot Button with Popup Menu) ---
+        const actionsMobile = document.createElement('div');
+        actionsMobile.className = "tree-actions-mobile";
+
+        const dotsBtn = document.createElement('button');
+        dotsBtn.className = "w-7 h-7 rounded-lg flex items-center justify-center opacity-60 hover:opacity-100 hover:bg-slate-500/10 transition-colors";
+        dotsBtn.innerHTML = '<i class="fa-solid fa-ellipsis-vertical text-xs"></i>';
+
+        const dropdownMenu = document.createElement('div');
+        dropdownMenu.className = "hidden absolute right-0 top-full mt-1 z-50 min-w-[140px] rounded-xl border p-1.5 flex flex-col gap-1 tree-mobile-menu";
+
+        // Mobile Popup Option: + Add
+        const mobAddOpt = document.createElement('button');
+        mobAddOpt.className = "w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium text-emerald-500 hover:bg-emerald-500/10 flex items-center gap-2";
+        mobAddOpt.innerHTML = '<i class="fa-solid fa-plus text-[11px] w-4"></i><span>Add</span>';
+        mobAddOpt.addEventListener('click', (e) => {
+          e.stopPropagation();
+          dropdownMenu.classList.add('hidden');
+          openAddModal(node.id);
+        });
+        dropdownMenu.appendChild(mobAddOpt);
+
+        // Mobile Popup Option: Locate
+        const mobLocateOpt = document.createElement('button');
+        mobLocateOpt.className = "w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium opacity-80 hover:opacity-100 hover:bg-indigo-500/10 hover:text-indigo-400 flex items-center gap-2";
+        mobLocateOpt.innerHTML = '<i class="fa-solid fa-crosshairs text-[11px] w-4"></i><span>Locate</span>';
+        mobLocateOpt.addEventListener('click', (e) => {
+          e.stopPropagation();
+          dropdownMenu.classList.add('hidden');
+          focusNodeOnCanvas(node.id);
+        });
+        dropdownMenu.appendChild(mobLocateOpt);
+
+        // Mobile Popup Option: Delete
+        const mobDelOpt = document.createElement('button');
+        mobDelOpt.className = "w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium text-rose-500 hover:bg-rose-500/10 flex items-center gap-2";
+        mobDelOpt.innerHTML = '<i class="fa-solid fa-trash-can text-[11px] w-4"></i><span>Delete</span>';
+        mobDelOpt.addEventListener('click', (e) => {
+          e.stopPropagation();
+          dropdownMenu.classList.add('hidden');
+          deleteNode(node.id);
+          renderHierarchyTree();
+        });
+        dropdownMenu.appendChild(mobDelOpt);
+
+        dotsBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          // Close any other open dropdowns first
+          document.querySelectorAll('.tree-mobile-menu').forEach(m => {
+            if (m !== dropdownMenu) m.classList.add('hidden');
+          });
+          dropdownMenu.classList.toggle('hidden');
+        });
+
+        actionsMobile.appendChild(dotsBtn);
+        actionsMobile.appendChild(dropdownMenu);
+        itemRow.appendChild(actionsMobile);
+
         nodeWrapper.appendChild(itemRow);
 
         if (childNodes.length > 0) {
@@ -1950,6 +2045,13 @@
         treeContainer.appendChild(orphanSection);
       }
     }
+
+    // Dismiss any open hierarchy 3-dot dropdowns when tapping outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.tree-actions-mobile')) {
+        document.querySelectorAll('.tree-mobile-menu').forEach(m => m.classList.add('hidden'));
+      }
+    });
 
     // --- INITIALIZE ALL EVENT LISTENERS ON DOM LOAD ---
     document.addEventListener("DOMContentLoaded", () => {
