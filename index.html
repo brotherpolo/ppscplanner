@@ -1828,14 +1828,20 @@
         nodeEl.className = `node node-${nodeData.color} node-shape-${shape} ${nodeData.isHub ? 'node-hub' : ''}`;
         
         const isDark = state.theme === 'dark' || state.theme === 'black';
+        const isPolygon = shape === 'diamond' || shape === 'hexagon' || shape === 'triangle';
+
         if (nodeData.bgColor && COLOR_HEX_MAP[nodeData.bgColor]) {
           const bgHex = COLOR_HEX_MAP[nodeData.bgColor];
-          nodeEl.style.backgroundColor = isDark ? `${bgHex}28` : `${bgHex}18`;
+          if (!isPolygon) {
+            nodeEl.style.backgroundColor = isDark ? `${bgHex}28` : `${bgHex}18`;
+          } else {
+            nodeEl.style.backgroundColor = '';
+          }
         } else {
           nodeEl.style.backgroundColor = '';
         }
 
-        if (shape === 'diamond' || shape === 'hexagon' || shape === 'triangle') {
+        if (isPolygon) {
           const polyBg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
           polyBg.setAttribute("class", "node-polygon-bg");
           polyBg.setAttribute("viewBox", "0 0 100 100");
@@ -1851,6 +1857,8 @@
           if (nodeData.bgColor && COLOR_HEX_MAP[nodeData.bgColor]) {
             const bgHex = COLOR_HEX_MAP[nodeData.bgColor];
             poly.style.fill = isDark ? `${bgHex}28` : `${bgHex}18`;
+          } else {
+            poly.style.fill = '';
           }
           polyBg.appendChild(poly);
           nodeEl.appendChild(polyBg);
