@@ -903,7 +903,7 @@
         <!-- Version Code positioned just above the border line -->
         <div class="px-4 py-1.5 flex items-center justify-between text-[11px] font-mono font-medium opacity-40 select-none">
           <span class="sidebar-label tracking-wider uppercase">Version</span>
-          <span class="mx-auto sidebar-extra font-semibold">v0.95</span>
+          <span class="mx-auto sidebar-extra font-semibold">v0.96</span>
         </div>
 
         <div class="p-3 border-t border-slate-200/50 flex flex-col gap-2">
@@ -1029,6 +1029,11 @@
                 <button id="btn-inline-delete-node" class="text-rose-500 hover:text-rose-700 p-1" title="Delete Node">
                   <i class="fa-solid fa-trash-can text-xs"></i>
                 </button>
+              </div>
+              <div class="flex items-center gap-1 border border-slate-500/20 rounded-lg p-1 bg-slate-500/5">
+                <button type="button" id="btn-inline-bold" class="w-6 h-6 rounded hover:bg-slate-500/20 flex items-center justify-center font-bold text-xs" title="Bold">B</button>
+                <button type="button" id="btn-inline-italic" class="w-6 h-6 rounded hover:bg-slate-500/20 flex items-center justify-center italic text-xs" title="Italic">I</button>
+                <button type="button" id="btn-inline-underline" class="w-6 h-6 rounded hover:bg-slate-500/20 flex items-center justify-center underline text-xs" title="Underline">U</button>
               </div>
               <textarea id="node-inline-textarea" rows="2" placeholder="Node title..."></textarea>
               <div class="flex flex-col border-t border-slate-500/20 pt-2 gap-2">
@@ -1156,7 +1161,14 @@
       </div>
 
       <div class="flex flex-col gap-1.5">
-        <label class="modal-label text-xs font-semibold">Node Label</label>
+        <div class="flex items-center justify-between">
+          <label class="modal-label text-xs font-semibold">Node Label</label>
+          <div class="flex items-center gap-1 border border-slate-500/20 rounded-lg p-0.5 bg-slate-500/5">
+            <button type="button" id="btn-modal-bold" class="w-5 h-5 rounded hover:bg-slate-500/20 flex items-center justify-center font-bold text-[11px]" title="Bold">B</button>
+            <button type="button" id="btn-modal-italic" class="w-5 h-5 rounded hover:bg-slate-500/20 flex items-center justify-center italic text-[11px]" title="Italic">I</button>
+            <button type="button" id="btn-modal-underline" class="w-5 h-5 rounded hover:bg-slate-500/20 flex items-center justify-center underline text-[11px]" title="Underline">U</button>
+          </div>
+        </div>
         <textarea id="node-label-input" rows="2" class="modal-input w-full rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="e.g. Solution Architect"></textarea>
       </div>
 
@@ -1254,17 +1266,16 @@
   // --- USER PROFILE IMAGES MAPPING BY UID ---
     const USER_AVATAR_MAP = {
       "mrnrYxtNwuV8vgru9Gr2KkJ1HzI2": "adam.jpeg",
-      "b0Ji8It6eQOt0G3pvyvqrpWUF1m2": "taylor.jpg" // Make sure this image file is also in your project folder!
+      "b0Ji8It6eQOt0G3pvyvqrpWUF1m2": "taylor.jpg"
     };
 
-    // --- 1. FIREBASE CONFIGURATION ---
-   // --- FIREBASE INITIALIZATION ---
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-  }
-  const db = firebase.database();
-  const auth = firebase.auth();
-  window.boardRef = db.ref("mindmap/board");
+    // --- FIREBASE INITIALIZATION ---
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.database();
+    const auth = firebase.auth();
+    window.boardRef = db.ref("mindmap/board");
 
     const LOCAL_STORAGE_KEY = 'mindmap_whiteboard_state_v2';
     const THEME_STORAGE_KEY = 'mindmap_whiteboard_theme';
@@ -1393,7 +1404,7 @@ if (!firebase.apps.length) {
       if (historyStack.length > MAX_HISTORY) {
         historyStack.shift();
       }
-      redoStack.length = 0; // Clear redo on new user action
+      redoStack.length = 0;
       updateUndoRedoButtons();
     }
 
@@ -1419,7 +1430,7 @@ if (!firebase.apps.length) {
       state.selectedNodeIds.clear();
       state.selectedEdgeId = null;
 
-      commitState(true, true); // commit without re-pushing history
+      commitState(true, true);
       renderBoard();
       if (state.currentPage === 'hierarchy') renderHierarchyTree();
       updateUndoRedoButtons();
@@ -1453,7 +1464,6 @@ if (!firebase.apps.length) {
 
     let isIncomingSync = false;
 
-    // Toast Function
     let toastTimeout;
     function showToast(msg) {
       const toast = document.getElementById('toast');
@@ -1466,7 +1476,6 @@ if (!firebase.apps.length) {
       }, 2200);
     }
 
-    // Dismiss Splash Screen
     let splashDismissed = false;
     function hideSplashScreen() {
       if (splashDismissed) return;
@@ -1477,6 +1486,40 @@ if (!firebase.apps.length) {
           splash.classList.add('fade-out');
         }, 350);
       }
+    }
+
+    // --- TEXT FORMATTING HELPER ---
+    function formatTextAreaSelection(textareaEl, syntaxWrap, htmlTag) {
+      if (!textareaEl) return;
+      const start = textareaEl.selectionStart;
+      const end = textareaEl.selectionEnd;
+      const val = textareaEl.value;
+      const selectedText = val.substring(start, end);
+
+      if (syntaxWrap === '<u>') {
+        textareaEl.value = val.substring(0, start) + `<u>${selectedText}</u>` + val.substring(end);
+        textareaEl.setSelectionRange(start + 3, end + 3);
+      } else {
+        textareaEl.value = val.substring(0, start) + `${syntaxWrap}${selectedText}${syntaxWrap}` + val.substring(end);
+        textareaEl.setSelectionRange(start + syntaxWrap.length, end + syntaxWrap.length);
+      }
+      textareaEl.focus();
+    }
+
+    function renderFormattedLabel(rawText) {
+      if (!rawText) return '';
+      let escaped = rawText
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+
+      // Replace Markdown formatting tags
+      escaped = escaped
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/<u>(.*?)<\/u>/g, '<u>$1</u>');
+
+      return escaped.replace(/\n/g, '<br/>');
     }
 
     // --- THEME SWITCHER LOGIC ---
@@ -1729,7 +1772,6 @@ if (!firebase.apps.length) {
         const shape = nodeData.shape || 'pill';
         nodeEl.className = `node node-${nodeData.color} node-shape-${shape} ${nodeData.isHub ? 'node-hub' : ''}`;
         
-        // Render SVG polygon background for Diamond, Hexagon, or Triangle to keep borders crisp
         if (shape === 'diamond' || shape === 'hexagon' || shape === 'triangle') {
           const polyBg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
           polyBg.setAttribute("class", "node-polygon-bg");
@@ -1749,7 +1791,7 @@ if (!firebase.apps.length) {
 
         const contentSpan = document.createElement('div');
         contentSpan.style.zIndex = '2';
-        contentSpan.innerHTML = nodeData.label.replace(/\n/g, '<br/>');
+        contentSpan.innerHTML = renderFormattedLabel(nodeData.label);
         nodeEl.appendChild(contentSpan);
 
         nodeEl.style.left = `${nodeData.x}px`;
@@ -1960,7 +2002,7 @@ if (!firebase.apps.length) {
         if (!hasDragged && dist > DRAG_THRESHOLD) {
           hasDragged = true;
           state.isDraggingGroup = true;
-          pushHistory(); // Snapshot before drag movement begins
+          pushHistory();
         }
 
         if (hasDragged && state.isDraggingGroup) {
@@ -2030,7 +2072,6 @@ if (!firebase.apps.length) {
         openInlineEditor(nodeData.id);
       });
 
-      // Context menu event for right-click node creation
       nodeEl.addEventListener('contextmenu', (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -2192,11 +2233,9 @@ if (!firebase.apps.length) {
       applyTransform();
     }
 
-    // --- COLOR-BASED CLUSTER DETECTION & PARENT-BASED NAMING ---
     function getDetectedClusters() {
       const clusterMap = {};
 
-      // Group nodes strictly by their assigned color
       state.nodes.forEach(node => {
         const colorKey = node.color || 'gray';
         if (!clusterMap[colorKey]) {
@@ -2217,17 +2256,14 @@ if (!firebase.apps.length) {
 
           let clusterName = null;
 
-          // If the cluster contains only 1 node, use that node's label as its name
           if (cluster.nodes.length === 1) {
             clusterName = cluster.nodes[0].label.replace(/\n/g, ' ').trim();
           } else {
-            // 1. Check for an internal hub or parent node inside this color group
             const internalHub = cluster.nodes.find(n => n.isHub || state.edges.some(e => e.source === n.id && nodeIdsInCluster.has(e.target)));
             if (internalHub) {
               clusterName = internalHub.label.replace(/\n/g, ' ').trim();
             }
 
-            // 2. Check for an external parent node connected to nodes in this cluster
             if (!clusterName) {
               for (const edge of state.edges) {
                 if (nodeIdsInCluster.has(edge.target) && !nodeIdsInCluster.has(edge.source)) {
@@ -2241,7 +2277,6 @@ if (!firebase.apps.length) {
             }
           }
 
-          // 3. Fallback
           if (!clusterName) {
             clusterName = cluster.nodes[0].label.replace(/\n/g, ' ').trim() || colorKey;
           }
@@ -2377,7 +2412,6 @@ if (!firebase.apps.length) {
       updateSelectionVisuals();
     }
 
-    // --- 100% FAITHFUL SVG-TO-CANVAS PDF EXPORT TRICK ---
     function exportToPDF() {
       showToast("Generating PDF snapshot with lines...", 3000);
       const viewportEl = document.getElementById('board-viewport');
@@ -2391,7 +2425,6 @@ if (!firebase.apps.length) {
       state.selectedEdgeId = null;
       updateSelectionVisuals();
 
-      // Find precise map bounding box
       let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
       state.nodes.forEach(n => {
         const pad = 180;
@@ -2489,7 +2522,6 @@ if (!firebase.apps.length) {
       }, 500);
     }
 
-    // --- HIERARCHY PAGE PDF EXPORT ---
     function exportHierarchyToPDF() {
       showToast("Generating Hierarchy PDF...", 3000);
       const container = document.getElementById('page-hierarchy');
@@ -2523,7 +2555,6 @@ if (!firebase.apps.length) {
       });
     }
 
-    // --- ISOLATED CLUSTER GENERATION (SHIFT + Z + X) ---
     function createIsolatedGroup() {
       pushHistory();
       switchPage('canvas');
@@ -2609,7 +2640,6 @@ if (!firebase.apps.length) {
       }, 50);
     }
 
-    // Helper: Dynamic Pill HTML for all 15 colors with centered layout
     function getPillMarkup(node, isDark) {
       const hex = COLOR_HEX_MAP[node.color] || '#64748b';
       const hubMarkup = node.isHub ? `<span class="text-[9px] font-bold uppercase tracking-wider text-indigo-500 bg-indigo-500/10 border border-indigo-500/30 px-1.5 py-0.2 rounded">Hub</span>` : '';
@@ -2620,13 +2650,12 @@ if (!firebase.apps.length) {
 
       return `
         <div style="background-color: ${bg}; border-color: ${border}; color: ${color};" class="px-3 py-1 text-xs font-semibold rounded-full border shadow-xs inline-flex items-center justify-center text-center gap-1.5 mx-auto w-max max-w-[200px]">
-          <span class="truncate">${node.label.replace(/\n/g, ' ')}</span>
+          <span class="truncate">${renderFormattedLabel(node.label).replace(/<br\/?>/g, ' ')}</span>
         </div>
         ${hubMarkup}
       `;
     }
 
-    // Real-Time Searchable Parent Dropdown Generator
     function populateParentDropdown(selectedId = null, filterQuery = "") {
       const dropdownItemsContainer = document.getElementById('parent-dropdown-items');
       const dropdownSelected = document.getElementById('parent-dropdown-selected');
@@ -2634,7 +2663,6 @@ if (!firebase.apps.length) {
 
       const isDark = state.theme === 'dark' || state.theme === 'black';
 
-      // Update current selected item display pill
       if (selectedId) {
         const found = state.nodes.find(n => n.id === selectedId);
         if (found) {
@@ -2649,7 +2677,6 @@ if (!firebase.apps.length) {
       dropdownItemsContainer.innerHTML = '';
       const query = filterQuery.toLowerCase().trim();
 
-      // "None (Root Node)" item
       if (!query || "none root node".includes(query)) {
         const noneOption = document.createElement('div');
         noneOption.className = `modal-dropdown-item p-2 rounded-lg cursor-pointer flex items-center justify-between text-xs transition-colors ${!selectedId ? 'font-semibold' : ''}`;
@@ -2661,7 +2688,6 @@ if (!firebase.apps.length) {
         dropdownItemsContainer.appendChild(noneOption);
       }
 
-      // Filter nodes based on label search query
       const matchingNodes = state.nodes.filter(node => {
         if (!query) return true;
         const normalizedLabel = node.label.replace(/\n/g, ' ').toLowerCase();
@@ -2710,7 +2736,6 @@ if (!firebase.apps.length) {
       if (dropdownMenu) dropdownMenu.classList.add('hidden');
     }
 
-    // Render the 15 colors in the Add Node modal
     function renderModalColorChoices() {
       const container = document.getElementById('color-options');
       if (!container) return;
@@ -2742,7 +2767,6 @@ if (!firebase.apps.length) {
       });
     }
 
-    // Render the 8 shapes in the Add Node modal
     function renderModalShapeChoices() {
       const container = document.getElementById('shape-options');
       if (!container) return;
@@ -2770,7 +2794,6 @@ if (!firebase.apps.length) {
       });
     }
 
-    // Render the 15 colors in the inline editor
     function renderColorPickers() {
       const inlineContainer = document.getElementById('inline-color-pickers');
       if (inlineContainer) {
@@ -2820,7 +2843,6 @@ if (!firebase.apps.length) {
       }
     }
 
-    // Render the 8 shapes inside the inline editor
     function renderShapePickers() {
       const inlineShapeContainer = document.getElementById('inline-shape-pickers');
       if (inlineShapeContainer) {
@@ -2915,7 +2937,6 @@ if (!firebase.apps.length) {
       }
     }
 
-    // Apply color change to an entire cluster
     function changeClusterColor(rootId, newColor) {
       pushHistory();
       const clusterNodes = state.nodes.filter(n => (n.color || 'gray') === rootId);
@@ -2932,7 +2953,6 @@ if (!firebase.apps.length) {
       showToast(`Cluster color updated to ${newColor}!`);
     }
 
-    // Dynamically render and update the sidebar clusters list
     function updateClusterCounts() {
       const clusterListEl = document.getElementById('sidebar-cluster-list');
       if (!clusterListEl) return;
@@ -2963,13 +2983,11 @@ if (!firebase.apps.length) {
           <span class="text-[11px] font-semibold opacity-60 shrink-0">${cluster.count}</span>
         `;
 
-        // Left click to select and focus
         btn.addEventListener('click', (e) => {
           e.stopPropagation();
           selectDynamicCluster(cluster.id);
         });
 
-        // Right-click to show cluster color changer popover
         btn.addEventListener('contextmenu', (e) => {
           e.preventDefault();
           e.stopPropagation();
@@ -2987,7 +3005,6 @@ if (!firebase.apps.length) {
       });
     }
 
-    // --- CLEAN HIERARCHY TREE BUILDER USING STRICT EDGE MAPPING ---
     function renderHierarchyTree() {
       const treeContainer = document.getElementById('tree-container');
       if (!treeContainer) return;
@@ -2995,7 +3012,6 @@ if (!firebase.apps.length) {
 
       const isDark = state.theme === 'dark' || state.theme === 'black';
 
-      // Always anchor the tree starting from Adam Pollack as the absolute root
       let rootNode = state.nodes.find(n => n.id === 'adam') || state.nodes.find(n => n.isHub) || state.nodes[0];
       if (!rootNode) return;
 
@@ -3004,7 +3020,6 @@ if (!firebase.apps.length) {
       function createTreeNode(node, level = 0) {
         visited.add(node.id);
         
-        // Find direct child nodes connected via edges where source === node.id
         const childEdgeTargets = state.edges
           .filter(e => e.source === node.id)
           .map(e => e.target);
@@ -3058,7 +3073,6 @@ if (!firebase.apps.length) {
 
         itemRow.appendChild(leftGroup);
 
-        // --- DESKTOP VIEW ACTIONS ---
         const actionsDesktop = document.createElement('div');
         actionsDesktop.className = "tree-actions-desktop opacity-80 group-hover:opacity-100 transition-opacity";
 
@@ -3095,7 +3109,6 @@ if (!firebase.apps.length) {
 
         itemRow.appendChild(actionsDesktop);
 
-        // --- MOBILE VIEW ACTIONS ---
         const actionsMobile = document.createElement('div');
         actionsMobile.className = "tree-actions-mobile";
 
@@ -3163,7 +3176,6 @@ if (!firebase.apps.length) {
         return nodeWrapper;
       }
 
-      // Render starting from Adam as the root
       treeContainer.appendChild(createTreeNode(rootNode, 0));
 
       const orphans = state.nodes.filter(n => !visited.has(n.id));
@@ -3182,7 +3194,6 @@ if (!firebase.apps.length) {
       }
     }
 
-    // Dismiss any open hierarchy 3-dot dropdowns and popovers when tapping outside
     document.addEventListener('click', (e) => {
       if (!e.target.closest('.tree-actions-mobile')) {
         document.querySelectorAll('.tree-mobile-menu').forEach(m => m.classList.add('hidden'));
@@ -3202,7 +3213,6 @@ if (!firebase.apps.length) {
       const labelInput = document.getElementById('node-label-input');
       const sidebar = document.getElementById('sidebar');
 
-      // Top Toolbar Buttons
       const btnSelectMode = document.getElementById('btn-select-mode');
       const btnConnectMode = document.getElementById('btn-connect-mode');
       const btnPanMode = document.getElementById('btn-pan-mode');
@@ -3234,24 +3244,35 @@ if (!firebase.apps.length) {
       const btnThemeToggle = document.getElementById('btn-theme-toggle');
       const btnHierarchyThemeToggle = document.getElementById('btn-hierarchy-theme-toggle');
 
-      // Undo / Redo & PDF Export Click Listeners
+      // --- TEXT FORMATTING BUTTON BINDINGS ---
+      const btnModalBold = document.getElementById('btn-modal-bold');
+      const btnModalItalic = document.getElementById('btn-modal-italic');
+      const btnModalUnderline = document.getElementById('btn-modal-underline');
+      if (btnModalBold) btnModalBold.addEventListener('click', () => formatTextAreaSelection(labelInput, '**'));
+      if (btnModalItalic) btnModalItalic.addEventListener('click', () => formatTextAreaSelection(labelInput, '*'));
+      if (btnModalUnderline) btnModalUnderline.addEventListener('click', () => formatTextAreaSelection(labelInput, '<u>'));
+
+      const btnInlineBold = document.getElementById('btn-inline-bold');
+      const btnInlineItalic = document.getElementById('btn-inline-italic');
+      const btnInlineUnderline = document.getElementById('btn-inline-underline');
+      if (btnInlineBold) btnInlineBold.addEventListener('click', () => formatTextAreaSelection(inlineTextareaEl, '**'));
+      if (btnInlineItalic) btnInlineItalic.addEventListener('click', () => formatTextAreaSelection(inlineTextareaEl, '*'));
+      if (btnInlineUnderline) btnInlineUnderline.addEventListener('click', () => formatTextAreaSelection(inlineTextareaEl, '<u>'));
+
       if (btnUndo) btnUndo.addEventListener('click', performUndo);
       if (btnRedo) btnRedo.addEventListener('click', performRedo);
       if (btnExportPdf) btnExportPdf.addEventListener('click', exportToPDF);
       if (btnHierarchyExportPdf) btnHierarchyExportPdf.addEventListener('click', exportHierarchyToPDF);
 
-      // Render 15-Color Pickers across interface
       renderColorPickers();
       renderShapePickers();
       renderModalColorChoices();
       renderModalShapeChoices();
 
-      // Initialize Theme
       applyTheme(state.theme);
       if (btnThemeToggle) btnThemeToggle.addEventListener('click', cycleTheme);
       if (btnHierarchyThemeToggle) btnHierarchyThemeToggle.addEventListener('click', cycleTheme);
 
-      // Custom Parent Dropdown Toggle & Live Search
       const parentDropdownBtn = document.getElementById('parent-dropdown-btn');
       const parentDropdownMenu = document.getElementById('parent-dropdown-menu');
       const parentSearchInput = document.getElementById('parent-search-input');
@@ -3290,7 +3311,6 @@ if (!firebase.apps.length) {
       if (btnResetView) btnResetView.addEventListener('click', resetView);
       if (btnCenterDiagram) btnCenterDiagram.addEventListener('click', centerDiagram);
 
-      // Default the mode to pan on load
       setAppMode('pan');
 
       if (btnZoomIn) {
@@ -3334,7 +3354,7 @@ if (!firebase.apps.length) {
             return;
           }
 
-          pushHistory(); // Record state before adding new node
+          pushHistory();
 
           const chosenParentId = state.modalParentNodeId || null;
           let posX, posY;
@@ -3442,11 +3462,9 @@ if (!firebase.apps.length) {
         });
       }
 
-      // Viewport Mouse & Gesture Listeners
       if (viewportEl) {
-        // Right-click on empty canvas background to create a new node at click position
         viewportEl.addEventListener('contextmenu', (e) => {
-          if (e.target.closest('.node')) return; // Let individual nodes handle their own context menu
+          if (e.target.closest('.node')) return;
           e.preventDefault();
           e.stopPropagation();
 
@@ -3561,7 +3579,6 @@ if (!firebase.apps.length) {
           applyTransform();
         }, { passive: false });
 
-        // Touch Listeners
         let initialTouchDistance = 0;
         let initialZoom = 1;
         let initialTouchCenter = { x: 0, y: 0 };
@@ -3620,7 +3637,6 @@ if (!firebase.apps.length) {
         });
       }
 
-      // Keyboard shortcuts
       const activeKeys = new Set();
 
       window.addEventListener('keydown', (e) => {
@@ -3630,28 +3646,24 @@ if (!firebase.apps.length) {
 
         activeKeys.add(e.code);
 
-        // Ctrl + Z (Undo)
         if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
           e.preventDefault();
           performUndo();
           return;
         }
 
-        // Ctrl + Y or Ctrl + Shift + Z (Redo)
         if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'y' || (e.shiftKey && e.key.toLowerCase() === 'z'))) {
           e.preventDefault();
           performRedo();
           return;
         }
 
-        // SHIFT + Z + X creates a new group (1 base node + 4 branches) in an open canvas area
         if (e.shiftKey && activeKeys.has('KeyZ') && activeKeys.has('KeyX')) {
           e.preventDefault();
           createIsolatedGroup();
           return;
         }
 
-        // Shift + Plus / Equal key shortcut to add a new node
         if (e.shiftKey && (e.key === '+' || e.key === '=' || e.code === 'Equal' || e.code === 'NumpadAdd')) {
           e.preventDefault();
           const targetParent = state.selectedNodeIds.size === 1 ? Array.from(state.selectedNodeIds)[0] : null;
@@ -3692,7 +3704,6 @@ if (!firebase.apps.length) {
         activeKeys.clear();
       });
 
-      // Authentication event listeners
       function attemptLogin() {
         const loginEmail = document.getElementById('login-email');
         const loginPassword = document.getElementById('login-password');
@@ -3743,11 +3754,9 @@ if (!firebase.apps.length) {
         });
       }
 
-      // Initial Canvas Render
       renderBoard();
       applyTransform();
 
-      // Ensure diagram is fully centered on initial load
       requestAnimationFrame(() => {
         centerDiagram();
       });
@@ -3755,7 +3764,6 @@ if (!firebase.apps.length) {
       setTimeout(hideSplashScreen, 1500);
     });
 
-    // --- FIREBASE AUTH & DATABASE SYNC ---
     let dbSyncAttached = false;
     let initialSyncDone = false;
 
@@ -3834,7 +3842,6 @@ if (!firebase.apps.length) {
         if (authModal) authModal.classList.add('hidden');
         if (userDisplayEmail) userDisplayEmail.textContent = user.email ? user.email.split('@')[0] : 'Member';
         
-        // Dynamically bind user profile image based on UID or photoURL
         if (avatarContainer) {
           const photoUrl = user.photoURL || USER_AVATAR_MAP[user.uid];
           if (photoUrl) {
