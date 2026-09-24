@@ -1234,7 +1234,6 @@
         nodes: state.nodes,
         edges: state.edges
       });
-      // Avoid duplicate consecutive entries
       if (historyStack.length > 0 && historyStack[historyStack.length - 1] === snapshot) {
         return;
       }
@@ -1242,7 +1241,7 @@
       if (historyStack.length > MAX_HISTORY) {
         historyStack.shift();
       }
-      redoStack.length = 0; // Clear redo on new action
+      redoStack.length = 0; // Clear redo on new user action
       updateUndoRedoButtons();
     }
 
@@ -1516,8 +1515,9 @@
         if (node) {
           const val = inlineTextareaEl.value.trim();
           if (val && val !== node.label) {
+            pushHistory();
             node.label = val;
-            commitState(true);
+            commitState(true, true);
           }
         }
       }
@@ -1693,6 +1693,7 @@
         if (!hasDragged && dist > DRAG_THRESHOLD) {
           hasDragged = true;
           state.isDraggingGroup = true;
+          pushHistory(); // Snapshot before drag movement begins
         }
 
         if (hasDragged && state.isDraggingGroup) {
@@ -1733,7 +1734,7 @@
 
         if (hasDragged) {
           state.isDraggingGroup = false;
-          commitState(true);
+          commitState(true, true);
         }
       };
 
@@ -1829,12 +1830,13 @@
         );
 
         if (!exists) {
+          pushHistory();
           state.edges.push({
             id: "edge_" + Date.now(),
             source: state.connectSourceId,
             target: nodeId
           });
-          commitState(true);
+          commitState(true, true);
           showToast("Relationship connected!");
         } else {
           showToast("Relationship already exists.");
@@ -1846,27 +1848,32 @@
     }
 
     function deleteEdge(edgeId) {
+      pushHistory();
       state.edges = state.edges.filter(e => e.id !== edgeId);
       if (state.selectedEdgeId === edgeId) state.selectedEdgeId = null;
-      commitState(true);
+      commitState(true, true);
       renderBoard();
       showToast("Relationship removed.");
     }
 
     function deleteNode(nodeId) {
+      pushHistory();
       state.nodes = state.nodes.filter(n => n.id !== nodeId);
       state.edges = state.edges.filter(e => e.source !== nodeId && e.target !== nodeId);
       state.selectedNodeIds.delete(nodeId);
       if (state.editingNodeId === nodeId) {
         closeInlineEditor(false);
       }
-      commitState(true);
+      commitState(true, true);
       renderBoard();
       showToast("Node deleted.");
     }
 
     function deleteSelected() {
       let changed = false;
+      if (state.selectedEdgeId || state.selectedNodeIds.size > 0) {
+        pushHistory();
+      }
       if (state.selectedEdgeId) {
         state.edges = state.edges.filter(e => e.id !== state.selectedEdgeId);
         state.selectedEdgeId = null;
@@ -1880,7 +1887,7 @@
         changed = true;
       }
       if (changed) {
-        commitState(true);
+        commitState(true, true);
         renderBoard();
         showToast("Selected items deleted.");
       } else {
@@ -2055,13 +2062,14 @@
     }
 
     function resetToDefaultDiagram() {
+      pushHistory();
       state.nodes = JSON.parse(JSON.stringify(defaultNodes));
       state.edges = JSON.parse(JSON.stringify(defaultEdges));
       state.selectedNodeIds.clear();
       state.selectedEdgeId = null;
       state.connectSourceId = null;
       closeInlineEditor(false);
-      commitState(true);
+      commitState(true, true);
       renderBoard();
       resetView();
     }
@@ -2096,6 +2104,7 @@
 
     // --- ISOLATED CLUSTER GENERATION (SHIFT + Z + X) ---
     function createIsolatedGroup() {
+      pushHistory();
       switchPage('canvas');
 
       const chosenColor = PALETTE_15[Math.floor(Math.random() * PALETTE_15.length)].key;
@@ -2158,7 +2167,7 @@
       newNodes.forEach(n => state.selectedNodeIds.add(n.id));
       state.selectedEdgeId = null;
 
-      commitState(true);
+      commitState(true, true);
       renderBoard();
 
       setTimeout(() => {
@@ -2324,8 +2333,9 @@
             if (!state.editingNodeId) return;
             const node = state.nodes.find(n => n.id === state.editingNodeId);
             if (node) {
+              pushHistory();
               node.color = c.key;
-              commitState(true);
+              commitState(true, true);
               openInlineEditor(node.id);
               renderBoard();
             }
@@ -2419,6 +2429,7 @@
 
     // Apply color change to an entire cluster
     function changeClusterColor(rootId, newColor) {
+      pushHistory();
       const clusterNodes = getClusterNodesByRootId(rootId);
       if (clusterNodes.length === 0) return;
 
@@ -2426,7 +2437,7 @@
         node.color = newColor;
       });
 
-      commitState(true);
+      commitState(true, true);
       renderBoard();
       updateClusterCounts();
       if (state.currentPage === 'hierarchy') renderHierarchyTree();
@@ -2834,6 +2845,8 @@
             return;
           }
 
+          pushHistory(); // Record state before adding new node
+
           const chosenParentId = state.modalParentNodeId || null;
           let posX, posY;
           if (chosenParentId) {
@@ -2879,7 +2892,7 @@
             });
           }
 
-          commitState(true);
+          commitState(true, true);
           if (modalEl) modalEl.classList.add('hidden');
           renderBoard();
           if (state.currentPage === 'hierarchy') renderHierarchyTree();
