@@ -899,7 +899,7 @@
       <div class="flex flex-col">
         <div class="px-4 py-1.5 flex items-center justify-between text-[11px] font-mono font-medium opacity-40 select-none">
           <span class="sidebar-label tracking-wider uppercase">Version</span>
-          <span class="mx-auto sidebar-extra font-semibold">v0.98</span>
+          <span class="mx-auto sidebar-extra font-semibold">v0.96</span>
         </div>
 
         <div class="p-3 border-t border-slate-200/50 flex flex-col gap-2">
@@ -1738,8 +1738,8 @@
       const screenPos = worldToScreen(node.x, node.y);
       
       inlineEditorEl.style.display = 'flex';
-      inlineEditorEl.style.position = 'absolute';
       inlineEditorEl.style.transform = 'none';
+      inlineEditorEl.style.position = 'absolute';
       inlineEditorEl.style.left = `${Math.max(20, Math.min(window.innerWidth - 320, screenPos.x - 145))}px`;
       inlineEditorEl.style.top = `${Math.max(20, Math.min(window.innerHeight - 300, screenPos.y - 120))}px`;
 
@@ -3541,12 +3541,6 @@
     });
 
     function makeModalDraggable(modalBoxEl, handleEl) {
-      let isDragging = false;
-      let startX = 0;
-      let startY = 0;
-      let startModalX = 0;
-      let startModalY = 0;
-
       handleEl.addEventListener('mousedown', (e) => {
         if (e.button !== 0 || e.target.closest('button')) return;
         e.stopPropagation();
@@ -3554,27 +3548,21 @@
 
         const rect = modalBoxEl.getBoundingClientRect();
         
+        // Lock explicit absolute pixel positioning and clear layout centering transforms
         modalBoxEl.style.transform = 'none';
         modalBoxEl.style.position = 'absolute';
         modalBoxEl.style.left = `${rect.left}px`;
         modalBoxEl.style.top = `${rect.top}px`;
 
-        isDragging = true;
-        startX = e.clientX;
-        startY = e.clientY;
-        startModalX = rect.left;
-        startModalY = rect.top;
+        const shiftX = e.clientX - rect.left;
+        const shiftY = e.clientY - rect.top;
 
         const onMouseMove = (ev) => {
-          if (!isDragging) return;
           ev.stopPropagation();
           ev.preventDefault();
 
-          const dx = ev.clientX - startX;
-          const dy = ev.clientY - startY;
-
-          let newLeft = startModalX + dx;
-          let newTop = startModalY + dy;
+          let newLeft = ev.clientX - shiftX;
+          let newTop = ev.clientY - shiftY;
 
           const w = modalBoxEl.offsetWidth;
           const h = modalBoxEl.offsetHeight;
@@ -3587,11 +3575,8 @@
         };
 
         const onMouseUp = (ev) => {
-          if (isDragging) {
-            ev.stopPropagation();
-            ev.preventDefault();
-          }
-          isDragging = false;
+          ev.stopPropagation();
+          ev.preventDefault();
           window.removeEventListener('mousemove', onMouseMove);
           window.removeEventListener('mouseup', onMouseUp);
         };
