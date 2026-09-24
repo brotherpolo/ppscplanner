@@ -335,6 +335,33 @@
       }
     }
 
+    /* Active navigation item styling per theme */
+    body.theme-light .sidebar-item.active {
+      background-color: #e0e7ff !important;
+      color: #4338ca !important;
+    }
+    body.theme-light .sidebar-item.active i {
+      color: #4f46e5 !important;
+    }
+
+    body.theme-dark .sidebar-item.active {
+      background-color: #1e293b !important;
+      color: #ffffff !important;
+      border: 1px solid #334155;
+    }
+    body.theme-dark .sidebar-item.active i {
+      color: #818cf8 !important;
+    }
+
+    body.theme-black .sidebar-item.active {
+      background-color: #18181b !important;
+      color: #ffffff !important;
+      border: 1px solid #3f3f46;
+    }
+    body.theme-black .sidebar-item.active i {
+      color: #a5b4fc !important;
+    }
+
     /* 1. LIGHT THEME (Default) */
     body.theme-light {
       background-color: #fafaf9;
@@ -552,12 +579,12 @@
 
         <!-- Page Navigation Links -->
         <div class="p-3 flex flex-col gap-1.5">
-          <button id="nav-canvas" class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-xs transition-all bg-indigo-50 text-indigo-700">
+          <button id="nav-canvas" class="sidebar-item active w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-xs transition-all">
             <i class="fa-solid fa-circle-nodes text-base shrink-0"></i>
             <span class="sidebar-label">Canvas View</span>
           </button>
 
-          <button id="nav-hierarchy" class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-xs transition-all text-slate-600 hover:bg-slate-100">
+          <button id="nav-hierarchy" class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-xs transition-all">
             <i class="fa-solid fa-sitemap text-base shrink-0"></i>
             <span class="sidebar-label">Hierarchy View</span>
           </button>
@@ -1793,18 +1820,16 @@
         pageCanvas.classList.remove('hidden');
         pageHierarchy.classList.add('hidden');
 
-        navCanvas.classList.add('bg-indigo-50', 'text-indigo-700');
-        navCanvas.classList.remove('text-slate-600');
-
-        navHierarchy.classList.remove('bg-indigo-50', 'text-indigo-700');
+        navCanvas.classList.add('active');
+        navHierarchy.classList.remove('active');
 
         applyTransform();
       } else if (pageId === 'hierarchy') {
         pageCanvas.classList.add('hidden');
         pageHierarchy.classList.remove('hidden');
 
-        navHierarchy.classList.add('bg-indigo-50', 'text-indigo-700');
-        navCanvas.classList.remove('bg-indigo-50', 'text-indigo-700');
+        navHierarchy.classList.add('active');
+        navCanvas.classList.remove('active');
 
         renderHierarchyTree();
       }
@@ -1999,7 +2024,6 @@
 
         dotsBtn.addEventListener('click', (e) => {
           e.stopPropagation();
-          // Close any other open dropdowns first
           document.querySelectorAll('.tree-mobile-menu').forEach(m => {
             if (m !== dropdownMenu) m.classList.add('hidden');
           });
