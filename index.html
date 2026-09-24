@@ -2467,11 +2467,10 @@
       updateSelectionVisuals();
     }
 
-    // --- REPLACED PDF EXPORT WITH PNG EXPORT ---
+    // --- FIXED PNG EXPORT IMPLEMENTATION ---
     function exportToPNG() {
-      showToast("Generating clean PNG snapshot...", 2500);
+      showToast("Generating high-resolution PNG snapshot...", 2500);
       const viewportEl = document.getElementById('board-viewport');
-      const svgLayerEl = document.getElementById('svg-layer');
       if (!viewportEl || state.nodes.length === 0) return;
 
       const prevView = { x: state.view.x, y: state.view.y, zoom: state.view.zoom };
@@ -2490,13 +2489,12 @@
         if (n.y + pad > maxY) maxY = n.y + pad;
       });
 
-      const contentWidth = maxX - minX;
-      const contentHeight = maxY - minY;
-      
+      const contentWidth = Math.ceil(maxX - minX);
+      const contentHeight = Math.ceil(maxY - minY);
+
       state.view.zoom = 1;
       state.view.x = -minX;
       state.view.y = -minY;
-      
       applyTransform();
       renderBoard();
 
@@ -2506,77 +2504,44 @@
       viewportEl.style.height = `${contentHeight}px`;
 
       setTimeout(() => {
-        const svgXml = new XMLSerializer().serializeToString(svgLayerEl);
-        const svgBlob = new Blob([svgXml], { type: 'image/svg+xml;charset=utf-8' });
-        const svgUrl = URL.createObjectURL(svgBlob);
-        const img = new Image();
+        html2canvas(viewportEl, {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          width: contentWidth,
+          height: contentHeight,
+          windowWidth: contentWidth,
+          windowHeight: contentHeight,
+          backgroundColor: getComputedStyle(viewportEl).backgroundColor || '#fbfbfa'
+        }).then(canvas => {
+          viewportEl.style.width = originalWidth;
+          viewportEl.style.height = originalHeight;
 
-        img.onload = () => {
-          const tempCanvas = document.createElement('canvas');
-          tempCanvas.width = contentWidth * 2;
-          tempCanvas.height = contentHeight * 2;
-          const ctx = tempCanvas.getContext('2d');
-          ctx.scale(2, 2);
-          ctx.drawImage(img, 0, 0, contentWidth, contentHeight);
-          URL.revokeObjectURL(svgUrl);
+          state.view.x = prevView.x;
+          state.view.y = prevView.y;
+          state.view.zoom = prevView.zoom;
+          state.selectedNodeIds = prevSelected;
+          applyTransform();
+          renderBoard();
 
-          const svgAsImg = document.createElement('img');
-          svgAsImg.src = tempCanvas.toDataURL('image/png');
-          svgAsImg.style.position = 'absolute';
-          svgAsImg.style.top = '0';
-          svgAsImg.style.left = '0';
-          svgAsImg.style.width = `${contentWidth}px`;
-          svgAsImg.style.height = `${contentHeight}px`;
-          svgAsImg.style.pointerEvents = 'none';
-          svgAsImg.style.zIndex = '5';
-          
-          svgLayerEl.style.display = 'none';
-          viewportEl.appendChild(svgAsImg);
+          const link = document.createElement('a');
+          link.download = 'Adam_Pollack_PPSC_Workmap.png';
+          link.href = canvas.toDataURL('image/png');
+          link.click();
 
-          html2canvas(viewportEl, {
-            scale: 2,
-            useCORS: true,
-            logging: false,
-            width: contentWidth,
-            height: contentHeight,
-            windowWidth: contentWidth,
-            windowHeight: contentHeight,
-            backgroundColor: getComputedStyle(viewportEl).backgroundColor || '#fbfbfa'
-          }).then(canvas => {
-            viewportEl.removeChild(svgAsImg);
-            svgLayerEl.style.display = 'block';
-            viewportEl.style.width = originalWidth;
-            viewportEl.style.height = originalHeight;
-
-            state.view.x = prevView.x;
-            state.view.y = prevView.y;
-            state.view.zoom = prevView.zoom;
-            state.selectedNodeIds = prevSelected;
-            applyTransform();
-            renderBoard();
-
-            const link = document.createElement('a');
-            link.download = 'Adam_Pollack_PPSC_Workmap.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-
-            showToast("PNG exported successfully!");
-          }).catch(err => {
-            console.error("PNG export error:", err);
-            if (svgAsImg.parentNode) viewportEl.removeChild(svgAsImg);
-            svgLayerEl.style.display = 'block';
-            viewportEl.style.width = originalWidth;
-            viewportEl.style.height = originalHeight;
-            state.view.x = prevView.x;
-            state.view.y = prevView.y;
-            state.view.zoom = prevView.zoom;
-            state.selectedNodeIds = prevSelected;
-            applyTransform();
-            renderBoard();
-            showToast("Failed to export PNG.");
-          });
-        };
-        img.src = svgUrl;
+          showToast("PNG exported successfully!");
+        }).catch(err => {
+          console.error("PNG export error:", err);
+          viewportEl.style.width = originalWidth;
+          viewportEl.style.height = originalHeight;
+          state.view.x = prevView.x;
+          state.view.y = prevView.y;
+          state.view.zoom = prevView.zoom;
+          state.selectedNodeIds = prevSelected;
+          applyTransform();
+          renderBoard();
+          showToast("Failed to export PNG.");
+        });
       }, 300);
     }
 
