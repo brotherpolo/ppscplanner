@@ -1549,7 +1549,7 @@
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
         .replace(/\*(.*?)\*/g, '<em>$1</em>')
         .replace(/&lt;u&gt;(.*?)&lt;\/u&gt;/g, '<u>$1</u>')
-        .replace(/&lt;span style=&quot;font-size: (.*?);&quot;&gt;(.*?)&lt;\/span&gt;/g, '<span style="font-size: $1;">$2</span>');
+        .replace(/&lt;span style=("|&quot;)font-size:\s*(.*?);\1&gt;(.*?)&lt;\/span&gt;/g, '<span style="font-size: $2;">$3</span>');
 
       return escaped.replace(/\n/g, '<br/>');
     }
