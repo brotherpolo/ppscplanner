@@ -34,6 +34,7 @@
       -webkit-user-select: none;
     }
 
+    /* Layout Structure */
     #app-container {
       display: flex;
       width: 100vw;
@@ -1296,16 +1297,18 @@
       const centerY = (minY + maxY) / 2;
 
       const rect = viewportEl.getBoundingClientRect();
-      state.view.x = (rect.width / 2) - centerX * state.view.zoom;
-      state.view.y = (rect.height / 2) - centerY * state.view.zoom;
+      const w = rect.width || window.innerWidth - 68;
+      const h = rect.height || window.innerHeight;
+      state.view.x = (w / 2) - centerX * state.view.zoom;
+      state.view.y = (h / 2) - centerY * state.view.zoom;
       applyTransform();
     }
 
-   function focusNodeOnCanvas(nodeId) {
+    function focusNodeOnCanvas(nodeId) {
       const node = state.nodes.find(n => n.id === nodeId);
       if (!node) return;
 
-      // 1. Switch to canvas page first
+      // 1. Switch to canvas page immediately
       switchPage('canvas');
 
       // 2. Select and highlight the target node
@@ -1313,11 +1316,16 @@
       state.selectedNodeIds.add(nodeId);
       updateSelectionVisuals();
 
-      // 3. Defer coordinate calculation to allow the DOM viewport to measure non-zero dimensions
-      requestAnimationFrame(() => {
-        const rect = viewportEl.getBoundingClientRect();
-        const width = rect.width || window.innerWidth - (sidebar.classList.contains('collapsed') ? 68 : 256);
-        const height = rect.height || window.innerHeight;
+      // 3. Defer calculations to allow layout transition and guarantee non-zero dimensions
+      setTimeout(() => {
+        const viewportEl = document.getElementById('board-viewport');
+        const sidebar = document.getElementById('sidebar');
+        const rect = viewportEl ? viewportEl.getBoundingClientRect() : null;
+        const isCollapsed = sidebar ? sidebar.classList.contains('collapsed') : false;
+        const fallbackWidth = window.innerWidth - (isCollapsed ? 68 : 256);
+
+        const width = (rect && rect.width > 0) ? rect.width : fallbackWidth;
+        const height = (rect && rect.height > 0) ? rect.height : window.innerHeight;
 
         state.view.zoom = 1.25;
         state.view.x = (width / 2) - (node.x * state.view.zoom);
@@ -1325,7 +1333,7 @@
         applyTransform();
 
         showToast(`Focused on ${node.label.replace(/\n/g, ' ')}`);
-      });
+      }, 50);
     }
 
     function resetView() {
@@ -1378,7 +1386,6 @@
       updateSelectionVisuals();
     }
 
-    // Modal Handling with Guarded Lookups
     function openAddModal(parentNodeId = null) {
       state.modalParentNodeId = parentNodeId;
 
@@ -1564,7 +1571,7 @@
         btnLocate.className = "px-2 py-1 text-xs font-medium text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all flex items-center gap-1";
         btnLocate.title = "Locate on Canvas";
         btnLocate.innerHTML = '<i class="fa-solid fa-crosshairs text-[11px]"></i><span class="hidden sm:inline">Locate</span>';
-        btnLocate.addEventListener('click', () => {
+        btnLocate.addEventListener('click', (e) => {
           e.stopPropagation();
           focusNodeOnCanvas(node.id);
         });
