@@ -676,7 +676,7 @@
     body.theme-black .tree-mobile-menu {
       background-color: #09090b;
       border-color: #27272a;
-      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.9);
+      box-shadow: 0 14px 40px rgba(0,0,0,0.9);
       color: #ffffff;
     }
   </style>
@@ -2534,7 +2534,10 @@
       if (btnToggleSidebar && sidebar) {
         btnToggleSidebar.addEventListener('click', () => {
           sidebar.classList.toggle('collapsed');
-          setTimeout(applyTransform, 260);
+          setTimeout(() => {
+            centerDiagram();
+            applyTransform();
+          }, 260);
         });
       }
 
@@ -2952,15 +2955,19 @@
       // Initial Canvas Render
       renderBoard();
       applyTransform();
-      if (!localStorage.getItem(LOCAL_STORAGE_KEY)) {
+
+      // Ensure diagram is fully centered on initial load
+      requestAnimationFrame(() => {
         centerDiagram();
-      }
+      });
 
       setTimeout(hideSplashScreen, 1500);
     });
 
     // --- FIREBASE AUTH & DATABASE SYNC ---
     let dbSyncAttached = false;
+    let initialSyncDone = false;
+
     function initDatabaseSync() {
       if (dbSyncAttached || !window.boardRef) return;
       dbSyncAttached = true;
@@ -3003,9 +3010,18 @@
             if (state.currentPage === 'hierarchy') renderHierarchyTree();
             isIncomingSync = false;
             setSaveStatus('synced', cloudTimestamp);
+
+            if (!initialSyncDone) {
+              initialSyncDone = true;
+              centerDiagram();
+            }
           }
         } else {
           commitState(true);
+          if (!initialSyncDone) {
+            initialSyncDone = true;
+            centerDiagram();
+          }
         }
         hideSplashScreen();
       }, (err) => {
