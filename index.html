@@ -19,9 +19,8 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 
-  <!-- html2canvas & jsPDF for Reliable PDF Export -->
+  <!-- html2canvas for Reliable PNG Export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <style>
     * {
@@ -221,21 +220,18 @@
       transition: background-color 0.2s ease, border-color 0.2s ease;
     }
 
-    /* Standard Shape Variations using pseudo-element */
     .node-shape-pill::before { border-radius: 9999px; }
     .node-shape-rect::before { border-radius: 4px; }
     .node-shape-square::before { border-radius: 4px; }
     .node-shape-roundrect::before { border-radius: 14px; }
     .node-shape-circle::before { border-radius: 50%; }
 
-    /* Hide default box border for polygon-backed shapes */
     .node-shape-diamond::before,
     .node-shape-hexagon::before,
     .node-shape-triangle::before {
       display: none !important;
     }
 
-    /* SVG-Backed Polygon Shapes for Clean, Robust Borders */
     .node-polygon-bg {
       position: absolute;
       inset: 0;
@@ -273,7 +269,6 @@
       50% { outline-color: #059669; }
     }
 
-    /* Always Accessible Action Buttons & Resize Handle */
     .node-action-btn {
       position: absolute;
       width: 24px;
@@ -389,7 +384,6 @@
       padding-left: 1.25rem;
     }
 
-    /* Hierarchy Row Actions: Mobile vs Desktop */
     .tree-actions-desktop {
       display: flex;
       align-items: center;
@@ -409,7 +403,6 @@
       }
     }
 
-    /* Active navigation item styling per theme */
     body.theme-light .sidebar-item.active {
       background-color: #e0e7ff !important;
       color: #4338ca !important;
@@ -436,7 +429,6 @@
       color: #a5b4fc !important;
     }
 
-    /* Modal Theming Styles */
     .modal-box {
       transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
     }
@@ -527,7 +519,6 @@
       color: #ffffff;
     }
 
-    /* Hierarchy Surface Container Styling per Theme */
     body.theme-light .hierarchy-surface {
       background-color: #ffffff;
       border-color: #e2e8f0;
@@ -609,7 +600,6 @@
     body.theme-light .node-pink::before { border-color: #db2777; } body.theme-light .node-pink { color: #9d174d; }
     body.theme-light .node-gray::before { border-color: #475569; } body.theme-light .node-gray { color: #1e293b; }
 
-    /* Light Theme Polygon Fills */
     body.theme-light .node-polygon-bg polygon { fill: var(--node-bg, #ffffff); }
     body.theme-light .node-red .node-polygon-bg polygon { stroke: #dc2626; }
     body.theme-light .node-orange .node-polygon-bg polygon { stroke: #ea580c; }
@@ -702,7 +692,6 @@
     body.theme-dark .node-pink::before { border-color: #ec4899; } body.theme-dark .node-pink { color: #f472b6; }
     body.theme-dark .node-gray::before { border-color: #64748b; } body.theme-dark .node-gray { color: #cbd5e1; }
 
-    /* Dark Theme Polygon Fills */
     body.theme-dark .node-polygon-bg polygon { fill: var(--node-bg, #1e293b); }
     body.theme-dark .node-red .node-polygon-bg polygon { stroke: #ef4444; }
     body.theme-dark .node-orange .node-polygon-bg polygon { stroke: #f97316; }
@@ -799,7 +788,6 @@
     body.theme-black .node-pink::before { border-color: #f472b6; } body.theme-black .node-pink { color: #fbcfe8; }
     body.theme-black .node-gray::before { border-color: #a1a1aa; } body.theme-black .node-gray { color: #e4e4e7; }
 
-    /* Black Theme Polygon Fills */
     body.theme-black .node-polygon-bg polygon { fill: var(--node-bg, #09090b); }
     body.theme-black .node-red .node-polygon-bg polygon { stroke: #f87171; }
     body.theme-black .node-orange .node-polygon-bg polygon { stroke: #fb923c; }
@@ -834,7 +822,6 @@
 </head>
 <body class="theme-light w-screen h-screen overflow-hidden">
   <script>
-    // Immediate Theme Pre-hydration to eliminate flash of light theme during load
     (function() {
       try {
         var savedTheme = localStorage.getItem('mindmap_whiteboard_theme') || 'light';
@@ -844,7 +831,6 @@
     })();
   </script>
 
-  <!-- Fullscreen Initial Loading Splash Screen -->
   <div id="splash-screen" class="fixed inset-0 z-[200] flex flex-col items-center justify-center p-6 select-none">
     <div class="flex flex-col items-center gap-6">
       <img src="novarablack.png" alt="Novara" class="w-64 max-w-[70vw] object-contain animate-pulse-zoom drop-shadow-sm" />
@@ -858,10 +844,8 @@
 
   <div id="app-container">
     
-    <!-- Collapsible Left Navigation Sidebar -->
     <aside id="sidebar" class="w-64 h-full bg-white border-r border-slate-200 z-40 flex flex-col justify-between shrink-0 shadow-sm">
       <div class="flex flex-col">
-        <!-- Sidebar Header & Toggle -->
         <div class="h-16 px-4 border-b border-slate-100 flex items-center justify-between sidebar-header">
           <div class="flex items-center gap-2.5 overflow-hidden sidebar-brand">
             <img src="adam.jpeg" alt="Adam" class="w-9 h-9 rounded-xl object-cover shrink-0 shadow-sm" />
@@ -875,7 +859,6 @@
           </button>
         </div>
 
-        <!-- Page Navigation Links -->
         <div class="p-3 flex flex-col gap-1.5">
           <button id="nav-canvas" class="sidebar-item active w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-xs transition-all">
             <i class="fa-solid fa-circle-nodes text-base shrink-0"></i>
@@ -888,20 +871,15 @@
           </button>
         </div>
 
-        <!-- Section: Clusters Overview -->
         <div class="px-4 pt-3 pb-1 sidebar-extra">
           <span class="text-[10px] font-bold tracking-wider opacity-50 uppercase">Clusters</span>
         </div>
 
-        <!-- Dynamically Populated Cluster Container -->
         <div class="px-3 flex flex-col gap-1 sidebar-extra max-h-56 overflow-y-auto no-scrollbar" id="sidebar-cluster-list">
-          <!-- Dynamically populated from active canvas clusters -->
         </div>
       </div>
 
-      <!-- Sidebar Footer (Version Code, User Account & Sign Out) -->
       <div class="flex flex-col">
-        <!-- Version Code positioned just above the border line -->
         <div class="px-4 py-1.5 flex items-center justify-between text-[11px] font-mono font-medium opacity-40 select-none">
           <span class="sidebar-label tracking-wider uppercase">Version</span>
           <span class="mx-auto sidebar-extra font-semibold">v0.96</span>
@@ -923,19 +901,15 @@
       </div>
     </aside>
 
-    <!-- Main Dynamic Area -->
     <main id="main-content">
       
-      <!-- ================= PAGE 1: WHITEBOARD CANVAS ================= -->
       <section id="page-canvas" class="app-page">
-        <!-- Floating Canvas Toolbar -->
         <header class="absolute top-2 sm:top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1 sm:gap-1.5 p-1.5 rounded-2xl glass-panel w-max max-w-[94vw] overflow-x-auto no-scrollbar shadow-md">
           <div class="flex items-center px-2 sm:px-3 py-1 font-bold text-xs sm:text-sm tracking-tight border-r border-slate-500/30 shrink-0">
             <i class="fa-solid fa-project-diagram mr-1.5 text-indigo-600"></i>
             <span class="hidden sm:inline">Adam Pollack | PPSC</span>
           </div>
 
-          <!-- Mode Buttons -->
           <button id="btn-select-mode" title="Select & Reposition (V)" class="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-xl transition-all shrink-0">
             <i class="fa-solid fa-arrow-pointer"></i>
             <span class="hidden md:inline">Select</span>
@@ -953,7 +927,6 @@
 
           <div class="h-4 sm:h-5 w-px bg-slate-500/30 mx-0.5 sm:mx-1 shrink-0"></div>
 
-          <!-- Undo / Redo Buttons -->
           <button id="btn-undo" title="Undo (Ctrl+Z)" class="flex items-center px-2 sm:px-2.5 py-1.5 text-xs font-semibold rounded-xl transition-all shrink-0 opacity-55 hover:opacity-100 disabled:opacity-20" disabled>
             <i class="fa-solid fa-rotate-left"></i>
           </button>
@@ -964,7 +937,6 @@
 
           <div class="h-4 sm:h-5 w-px bg-slate-500/30 mx-0.5 sm:mx-1 shrink-0"></div>
 
-          <!-- Diagram Actions -->
           <button id="btn-select-all" title="Select Entire Diagram (Ctrl+A)" class="flex items-center gap-1 px-2 sm:px-3 py-1.5 text-xs font-semibold rounded-xl transition-all shrink-0">
             <i class="fa-solid fa-object-group"></i>
             <span class="hidden lg:inline">Select All</span>
@@ -980,9 +952,10 @@
             <span class="hidden lg:inline">Delete</span>
           </button>
 
-          <button id="btn-export-pdf" title="Export to PDF" class="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-indigo-600 bg-indigo-500/10 hover:bg-indigo-500/20 rounded-xl transition-all shrink-0">
-            <i class="fa-solid fa-file-pdf"></i>
-            <span class="hidden sm:inline">PDF</span>
+          <!-- PNG Export Button -->
+          <button id="btn-export-png" title="Export to PNG" class="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-indigo-600 bg-indigo-500/10 hover:bg-indigo-500/20 rounded-xl transition-all shrink-0">
+            <i class="fa-solid fa-file-image"></i>
+            <span class="hidden sm:inline">PNG</span>
           </button>
 
           <button id="btn-reset-default" title="Reset Diagram to Original Template" class="hidden items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-500 hover:bg-amber-500/10 rounded-xl transition-all shrink-0">
@@ -995,7 +968,6 @@
 
           <div class="h-4 sm:h-5 w-px bg-slate-500/30 mx-0.5 sm:mx-1 shrink-0"></div>
 
-          <!-- Theme Switcher Button -->
           <button id="btn-theme-toggle" title="Cycle Theme: Light -> Dark -> Absolute Black" class="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-xl transition-all shrink-0 hover:bg-slate-500/10">
             <i id="theme-toggle-icon" class="fa-solid fa-sun text-amber-500 text-sm"></i>
             <span id="theme-toggle-text" class="hidden md:inline font-medium">Light</span>
@@ -1003,14 +975,12 @@
 
           <div class="h-4 sm:h-5 w-px bg-slate-500/30 mx-0.5 sm:mx-1 shrink-0"></div>
 
-          <!-- Real-time Firebase Sync Status Pill -->
           <div id="save-status-pill" class="flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium border border-slate-500/30 rounded-xl bg-slate-500/5 shadow-xs shrink-0">
             <div id="save-status-dot" class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></div>
             <span id="save-status-text" class="whitespace-nowrap">Cloud Synced</span>
           </div>
         </header>
 
-        <!-- Whiteboard Viewport and Canvas -->
         <div id="board-viewport">
           <div id="world-layer">
             <svg id="svg-layer">
@@ -1023,7 +993,6 @@
             </svg>
             <div id="nodes-container"></div>
 
-            <!-- In-place Direct Node Editor -->
             <div id="node-inline-editor">
               <div class="flex items-center justify-between pb-1 border-b border-slate-500/20 text-[11px] font-semibold">
                 <span>Edit Node Properties</span>
@@ -1069,7 +1038,6 @@
           <div id="marquee-box"></div>
         </div>
 
-        <!-- Bottom Helper Bar -->
         <div class="hidden sm:flex absolute bottom-5 left-5 z-40 glass-panel px-3.5 py-2 rounded-xl text-xs items-center gap-3">
           <span class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 bg-slate-500/10 border border-slate-500/30 rounded font-mono text-[10px]">Ctrl + Z / Y</kbd> undo/redo</span>
           <span class="opacity-40">•</span>
@@ -1082,7 +1050,6 @@
           <span class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 bg-slate-500/10 border border-slate-500/30 rounded font-mono text-[10px]">Double-tap</kbd> edit label</span>
         </div>
 
-        <!-- Zoom Controls -->
         <div class="absolute bottom-4 right-4 sm:bottom-5 sm:right-5 z-40 glass-panel rounded-2xl flex items-center p-1 sm:p-1.5 gap-1">
           <button id="btn-zoom-out" class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-xl hover:bg-slate-500/10 transition-colors active:scale-95">
             <i class="fa-solid fa-minus text-xs"></i>
@@ -1098,9 +1065,7 @@
         </div>
       </section>
 
-      <!-- ================= PAGE 2: HIERARCHICAL TREE VIEW ================= -->
       <section id="page-hierarchy" class="app-page hidden overflow-y-auto p-4 sm:p-8">
-        <!-- Floating Theme Switcher Pill in Top Right Corner -->
         <div class="fixed top-4 right-4 sm:top-6 sm:right-8 z-50">
           <button id="btn-hierarchy-theme-toggle" title="Cycle Theme: Light -> Dark -> Absolute Black" class="glass-panel flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-2xl shadow-md transition-all hover:scale-105 active:scale-95">
             <i id="hierarchy-theme-toggle-icon" class="fa-solid fa-sun text-amber-500 text-sm"></i>
@@ -1109,8 +1074,6 @@
         </div>
 
         <div class="max-w-4xl mx-auto flex flex-col gap-6 pb-20 pt-10 sm:pt-4">
-          
-          <!-- Hierarchy Header Banner -->
           <div class="hierarchy-surface flex flex-col sm:flex-row sm:items-center justify-between gap-4 border p-6 rounded-2xl shadow-sm transition-colors">
             <div>
               <h1 class="text-xl font-bold tracking-tight">Adam's PPSC Hierarchy</h1>
@@ -1132,9 +1095,7 @@
             </div>
           </div>
 
-          <!-- Tree Root Rendering Area -->
           <div id="tree-container" class="hierarchy-surface border p-6 sm:p-8 rounded-2xl shadow-sm flex flex-col gap-4 transition-colors">
-            <!-- Dynamically populated -->
           </div>
         </div>
       </section>
@@ -1142,7 +1103,6 @@
     </main>
   </div>
 
-  <!-- Themed Add Node Modal with Searchable Parent Dropdown -->
   <div id="add-node-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
     <div class="modal-box rounded-2xl p-5 sm:p-6 w-full max-w-sm flex flex-col gap-4 max-h-[90vh] overflow-y-auto no-scrollbar">
       <div class="flex items-center justify-between">
@@ -1152,7 +1112,6 @@
         </button>
       </div>
 
-      <!-- Real-Time Searchable Color-Coded Pill Parent Selector -->
       <div class="flex flex-col gap-1.5">
         <label class="modal-label text-xs font-semibold">Parent Item</label>
         <div id="parent-dropdown-container" class="relative w-full">
@@ -1164,14 +1123,11 @@
           </button>
           
           <div id="parent-dropdown-menu" class="modal-dropdown-menu hidden absolute top-full left-0 right-0 mt-1 max-h-64 overflow-hidden rounded-xl z-50 p-2 flex flex-col gap-1.5 shadow-xl">
-            <!-- Live Search Bar -->
             <div class="relative w-full">
               <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-[11px] opacity-40"></i>
               <input type="text" id="parent-search-input" placeholder="Search parents..." class="modal-input w-full rounded-lg pl-8 pr-2.5 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500" />
             </div>
-            <!-- Scrollable Filtered List -->
             <div id="parent-dropdown-items" class="max-h-48 overflow-y-auto no-scrollbar flex flex-col gap-1">
-              <!-- Dynamically populated with searchable color pills -->
             </div>
           </div>
         </div>
@@ -1212,23 +1168,18 @@
       <div class="flex flex-col gap-1.5">
         <label class="modal-label text-xs font-semibold">Category Color (15 Choices)</label>
         <div class="grid grid-cols-5 gap-1.5" id="color-options">
-          <!-- 15 Color Choices rendered dynamically -->
         </div>
       </div>
 
-      <!-- Pastel Background Color Choices -->
       <div class="flex flex-col gap-1.5">
         <label class="modal-label text-xs font-semibold">Background Color (Pastel)</label>
         <div class="grid grid-cols-5 gap-1.5" id="bg-color-options">
-          <!-- Pastel Color Choices rendered dynamically -->
         </div>
       </div>
 
-      <!-- Node Shape Selection (8 Variations) -->
       <div class="flex flex-col gap-1.5">
         <label class="modal-label text-xs font-semibold">Node Shape (8 Variations)</label>
         <div class="grid grid-cols-4 gap-1.5" id="shape-options">
-          <!-- 8 Shape Choices rendered dynamically -->
         </div>
       </div>
 
@@ -1239,17 +1190,13 @@
     </div>
   </div>
 
-  <!-- Toast Notification -->
   <div id="toast" class="fixed top-16 sm:top-20 left-1/2 -translate-x-1/2 z-50 glass-panel border border-slate-500/30 text-xs px-4 py-2 rounded-xl shadow-lg transition-opacity duration-300 opacity-0 pointer-events-none text-center whitespace-nowrap">
     Notice
   </div>
 
-  <!-- Context Color Picker for Clusters (15 Colors) -->
   <div id="cluster-color-popover" class="fixed z-[150] hidden glass-panel border border-slate-500/30 p-2 rounded-2xl shadow-2xl grid grid-cols-5 gap-1.5 w-max max-w-[200px]">
-    <!-- Populated by script -->
   </div>
 
-  <!-- Login Modal for Authorized Users -->
   <div id="auth-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[100] flex items-center justify-center p-4 hidden">
     <div class="modal-box rounded-2xl p-6 sm:p-7 w-full max-w-sm shadow-2xl flex flex-col gap-4">
       <div class="flex items-center gap-2">
@@ -1272,7 +1219,6 @@
   </div>
 
   <script>
-    // --- COLOR PALETTE DEFINITIONS (15 Consistent Choices) ---
     const PALETTE_15 = [
       { key: 'red', name: 'Red', hex: '#ef4444', dotClass: 'bg-red-500' },
       { key: 'orange', name: 'Orange', hex: '#f97316', dotClass: 'bg-orange-500' },
@@ -1296,7 +1242,6 @@
       return acc;
     }, {});
 
-    // --- 8 SHAPE VARIATIONS ---
     const SHAPES_8 = [
       { key: 'pill', name: 'Pill', icon: 'fa-capsules' },
       { key: 'rect', name: 'Rect', icon: 'fa-square' },
@@ -1308,13 +1253,11 @@
       { key: 'triangle', name: 'Triangle', icon: 'fa-play fa-rotate-270' }
     ];
 
-  // --- USER PROFILE IMAGES MAPPING BY UID ---
     const USER_AVATAR_MAP = {
       "mrnrYxtNwuV8vgru9Gr2KkJ1HzI2": "adam.jpeg",
       "b0Ji8It6eQOt0G3pvyvqrpWUF1m2": "taylor.jpg"
     };
 
-    // --- FIREBASE INITIALIZATION ---
     if (!firebase.apps.length) {
       firebase.initializeApp(firebaseConfig);
     }
@@ -1444,7 +1387,6 @@
       theme: localStorage.getItem(THEME_STORAGE_KEY) || 'light'
     };
 
-    // --- UNDO / REDO HISTORY STACKS (up to 10 steps) ---
     const historyStack = [];
     const redoStack = [];
     const MAX_HISTORY = 10;
@@ -1520,8 +1462,8 @@
     }
 
     let isIncomingSync = false;
-
     let toastTimeout;
+
     function showToast(msg) {
       const toast = document.getElementById('toast');
       if (!toast) return;
@@ -1545,7 +1487,6 @@
       }
     }
 
-    // --- TEXT FORMATTING HELPER ---
     function renderFormattedLabel(rawText) {
       if (!rawText) return '';
       let cleanText = rawText
@@ -1573,7 +1514,6 @@
         .trim();
     }
 
-    // --- THEME SWITCHER LOGIC ---
     function applyTheme(themeName) {
       state.theme = themeName;
       localStorage.setItem(THEME_STORAGE_KEY, themeName);
@@ -2369,7 +2309,6 @@
         .map(cluster => {
           const colorKey = cluster.color;
           const nodeIdsInCluster = new Set(cluster.nodes.map(n => n.id));
-
           let clusterName = null;
 
           if (cluster.nodes.length === 1) {
@@ -2528,8 +2467,9 @@
       updateSelectionVisuals();
     }
 
-    function exportToPDF() {
-      showToast("Generating PDF snapshot with lines...", 3000);
+    // --- REPLACED PDF EXPORT WITH PNG EXPORT ---
+    function exportToPNG() {
+      showToast("Generating clean PNG snapshot...", 2500);
       const viewportEl = document.getElementById('board-viewport');
       const svgLayerEl = document.getElementById('svg-layer');
       if (!viewportEl || state.nodes.length === 0) return;
@@ -2543,7 +2483,7 @@
 
       let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
       state.nodes.forEach(n => {
-        const pad = 180;
+        const pad = 120;
         if (n.x - pad < minX) minX = n.x - pad;
         if (n.x + pad > maxX) maxX = n.x + pad;
         if (n.y - pad < minY) minY = n.y - pad;
@@ -2552,19 +2492,18 @@
 
       const contentWidth = maxX - minX;
       const contentHeight = maxY - minY;
-      const viewWidth = viewportEl.clientWidth || window.innerWidth;
-      const viewHeight = viewportEl.clientHeight || window.innerHeight;
-
-      const zoomX = viewWidth / contentWidth;
-      const zoomY = viewHeight / contentHeight;
-      const targetZoom = Math.min(Math.max(0.25, Math.min(zoomX, zoomY)), 1.25);
-
-      state.view.zoom = targetZoom;
-      state.view.x = (viewWidth / 2) - ((minX + contentWidth / 2) * targetZoom);
-      state.view.y = (viewHeight / 2) - ((minY + contentHeight / 2) * targetZoom);
+      
+      state.view.zoom = 1;
+      state.view.x = -minX;
+      state.view.y = -minY;
       
       applyTransform();
       renderBoard();
+
+      const originalWidth = viewportEl.style.width;
+      const originalHeight = viewportEl.style.height;
+      viewportEl.style.width = `${contentWidth}px`;
+      viewportEl.style.height = `${contentHeight}px`;
 
       setTimeout(() => {
         const svgXml = new XMLSerializer().serializeToString(svgLayerEl);
@@ -2574,11 +2513,11 @@
 
         img.onload = () => {
           const tempCanvas = document.createElement('canvas');
-          tempCanvas.width = svgLayerEl.clientWidth * 2;
-          tempCanvas.height = svgLayerEl.clientHeight * 2;
+          tempCanvas.width = contentWidth * 2;
+          tempCanvas.height = contentHeight * 2;
           const ctx = tempCanvas.getContext('2d');
           ctx.scale(2, 2);
-          ctx.drawImage(img, 0, 0);
+          ctx.drawImage(img, 0, 0, contentWidth, contentHeight);
           URL.revokeObjectURL(svgUrl);
 
           const svgAsImg = document.createElement('img');
@@ -2586,8 +2525,8 @@
           svgAsImg.style.position = 'absolute';
           svgAsImg.style.top = '0';
           svgAsImg.style.left = '0';
-          svgAsImg.style.width = `${svgLayerEl.clientWidth}px`;
-          svgAsImg.style.height = `${svgLayerEl.clientHeight}px`;
+          svgAsImg.style.width = `${contentWidth}px`;
+          svgAsImg.style.height = `${contentHeight}px`;
           svgAsImg.style.pointerEvents = 'none';
           svgAsImg.style.zIndex = '5';
           
@@ -2598,10 +2537,16 @@
             scale: 2,
             useCORS: true,
             logging: false,
+            width: contentWidth,
+            height: contentHeight,
+            windowWidth: contentWidth,
+            windowHeight: contentHeight,
             backgroundColor: getComputedStyle(viewportEl).backgroundColor || '#fbfbfa'
           }).then(canvas => {
             viewportEl.removeChild(svgAsImg);
             svgLayerEl.style.display = 'block';
+            viewportEl.style.width = originalWidth;
+            viewportEl.style.height = originalHeight;
 
             state.view.x = prevView.x;
             state.view.y = prevView.y;
@@ -2610,32 +2555,29 @@
             applyTransform();
             renderBoard();
 
-            const imgData = canvas.toDataURL('image/png');
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF({
-              orientation: canvas.width > canvas.height ? 'landscape' : 'portrait',
-              unit: 'px',
-              format: [canvas.width, canvas.height]
-            });
+            const link = document.createElement('a');
+            link.download = 'Adam_Pollack_PPSC_Workmap.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
 
-            pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-            pdf.save('Adam_Pollack_PPSC_Workmap.pdf');
-            showToast("PDF exported successfully!");
+            showToast("PNG exported successfully!");
           }).catch(err => {
-            console.error("PDF export error:", err);
+            console.error("PNG export error:", err);
             if (svgAsImg.parentNode) viewportEl.removeChild(svgAsImg);
             svgLayerEl.style.display = 'block';
+            viewportEl.style.width = originalWidth;
+            viewportEl.style.height = originalHeight;
             state.view.x = prevView.x;
             state.view.y = prevView.y;
             state.view.zoom = prevView.zoom;
             state.selectedNodeIds = prevSelected;
             applyTransform();
             renderBoard();
-            showToast("Failed to export PDF.");
+            showToast("Failed to export PNG.");
           });
         };
         img.src = svgUrl;
-      }, 500);
+      }, 300);
     }
 
     function exportHierarchyToPDF() {
@@ -2956,7 +2898,6 @@
 
       const isDark = state.theme === 'dark' || state.theme === 'black';
 
-      // Default / None Option
       const noneBtn = document.createElement('button');
       noneBtn.type = 'button';
       noneBtn.className = `color-choice h-8 rounded-xl border-2 flex items-center justify-center font-bold text-[10px] transition-all ${!state.selectedModalBgColor ? 'ring-2 ring-indigo-500 scale-105 bg-indigo-500/10 border-indigo-500 text-indigo-500' : (isDark ? 'border-zinc-700 bg-zinc-800 text-zinc-400' : 'border-slate-200 bg-white text-slate-500')}`;
@@ -3073,7 +3014,6 @@
         inlineBgContainer.innerHTML = '';
         const node = state.nodes.find(n => n.id === state.editingNodeId);
         
-        // Default / None button
         const noneBtn = document.createElement('button');
         const isNoneSelected = !node || !node.bgColor;
         noneBtn.className = `w-5 h-5 rounded-full hover:scale-125 transition-transform border flex items-center justify-center text-[9px] font-bold ${isNoneSelected ? 'ring-2 ring-indigo-500 scale-110 bg-indigo-500 text-white' : 'border-slate-400 bg-slate-200 text-slate-700'}`;
@@ -3509,7 +3449,6 @@
       }
     });
 
-    // --- INITIALIZE ALL EVENT LISTENERS ON DOM LOAD ---
     document.addEventListener("DOMContentLoaded", () => {
       const viewportEl = document.getElementById('board-viewport');
       const marqueeBoxEl = document.getElementById('marquee-box');
@@ -3524,7 +3463,7 @@
       const btnRedo = document.getElementById('btn-redo');
       const btnSelectAll = document.getElementById('btn-select-all');
       const btnDeleteSelected = document.getElementById('btn-delete-selected');
-      const btnExportPdf = document.getElementById('btn-export-pdf');
+      const btnExportPng = document.getElementById('btn-export-png');
       const btnHierarchyExportPdf = document.getElementById('btn-hierarchy-export-pdf');
       const btnResetDefault = document.getElementById('btn-reset-default');
       const btnResetView = document.getElementById('btn-reset-view');
@@ -3548,7 +3487,6 @@
       const btnThemeToggle = document.getElementById('btn-theme-toggle');
       const btnHierarchyThemeToggle = document.getElementById('btn-hierarchy-theme-toggle');
 
-      // --- TEXT FORMATTING & FONT SIZE BINDINGS ---
       const btnModalBold = document.getElementById('btn-modal-bold');
       const btnModalItalic = document.getElementById('btn-modal-italic');
       const btnModalUnderline = document.getElementById('btn-modal-underline');
@@ -3649,7 +3587,7 @@
 
       if (btnUndo) btnUndo.addEventListener('click', performUndo);
       if (btnRedo) btnRedo.addEventListener('click', performRedo);
-      if (btnExportPdf) btnExportPdf.addEventListener('click', exportToPDF);
+      if (btnExportPng) btnExportPng.addEventListener('click', exportToPNG);
       if (btnHierarchyExportPdf) btnHierarchyExportPdf.addEventListener('click', exportHierarchyToPDF);
 
       renderColorPickers();
