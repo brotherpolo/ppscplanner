@@ -567,7 +567,7 @@
   <!-- Fullscreen Initial Loading Splash Screen -->
   <div id="splash-screen" class="fixed inset-0 z-[200] flex flex-col items-center justify-center p-6 select-none">
     <div class="flex flex-col items-center gap-6">
-      <img src="novaralogo.png" alt="Novara" class="w-64 max-w-[70vw] object-contain animate-pulse-zoom drop-shadow-sm" />
+      <img src="novarablack.png" alt="Novara" class="w-64 max-w-[70vw] object-contain animate-pulse-zoom drop-shadow-sm" />
       <div class="flex items-center gap-2">
         <div class="w-2 h-2 rounded-full bg-indigo-600 animate-bounce" style="animation-delay: 0s;"></div>
         <div class="w-2 h-2 rounded-full bg-indigo-600 animate-bounce" style="animation-delay: 0.15s;"></div>
@@ -782,9 +782,9 @@
 
         <!-- Bottom Helper Bar -->
         <div class="hidden sm:flex absolute bottom-5 left-5 z-40 glass-panel px-3.5 py-2 rounded-xl text-xs items-center gap-3">
-          <span class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 bg-slate-500/10 border border-slate-500/30 rounded font-mono text-[10px]">Double-tap</kbd> edit label</span>
+          <span class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 bg-slate-500/10 border border-slate-500/30 rounded font-mono text-[10px]">Right-click</kbd> add connected</span>
           <span class="opacity-40">•</span>
-          <span class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 bg-slate-500/10 border border-slate-500/30 rounded font-mono text-[10px]">2-finger</kbd> pinch / zoom</span>
+          <span class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 bg-slate-500/10 border border-slate-500/30 rounded font-mono text-[10px]">Double-tap</kbd> edit label</span>
           <span class="opacity-40">•</span>
           <span class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 bg-slate-500/10 border border-slate-500/30 rounded font-mono text-[10px]">Ctrl + A</kbd> Reposition all</span>
         </div>
@@ -1039,6 +1039,7 @@
       editingNodeId: null,
       currentPage: 'canvas',
       modalParentNodeId: null,
+      contextClickPos: null,
       theme: localStorage.getItem(THEME_STORAGE_KEY) || 'light'
     };
 
@@ -1501,6 +1502,20 @@
         e.stopPropagation();
         e.preventDefault();
         openInlineEditor(nodeData.id);
+      });
+
+      // Context menu event for right-click node creation
+      nodeEl.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        state.selectedNodeIds.clear();
+        state.selectedNodeIds.add(nodeData.id);
+        state.selectedEdgeId = null;
+        updateSelectionVisuals();
+
+        state.contextClickPos = screenToWorld(e.clientX, e.clientY);
+        openAddModal(nodeData.id);
       });
 
       nodeEl.addEventListener('touchstart', (e) => {
@@ -2300,7 +2315,11 @@
           let posX, posY;
           if (chosenParentId) {
             const parentNode = state.nodes.find(n => n.id === chosenParentId);
-            if (parentNode) {
+            if (state.contextClickPos) {
+              posX = Math.round(state.contextClickPos.x + 80);
+              posY = Math.round(state.contextClickPos.y);
+              state.contextClickPos = null;
+            } else if (parentNode) {
               const angle = Math.random() * Math.PI * 2;
               const distance = 140 + Math.random() * 40;
               posX = Math.round(parentNode.x + Math.cos(angle) * distance);
