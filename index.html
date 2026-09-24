@@ -1925,64 +1925,50 @@
       applyTransform();
     }
 
-    // --- FULLY DYNAMIC CLUSTER DETECTION & SELECTION LOGIC ---
-    function getClusterNodesByRootId(rootId) {
-      const result = new Set();
-      result.add(rootId);
-
-      const queue = [rootId];
-      while (queue.length > 0) {
-        const curr = queue.shift();
-        const children = state.edges
-          .filter(e => e.source === curr)
-          .map(e => e.target);
-
-        children.forEach(childId => {
-          if (!result.has(childId)) {
-            result.add(childId);
-            queue.push(childId);
-          }
-        });
-      }
-      return state.nodes.filter(n => result.has(n.id));
-    }
-
+    // --- FULLY DYNAMIC COLOR-BASED CLUSTER DETECTION & SELECTION LOGIC ---
     function getDetectedClusters() {
-      const roots = [];
-      const visited = new Set();
+      const clusterMap = {};
 
-      // Priority 1: explicitly marked hubs
-      state.nodes.filter(n => n.isHub).forEach(n => {
-        roots.push(n);
-        visited.add(n.id);
-      });
-
-      // Priority 2: nodes with outgoing links that aren't already considered
-      state.nodes.forEach(n => {
-        if (!visited.has(n.id)) {
-          const hasChildren = state.edges.some(e => e.source === n.id);
-          if (hasChildren) {
-            roots.push(n);
-            visited.add(n.id);
-          }
-        }
-      });
-
-      return roots.map(rootNode => {
-        const connectedNodes = getClusterNodesByRootId(rootNode.id);
-        const cleanName = rootNode.label.replace(/\n/g, ' ').trim() || 'Cluster';
-        return {
-          id: rootNode.id,
-          name: cleanName,
-          color: rootNode.color || 'gray',
-          count: connectedNodes.length,
-          nodes: connectedNodes
+      // Initialize a bucket for every color in the palette
+      PALETTE_15.forEach(c => {
+        clusterMap[c.key] = {
+          id: c.key,
+          name: c.name,
+          color: c.key,
+          nodes: []
         };
       });
+
+      // Group nodes strictly by their assigned color
+      state.nodes.forEach(node => {
+        const colorKey = node.color || 'gray';
+        if (!clusterMap[colorKey]) {
+          clusterMap[colorKey] = {
+            id: colorKey,
+            name: colorKey.toUpperCase(),
+            color: colorKey,
+            nodes: []
+          };
+        }
+        clusterMap[colorKey].nodes.push(node);
+      });
+
+      // Filter out empty clusters and format for the sidebar
+      return Object.values(clusterMap)
+        .filter(cluster => cluster.nodes.length > 0)
+        .map(cluster => {
+          return {
+            id: cluster.color,
+            name: cluster.name.toUpperCase(),
+            color: cluster.color,
+            count: cluster.nodes.length,
+            nodes: cluster.nodes
+          };
+        });
     }
 
-    function selectDynamicCluster(rootId) {
-      const clusterNodes = getClusterNodesByRootId(rootId);
+    function selectDynamicCluster(colorKey) {
+      const clusterNodes = state.nodes.filter(n => (n.color || 'gray') === colorKey);
       if (clusterNodes.length === 0) return;
 
       switchPage('canvas');
@@ -2022,7 +2008,7 @@
         state.view.y = (height / 2) - (centerY * targetZoom);
         applyTransform();
 
-        showToast(`Selected ${clusterNodes.length} nodes in cluster.`);
+        showToast(`Selected ${clusterNodes.length} nodes in ${colorKey} cluster.`);
       }, 50);
     }
 
@@ -2430,7 +2416,7 @@
     // Apply color change to an entire cluster
     function changeClusterColor(rootId, newColor) {
       pushHistory();
-      const clusterNodes = getClusterNodesByRootId(rootId);
+      const clusterNodes = state.nodes.filter(n => (n.color || 'gray') === rootId);
       if (clusterNodes.length === 0) return;
 
       clusterNodes.forEach(node => {
