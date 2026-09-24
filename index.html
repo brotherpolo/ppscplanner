@@ -787,7 +787,15 @@
 
       <!-- ================= PAGE 2: HIERARCHICAL TREE VIEW ================= -->
       <section id="page-hierarchy" class="app-page hidden overflow-y-auto p-4 sm:p-8">
-        <div class="max-w-4xl mx-auto flex flex-col gap-6 pb-20">
+        <!-- Floating Theme Switcher Pill in Top Right Corner -->
+        <div class="fixed top-4 right-4 sm:top-6 sm:right-8 z-50">
+          <button id="btn-hierarchy-theme-toggle" title="Cycle Theme: Light -> Dark -> Absolute Black" class="glass-panel flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-2xl shadow-md transition-all hover:scale-105 active:scale-95">
+            <i id="hierarchy-theme-toggle-icon" class="fa-solid fa-sun text-amber-500 text-sm"></i>
+            <span id="hierarchy-theme-toggle-text" class="font-medium">Light</span>
+          </button>
+        </div>
+
+        <div class="max-w-4xl mx-auto flex flex-col gap-6 pb-20 pt-10 sm:pt-4">
           
           <!-- Hierarchy Header Banner -->
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border border-slate-200 p-6 rounded-2xl shadow-sm">
@@ -1052,16 +1060,24 @@
 
       const themeIcon = document.getElementById('theme-toggle-icon');
       const themeText = document.getElementById('theme-toggle-text');
+      const hierThemeIcon = document.getElementById('hierarchy-theme-toggle-icon');
+      const hierThemeText = document.getElementById('hierarchy-theme-toggle-text');
 
       if (themeName === 'light') {
         if (themeIcon) themeIcon.className = "fa-solid fa-sun text-amber-500 text-sm";
         if (themeText) themeText.textContent = "Light";
+        if (hierThemeIcon) hierThemeIcon.className = "fa-solid fa-sun text-amber-500 text-sm";
+        if (hierThemeText) hierThemeText.textContent = "Light";
       } else if (themeName === 'dark') {
         if (themeIcon) themeIcon.className = "fa-solid fa-moon text-indigo-400 text-sm";
         if (themeText) themeText.textContent = "Dark";
+        if (hierThemeIcon) hierThemeIcon.className = "fa-solid fa-moon text-indigo-400 text-sm";
+        if (hierThemeText) hierThemeText.textContent = "Dark";
       } else if (themeName === 'black') {
         if (themeIcon) themeIcon.className = "fa-solid fa-circle text-slate-400 text-sm";
         if (themeText) themeText.textContent = "Black";
+        if (hierThemeIcon) hierThemeIcon.className = "fa-solid fa-circle text-slate-400 text-sm";
+        if (hierThemeText) hierThemeText.textContent = "Black";
       }
 
       if (state.currentPage === 'hierarchy') {
@@ -2113,6 +2129,12 @@
       const inlineTextareaEl = document.getElementById('node-inline-textarea');
       const inlineColorPickers = document.getElementById('inline-color-pickers');
       const btnThemeToggle = document.getElementById('btn-theme-toggle');
+      const btnHierarchyThemeToggle = document.getElementById('btn-hierarchy-theme-toggle');
+
+      // Initialize Theme
+      applyTheme(state.theme);
+      if (btnThemeToggle) btnThemeToggle.addEventListener('click', cycleTheme);
+      if (btnHierarchyThemeToggle) btnHierarchyThemeToggle.addEventListener('click', cycleTheme);
 
       // Custom Parent Dropdown Toggle
       const parentDropdownBtn = document.getElementById('parent-dropdown-btn');
@@ -2130,10 +2152,6 @@
           }
         });
       }
-
-      // Initialize Theme
-      applyTheme(state.theme);
-      if (btnThemeToggle) btnThemeToggle.addEventListener('click', cycleTheme);
 
       if (btnSelectMode) btnSelectMode.addEventListener('click', () => setAppMode('select'));
       if (btnConnectMode) btnConnectMode.addEventListener('click', () => setAppMode('connect'));
