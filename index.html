@@ -314,10 +314,6 @@
       padding-left: 1.25rem;
     }
 
-    /* =========================================================================
-       THEME STYLES (Light, Dark, Absolute Black)
-       ========================================================================= */
-
     /* 1. LIGHT THEME (Default) */
     body.theme-light {
       background-color: #fafaf9;
@@ -767,12 +763,21 @@
         </button>
       </div>
 
-      <!-- Parent Selector Dropdown -->
+      <!-- Color-Coded Pill Parent Selector Dropdown -->
       <div class="flex flex-col gap-1.5">
         <label class="text-xs font-semibold text-slate-600">Parent Item</label>
-        <select id="node-parent-select" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-slate-800">
-          <option value="">None (Root Node)</option>
-        </select>
+        <div id="parent-dropdown-container" class="relative w-full">
+          <button type="button" id="parent-dropdown-btn" class="w-full flex items-center justify-between border border-slate-200 rounded-xl p-2 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-slate-800 transition-all hover:bg-slate-50">
+            <span id="parent-dropdown-selected" class="flex items-center gap-1.5">
+              <span class="text-slate-500 font-medium px-2 py-0.5">None (Root Node)</span>
+            </span>
+            <i class="fa-solid fa-chevron-down text-[11px] text-slate-400 mr-1 transition-transform"></i>
+          </button>
+          
+          <div id="parent-dropdown-menu" class="hidden absolute top-full left-0 right-0 mt-1 max-h-56 overflow-y-auto bg-white border border-slate-200 rounded-xl shadow-xl z-50 p-1 flex flex-col gap-1">
+            <!-- Dynamically populated with color pills -->
+          </div>
+        </div>
       </div>
 
       <div class="flex flex-col gap-1.5">
@@ -941,7 +946,7 @@
       editingNodeId: null,
       currentPage: 'canvas',
       modalParentNodeId: null,
-      theme: localStorage.getItem(THEME_STORAGE_KEY) || 'light' // 'light' | 'dark' | 'black'
+      theme: localStorage.getItem(THEME_STORAGE_KEY) || 'light'
     };
 
     let isIncomingSync = false;
@@ -1614,27 +1619,112 @@
       updateSelectionVisuals();
     }
 
+    // Helper: Build Pill HTML for Dropdown
+    function getPillMarkup(node, isDark) {
+      const colorPillClasses = isDark ? {
+        red: 'bg-red-950/60 text-red-300 border-red-800',
+        green: 'bg-emerald-950/60 text-emerald-300 border-emerald-800',
+        blue: 'bg-blue-950/60 text-blue-300 border-blue-800',
+        purple: 'bg-purple-950/60 text-purple-300 border-purple-800',
+        gray: 'bg-zinc-900 text-zinc-300 border-zinc-700'
+      } : {
+        red: 'bg-red-50 text-red-700 border-red-200',
+        green: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+        blue: 'bg-blue-50 text-blue-700 border-blue-200',
+        purple: 'bg-purple-50 text-purple-700 border-purple-200',
+        gray: 'bg-slate-100 text-slate-700 border-slate-200'
+      };
+
+      const hubMarkup = node.isHub ? `<span class="text-[9px] font-bold uppercase tracking-wider text-indigo-500 bg-indigo-500/10 border border-indigo-500/30 px-1.5 py-0.2 rounded">Hub</span>` : '';
+      return `
+        <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full border shadow-xs inline-flex items-center gap-1.5 ${colorPillClasses[node.color] || colorPillClasses.gray}">
+          <span>${node.label.replace(/\n/g, ' ')}</span>
+        </span>
+        ${hubMarkup}
+      `;
+    }
+
+    function populateParentDropdown(selectedId = null) {
+      const dropdownMenu = document.getElementById('parent-dropdown-menu');
+      const dropdownSelected = document.getElementById('parent-dropdown-selected');
+      if (!dropdownMenu || !dropdownSelected) return;
+
+      const isDark = state.theme === 'dark' || state.theme === 'black';
+
+      // Update Selected Display
+      if (selectedId) {
+        const found = state.nodes.find(n => n.id === selectedId);
+        if (found) {
+          dropdownSelected.innerHTML = getPillMarkup(found, isDark);
+        } else {
+          dropdownSelected.innerHTML = `<span class="text-slate-500 font-medium px-2 py-0.5">None (Root Node)</span>`;
+        }
+      } else {
+        dropdownSelected.innerHTML = `<span class="text-slate-500 font-medium px-2 py-0.5">None (Root Node)</span>`;
+      }
+
+      // Populate Items
+      dropdownMenu.innerHTML = '';
+
+      // Option: Root (None)
+      const noneOption = document.createElement('div');
+      noneOption.className = `p-2 rounded-lg cursor-pointer flex items-center justify-between text-xs hover:bg-slate-100 transition-colors ${!selectedId ? 'bg-slate-50 font-semibold' : ''}`;
+      noneOption.innerHTML = `<span class="text-slate-600 px-1 font-medium">None (Root Node)</span>`;
+      noneOption.addEventListener('click', (e) => {
+        e.stopPropagation();
+        selectParentOption(null);
+      });
+      dropdownMenu.appendChild(noneOption);
+
+      // Node Options
+      state.nodes.forEach(node => {
+        const opt = document.createElement('div');
+        opt.className = `p-1.5 rounded-lg cursor-pointer flex items-center justify-between text-xs hover:bg-slate-100 transition-colors ${selectedId === node.id ? 'bg-slate-50' : ''}`;
+        opt.innerHTML = `
+          <div class="flex items-center gap-1.5">
+            ${getPillMarkup(node, isDark)}
+          </div>
+          ${selectedId === node.id ? '<i class="fa-solid fa-check text-indigo-600 text-xs mr-1"></i>' : ''}
+        `;
+        opt.addEventListener('click', (e) => {
+          e.stopPropagation();
+          selectParentOption(node.id);
+        });
+        dropdownMenu.appendChild(opt);
+      });
+    }
+
+    function selectParentOption(nodeId) {
+      state.modalParentNodeId = nodeId;
+      const colorButtons = document.querySelectorAll('.color-choice');
+      const dropdownMenu = document.getElementById('parent-dropdown-menu');
+
+      if (nodeId) {
+        const parentNode = state.nodes.find(n => n.id === nodeId);
+        if (parentNode) {
+          state.selectedModalColor = parentNode.color;
+          colorButtons.forEach(b => {
+            b.classList.toggle('ring-2', b.dataset.color === state.selectedModalColor);
+            b.classList.toggle('ring-indigo-600', b.dataset.color === state.selectedModalColor);
+          });
+        }
+      }
+
+      populateParentDropdown(nodeId);
+      if (dropdownMenu) dropdownMenu.classList.add('hidden');
+    }
+
     function openAddModal(parentNodeId = null) {
       state.modalParentNodeId = parentNodeId;
 
       const modalEl = document.getElementById('add-node-modal');
       const modalTitleEl = document.getElementById('add-modal-title');
-      const modalParentSelect = document.getElementById('node-parent-select');
       const labelInput = document.getElementById('node-label-input');
       const colorButtons = document.querySelectorAll('.color-choice');
 
-      if (!modalEl || !modalParentSelect || !labelInput) return;
+      if (!modalEl || !labelInput) return;
 
-      modalParentSelect.innerHTML = '<option value="">None (Root Node)</option>';
-      state.nodes.forEach(node => {
-        const opt = document.createElement('option');
-        opt.value = node.id;
-        opt.textContent = `${node.label.replace(/\n/g, ' ')} (${node.color.toUpperCase()})`;
-        if (node.id === parentNodeId) {
-          opt.selected = true;
-        }
-        modalParentSelect.appendChild(opt);
-      });
+      populateParentDropdown(parentNodeId);
 
       if (parentNodeId) {
         const parentNode = state.nodes.find(n => n.id === parentNodeId);
@@ -1866,7 +1956,6 @@
       const viewportEl = document.getElementById('board-viewport');
       const marqueeBoxEl = document.getElementById('marquee-box');
       const modalEl = document.getElementById('add-node-modal');
-      const modalParentSelect = document.getElementById('node-parent-select');
       const labelInput = document.getElementById('node-label-input');
       const colorButtons = document.querySelectorAll('.color-choice');
       const sidebar = document.getElementById('sidebar');
@@ -1898,6 +1987,23 @@
       const inlineTextareaEl = document.getElementById('node-inline-textarea');
       const inlineColorPickers = document.getElementById('inline-color-pickers');
       const btnThemeToggle = document.getElementById('btn-theme-toggle');
+
+      // Custom Parent Dropdown Toggle
+      const parentDropdownBtn = document.getElementById('parent-dropdown-btn');
+      const parentDropdownMenu = document.getElementById('parent-dropdown-menu');
+
+      if (parentDropdownBtn && parentDropdownMenu) {
+        parentDropdownBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          parentDropdownMenu.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', (e) => {
+          if (!e.target.closest('#parent-dropdown-container')) {
+            parentDropdownMenu.classList.add('hidden');
+          }
+        });
+      }
 
       // Initialize Theme
       applyTheme(state.theme);
@@ -1941,22 +2047,6 @@
       if (btnCloseModal && modalEl) btnCloseModal.addEventListener('click', () => modalEl.classList.add('hidden'));
       if (btnCancelModal && modalEl) btnCancelModal.addEventListener('click', () => modalEl.classList.add('hidden'));
 
-      if (modalParentSelect) {
-        modalParentSelect.addEventListener('change', () => {
-          const selectedParentId = modalParentSelect.value;
-          if (selectedParentId) {
-            const parentNode = state.nodes.find(n => n.id === selectedParentId);
-            if (parentNode) {
-              state.selectedModalColor = parentNode.color;
-              colorButtons.forEach(b => {
-                b.classList.toggle('ring-2', b.dataset.color === state.selectedModalColor);
-                b.classList.toggle('ring-indigo-600', b.dataset.color === state.selectedModalColor);
-              });
-            }
-          }
-        });
-      }
-
       colorButtons.forEach(btn => {
         btn.addEventListener('click', () => {
           colorButtons.forEach(b => b.classList.remove('ring-2', 'ring-indigo-600'));
@@ -1974,7 +2064,7 @@
             return;
           }
 
-          const chosenParentId = modalParentSelect ? (modalParentSelect.value || state.modalParentNodeId || null) : null;
+          const chosenParentId = state.modalParentNodeId || null;
           let posX, posY;
           if (chosenParentId) {
             const parentNode = state.nodes.find(n => n.id === chosenParentId);
@@ -2338,7 +2428,6 @@
         centerDiagram();
       }
 
-      // Fallback timer: Dismiss splash screen after 1.5 seconds if auth is already cached
       setTimeout(hideSplashScreen, 1500);
     });
 
