@@ -293,7 +293,7 @@
       display: none;
       flex-direction: column;
       gap: 8px;
-      min-width: 220px;
+      min-width: 290px;
     }
 
     #node-inline-textarea {
@@ -530,10 +530,20 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03);
     }
     body.theme-light .node-red { border-color: #dc2626; color: #991b1b; }
+    body.theme-light .node-orange { border-color: #ea580c; color: #9a3412; }
+    body.theme-light .node-amber { border-color: #d97706; color: #92400e; }
+    body.theme-light .node-yellow { border-color: #ca8a04; color: #854d0e; }
+    body.theme-light .node-lime { border-color: #65a30d; color: #3f6212; }
     body.theme-light .node-green { border-color: #16a34a; color: #166534; }
+    body.theme-light .node-emerald { border-color: #059669; color: #065f46; }
+    body.theme-light .node-teal { border-color: #0d9488; color: #115e59; }
+    body.theme-light .node-cyan { border-color: #0891b2; color: #155e75; }
     body.theme-light .node-blue { border-color: #2563eb; color: #1e40af; }
-    body.theme-light .node-purple { border-color: #7c3aed; color: #5b21b6; }
-    body.theme-light .node-gray { border-color: #374151; color: #1f2937; }
+    body.theme-light .node-indigo { border-color: #4f46e5; color: #3730a3; }
+    body.theme-light .node-violet { border-color: #7c3aed; color: #5b21b6; }
+    body.theme-light .node-purple { border-color: #9333ea; color: #6b21a8; }
+    body.theme-light .node-pink { border-color: #db2777; color: #9d174d; }
+    body.theme-light .node-gray { border-color: #475569; color: #1e293b; }
     body.theme-light .edge-line { stroke: #64748b; }
     body.theme-light .node-action-btn { background: #ffffff; border-color: #cbd5e1; color: #475569; }
     body.theme-light .btn-edit-node { color: #3b82f6; }
@@ -593,9 +603,19 @@
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
     }
     body.theme-dark .node-red { border-color: #ef4444; color: #fca5a5; }
+    body.theme-dark .node-orange { border-color: #f97316; color: #fdba74; }
+    body.theme-dark .node-amber { border-color: #f59e0b; color: #fcd34d; }
+    body.theme-dark .node-yellow { border-color: #eab308; color: #fef08a; }
+    body.theme-dark .node-lime { border-color: #84cc16; color: #bef264; }
     body.theme-dark .node-green { border-color: #22c55e; color: #86efac; }
+    body.theme-dark .node-emerald { border-color: #10b981; color: #6ee7b7; }
+    body.theme-dark .node-teal { border-color: #14b8a6; color: #5eead4; }
+    body.theme-dark .node-cyan { border-color: #06b6d4; color: #67e8f9; }
     body.theme-dark .node-blue { border-color: #3b82f6; color: #93c5fd; }
+    body.theme-dark .node-indigo { border-color: #6366f1; color: #a5b4fc; }
+    body.theme-dark .node-violet { border-color: #8b5cf6; color: #c4b5fd; }
     body.theme-dark .node-purple { border-color: #a855f7; color: #d8b4fe; }
+    body.theme-dark .node-pink { border-color: #ec4899; color: #f472b6; }
     body.theme-dark .node-gray { border-color: #64748b; color: #cbd5e1; }
     body.theme-dark .edge-line { stroke: #475569; }
     body.theme-dark .node-action-btn { background: #0f172a; border-color: #334155; color: #94a3b8; }
@@ -660,9 +680,19 @@
       box-shadow: 0 0 16px rgba(0, 0, 0, 0.8);
     }
     body.theme-black .node-red { border-color: #f87171; color: #fca5a5; }
+    body.theme-black .node-orange { border-color: #fb923c; color: #fdba74; }
+    body.theme-black .node-amber { border-color: #fbbf24; color: #fcd34d; }
+    body.theme-black .node-yellow { border-color: #facc15; color: #fef08a; }
+    body.theme-black .node-lime { border-color: #a3e635; color: #bef264; }
     body.theme-black .node-green { border-color: #4ade80; color: #86efac; }
+    body.theme-black .node-emerald { border-color: #34d399; color: #6ee7b7; }
+    body.theme-black .node-teal { border-color: #2dd4bf; color: #5eead4; }
+    body.theme-black .node-cyan { border-color: #22d3ee; color: #67e8f9; }
     body.theme-black .node-blue { border-color: #60a5fa; color: #93c5fd; }
+    body.theme-black .node-indigo { border-color: #818cf8; color: #a5b4fc; }
+    body.theme-black .node-violet { border-color: #a78bfa; color: #c4b5fd; }
     body.theme-black .node-purple { border-color: #c084fc; color: #e9d5ff; }
+    body.theme-black .node-pink { border-color: #f472b6; color: #fbcfe8; }
     body.theme-black .node-gray { border-color: #a1a1aa; color: #e4e4e7; }
     body.theme-black .edge-line { stroke: #52525b; stroke-width: 2.75px; }
     body.theme-black .node-action-btn { background: #000000; border-color: #3f3f46; color: #d4d4d8; }
@@ -867,17 +897,15 @@
                 </button>
               </div>
               <textarea id="node-inline-textarea" rows="2" placeholder="Node title..."></textarea>
-              <div class="flex items-center justify-between border-t border-slate-500/20 pt-2 gap-1.5">
-                <div class="flex items-center gap-1.5" id="inline-color-pickers">
-                  <button data-color="red" class="w-5 h-5 rounded-full bg-red-500 hover:scale-125 transition-transform" title="Red"></button>
-                  <button data-color="green" class="w-5 h-5 rounded-full bg-green-500 hover:scale-125 transition-transform" title="Green"></button>
-                  <button data-color="blue" class="w-5 h-5 rounded-full bg-blue-500 hover:scale-125 transition-transform" title="Blue"></button>
-                  <button data-color="purple" class="w-5 h-5 rounded-full bg-purple-500 hover:scale-125 transition-transform" title="Purple"></button>
-                  <button data-color="gray" class="w-5 h-5 rounded-full bg-gray-600 hover:scale-125 transition-transform" title="Gray"></button>
+              <div class="flex flex-col border-t border-slate-500/20 pt-2 gap-2">
+                <div class="grid grid-cols-8 gap-1.5" id="inline-color-pickers">
+                  <!-- 15 Color Options populated via script -->
                 </div>
-                <button id="btn-inline-save" class="px-3 py-1 bg-indigo-600 text-white rounded-lg text-xs font-semibold hover:bg-indigo-700 shadow-sm">
-                  Done
-                </button>
+                <div class="flex justify-end">
+                  <button id="btn-inline-save" class="px-3 py-1 bg-indigo-600 text-white rounded-lg text-xs font-semibold hover:bg-indigo-700 shadow-sm">
+                    Done
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -995,13 +1023,9 @@
       </div>
 
       <div class="flex flex-col gap-1.5">
-        <label class="modal-label text-xs font-semibold">Category Color</label>
-        <div class="grid grid-cols-5 gap-2" id="color-options">
-          <button type="button" data-color="red" class="color-choice h-9 rounded-xl border-2 border-red-500 bg-red-500/10 flex items-center justify-center text-red-500 font-bold text-xs ring-2 ring-indigo-600">Red</button>
-          <button type="button" data-color="green" class="color-choice h-9 rounded-xl border-2 border-green-500 bg-green-500/10 flex items-center justify-center text-green-500 font-bold text-xs">Green</button>
-          <button type="button" data-color="blue" class="color-choice h-9 rounded-xl border-2 border-blue-500 bg-blue-500/10 flex items-center justify-center text-blue-500 font-bold text-xs">Blue</button>
-          <button type="button" data-color="purple" class="color-choice h-9 rounded-xl border-2 border-purple-500 bg-purple-500/10 flex items-center justify-center text-purple-500 font-bold text-xs">Purple</button>
-          <button type="button" data-color="gray" class="color-choice h-9 rounded-xl border-2 border-gray-500 bg-gray-500/10 flex items-center justify-center text-gray-400 font-bold text-xs">Gray</button>
+        <label class="modal-label text-xs font-semibold">Category Color (15 Choices)</label>
+        <div class="grid grid-cols-5 gap-1.5" id="color-options">
+          <!-- 15 Color Choices rendered dynamically -->
         </div>
       </div>
 
@@ -1017,13 +1041,9 @@
     Notice
   </div>
 
-  <!-- Context Color Picker for Clusters -->
-  <div id="cluster-color-popover" class="fixed z-[150] hidden glass-panel border border-slate-500/30 p-2 rounded-2xl shadow-2xl flex items-center gap-2">
-    <button data-color="red" class="w-6 h-6 rounded-full bg-red-500 hover:scale-125 transition-transform" title="Red"></button>
-    <button data-color="green" class="w-6 h-6 rounded-full bg-emerald-500 hover:scale-125 transition-transform" title="Green"></button>
-    <button data-color="blue" class="w-6 h-6 rounded-full bg-blue-500 hover:scale-125 transition-transform" title="Blue"></button>
-    <button data-color="purple" class="w-6 h-6 rounded-full bg-purple-500 hover:scale-125 transition-transform" title="Purple"></button>
-    <button data-color="gray" class="w-6 h-6 rounded-full bg-gray-500 hover:scale-125 transition-transform" title="Gray"></button>
+  <!-- Context Color Picker for Clusters (15 Colors) -->
+  <div id="cluster-color-popover" class="fixed z-[150] hidden glass-panel border border-slate-500/30 p-2 rounded-2xl shadow-2xl grid grid-cols-5 gap-1.5 w-max max-w-[200px]">
+    <!-- Populated by script -->
   </div>
 
   <!-- Login Modal for Authorized Users -->
@@ -1049,6 +1069,30 @@
   </div>
 
   <script>
+    // --- COLOR PALETTE DEFINITIONS (15 Consistent Choices) ---
+    const PALETTE_15 = [
+      { key: 'red', name: 'Red', hex: '#ef4444', dotClass: 'bg-red-500' },
+      { key: 'orange', name: 'Orange', hex: '#f97316', dotClass: 'bg-orange-500' },
+      { key: 'amber', name: 'Amber', hex: '#f59e0b', dotClass: 'bg-amber-500' },
+      { key: 'yellow', name: 'Yellow', hex: '#eab308', dotClass: 'bg-yellow-500' },
+      { key: 'lime', name: 'Lime', hex: '#84cc16', dotClass: 'bg-lime-500' },
+      { key: 'green', name: 'Green', hex: '#22c55e', dotClass: 'bg-green-500' },
+      { key: 'emerald', name: 'Emerald', hex: '#10b981', dotClass: 'bg-emerald-500' },
+      { key: 'teal', name: 'Teal', hex: '#14b8a6', dotClass: 'bg-teal-500' },
+      { key: 'cyan', name: 'Cyan', hex: '#06b6d4', dotClass: 'bg-cyan-500' },
+      { key: 'blue', name: 'Blue', hex: '#3b82f6', dotClass: 'bg-blue-500' },
+      { key: 'indigo', name: 'Indigo', hex: '#6366f1', dotClass: 'bg-indigo-500' },
+      { key: 'violet', name: 'Violet', hex: '#8b5cf6', dotClass: 'bg-violet-500' },
+      { key: 'purple', name: 'Purple', hex: '#a855f7', dotClass: 'bg-purple-500' },
+      { key: 'pink', name: 'Pink', hex: '#ec4899', dotClass: 'bg-pink-500' },
+      { key: 'gray', name: 'Gray', hex: '#64748b', dotClass: 'bg-slate-500' }
+    ];
+
+    const COLOR_HEX_MAP = PALETTE_15.reduce((acc, c) => {
+      acc[c.key] = c.hex;
+      return acc;
+    }, {});
+
     // --- 1. FIREBASE CONFIGURATION ---
     const firebaseConfig = {
       apiKey: "AIzaSyAYNo-d5ZRNvIg991DvYc6Lm5f8Q7rno_8",
@@ -1231,6 +1275,7 @@
         renderHierarchyTree();
       }
       populateParentDropdown(state.modalParentNodeId);
+      renderModalColorChoices();
     }
 
     function cycleTheme() {
@@ -1360,14 +1405,8 @@
       inlineEditorEl.style.left = `${node.x}px`;
       inlineEditorEl.style.top = `${node.y}px`;
 
-      const colorMap = {
-        red: '#dc2626',
-        green: '#16a34a',
-        blue: '#2563eb',
-        purple: '#7c3aed',
-        gray: '#374151'
-      };
-      inlineEditorEl.style.boxShadow = `0 18px 40px -6px rgba(0, 0, 0, 0.35), 0 0 0 2px ${colorMap[node.color] || '#3b82f6'}`;
+      const hex = COLOR_HEX_MAP[node.color] || '#3b82f6';
+      inlineEditorEl.style.boxShadow = `0 18px 40px -6px rgba(0, 0, 0, 0.35), 0 0 0 2px ${hex}`;
 
       setTimeout(() => {
         inlineTextareaEl.focus();
@@ -1967,8 +2006,7 @@
     function createIsolatedGroup() {
       switchPage('canvas');
 
-      const colors = ['blue', 'green', 'purple', 'red'];
-      const chosenColor = colors[Math.floor(Math.random() * colors.length)];
+      const chosenColor = PALETTE_15[Math.floor(Math.random() * PALETTE_15.length)].key;
 
       let originX = 500;
       let originY = 500;
@@ -2047,25 +2085,17 @@
       }, 50);
     }
 
-    // Helper: Build Pill HTML for Dropdown
+    // Helper: Dynamic Pill HTML for all 15 colors
     function getPillMarkup(node, isDark) {
-      const colorPillClasses = isDark ? {
-        red: 'bg-red-950/60 text-red-300 border-red-800',
-        green: 'bg-emerald-950/60 text-emerald-300 border-emerald-800',
-        blue: 'bg-blue-950/60 text-blue-300 border-blue-800',
-        purple: 'bg-purple-950/60 text-purple-300 border-purple-800',
-        gray: 'bg-zinc-900 text-zinc-300 border-zinc-700'
-      } : {
-        red: 'bg-red-50 text-red-700 border-red-200',
-        green: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-        blue: 'bg-blue-50 text-blue-700 border-blue-200',
-        purple: 'bg-purple-50 text-purple-700 border-purple-200',
-        gray: 'bg-slate-100 text-slate-700 border-slate-200'
-      };
-
+      const hex = COLOR_HEX_MAP[node.color] || '#64748b';
       const hubMarkup = node.isHub ? `<span class="text-[9px] font-bold uppercase tracking-wider text-indigo-500 bg-indigo-500/10 border border-indigo-500/30 px-1.5 py-0.2 rounded">Hub</span>` : '';
+      
+      const bg = isDark ? `${hex}25` : `${hex}18`;
+      const border = isDark ? `${hex}60` : `${hex}45`;
+      const color = isDark ? '#ffffff' : hex;
+
       return `
-        <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full border shadow-xs inline-flex items-center gap-1.5 ${colorPillClasses[node.color] || colorPillClasses.gray}">
+        <span style="background-color: ${bg}; border-color: ${border}; color: ${color};" class="px-2.5 py-0.5 text-xs font-semibold rounded-full border shadow-xs inline-flex items-center gap-1.5">
           <span>${node.label.replace(/\n/g, ' ')}</span>
         </span>
         ${hubMarkup}
@@ -2140,22 +2170,98 @@
 
     function selectParentOption(nodeId) {
       state.modalParentNodeId = nodeId;
-      const colorButtons = document.querySelectorAll('.color-choice');
       const dropdownMenu = document.getElementById('parent-dropdown-menu');
 
       if (nodeId) {
         const parentNode = state.nodes.find(n => n.id === nodeId);
         if (parentNode) {
           state.selectedModalColor = parentNode.color;
-          colorButtons.forEach(b => {
-            b.classList.toggle('ring-2', b.dataset.color === state.selectedModalColor);
-            b.classList.toggle('ring-indigo-600', b.dataset.color === state.selectedModalColor);
-          });
+          renderModalColorChoices();
         }
       }
 
       populateParentDropdown(nodeId);
       if (dropdownMenu) dropdownMenu.classList.add('hidden');
+    }
+
+    // Render the 15 colors in the Add Node modal with contrast border/background shades
+    function renderModalColorChoices() {
+      const container = document.getElementById('color-options');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const isDark = state.theme === 'dark' || state.theme === 'black';
+
+      PALETTE_15.forEach(c => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.dataset.color = c.key;
+        btn.className = `color-choice h-8 rounded-xl border-2 flex items-center justify-center font-bold text-[11px] transition-all capitalize ${state.selectedModalColor === c.key ? 'ring-2 ring-indigo-500 scale-105' : 'hover:scale-105'}`;
+
+        const bg = isDark ? `${c.hex}25` : `${c.hex}18`;
+        const border = isDark ? `${c.hex}95` : c.hex;
+        const color = isDark ? '#ffffff' : c.hex;
+
+        btn.style.backgroundColor = bg;
+        btn.style.borderColor = border;
+        btn.style.color = color;
+        btn.textContent = c.name;
+
+        btn.addEventListener('click', () => {
+          state.selectedModalColor = c.key;
+          renderModalColorChoices();
+        });
+
+        container.appendChild(btn);
+      });
+    }
+
+    // Render the 15 colors in the inline editor & cluster popover
+    function renderColorPickers() {
+      const inlineContainer = document.getElementById('inline-color-pickers');
+      if (inlineContainer) {
+        inlineContainer.innerHTML = '';
+        PALETTE_15.forEach(c => {
+          const btn = document.createElement('button');
+          btn.dataset.color = c.key;
+          btn.className = "w-5 h-5 rounded-full hover:scale-125 transition-transform border border-black/20 shadow-xs";
+          btn.style.backgroundColor = c.hex;
+          btn.title = c.name;
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (!state.editingNodeId) return;
+            const node = state.nodes.find(n => n.id === state.editingNodeId);
+            if (node) {
+              node.color = c.key;
+              commitState(true);
+              openInlineEditor(node.id);
+              renderBoard();
+            }
+          });
+          inlineContainer.appendChild(btn);
+        });
+      }
+
+      const clusterContainer = document.getElementById('cluster-color-popover');
+      if (clusterContainer) {
+        clusterContainer.innerHTML = '';
+        PALETTE_15.forEach(c => {
+          const btn = document.createElement('button');
+          btn.dataset.color = c.key;
+          btn.className = "w-6 h-6 rounded-full hover:scale-125 transition-transform border border-black/20 shadow-xs";
+          btn.style.backgroundColor = c.hex;
+          btn.title = c.name;
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (state.clusterColorTargetRootId) {
+              changeClusterColor(state.clusterColorTargetRootId, c.key);
+              clusterContainer.classList.add('hidden');
+              state.clusterColorTargetRootId = null;
+            }
+          });
+          clusterContainer.appendChild(btn);
+        });
+      }
     }
 
     function openAddModal(parentNodeId = null) {
@@ -2165,7 +2271,6 @@
       const modalTitleEl = document.getElementById('add-modal-title');
       const labelInput = document.getElementById('node-label-input');
       const searchInput = document.getElementById('parent-search-input');
-      const colorButtons = document.querySelectorAll('.color-choice');
       const dropdownMenu = document.getElementById('parent-dropdown-menu');
 
       if (!modalEl || !labelInput) return;
@@ -2185,10 +2290,7 @@
         state.selectedModalColor = 'red';
       }
 
-      colorButtons.forEach(b => {
-        b.classList.toggle('ring-2', b.dataset.color === state.selectedModalColor);
-        b.classList.toggle('ring-indigo-600', b.dataset.color === state.selectedModalColor);
-      });
+      renderModalColorChoices();
 
       modalEl.classList.remove('hidden');
       labelInput.value = '';
@@ -2245,15 +2347,6 @@
       if (!clusterListEl) return;
 
       const clusters = getDetectedClusters();
-
-      const colorDotClasses = {
-        red: 'bg-red-500',
-        green: 'bg-emerald-500',
-        blue: 'bg-blue-500',
-        purple: 'bg-purple-500',
-        gray: 'bg-slate-500'
-      };
-
       clusterListEl.innerHTML = '';
 
       if (clusters.length === 0) {
@@ -2269,11 +2362,11 @@
         btn.dataset.clusterKey = cluster.id;
         btn.className = "w-full flex items-center justify-between px-3 py-1.5 text-xs rounded-lg hover:bg-slate-500/10 transition-colors text-left";
 
-        const dotClass = colorDotClasses[cluster.color] || colorDotClasses.gray;
+        const hex = COLOR_HEX_MAP[cluster.color] || '#64748b';
 
         btn.innerHTML = `
           <div class="flex items-center gap-2 overflow-hidden mr-2">
-            <span class="w-2.5 h-2.5 rounded-full ${dotClass} shrink-0"></span>
+            <span style="background-color: ${hex};" class="w-2.5 h-2.5 rounded-full shrink-0 shadow-xs"></span>
             <span class="font-medium truncate">${cluster.name}</span>
           </div>
           <span class="text-[11px] font-semibold opacity-60 shrink-0">${cluster.count}</span>
@@ -2293,8 +2386,8 @@
           state.clusterColorTargetRootId = cluster.id;
           const popover = document.getElementById('cluster-color-popover');
           if (popover) {
-            popover.style.left = `${Math.min(window.innerWidth - 170, e.clientX + 10)}px`;
-            popover.style.top = `${Math.min(window.innerHeight - 60, e.clientY)}px`;
+            popover.style.left = `${Math.min(window.innerWidth - 220, e.clientX + 10)}px`;
+            popover.style.top = `${Math.min(window.innerHeight - 120, e.clientY)}px`;
             popover.classList.remove('hidden');
           }
         });
@@ -2310,20 +2403,6 @@
       treeContainer.innerHTML = '';
 
       const isDark = state.theme === 'dark' || state.theme === 'black';
-
-      const colorPillClasses = isDark ? {
-        red: 'bg-red-950/60 text-red-300 border-red-800',
-        green: 'bg-emerald-950/60 text-emerald-300 border-emerald-800',
-        blue: 'bg-blue-950/60 text-blue-300 border-blue-800',
-        purple: 'bg-purple-950/60 text-purple-300 border-purple-800',
-        gray: 'bg-zinc-900 text-zinc-300 border-zinc-700'
-      } : {
-        red: 'bg-red-50 text-red-700 border-red-200',
-        green: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-        blue: 'bg-blue-50 text-blue-700 border-blue-200',
-        purple: 'bg-purple-50 text-purple-700 border-purple-200',
-        gray: 'bg-slate-100 text-slate-700 border-slate-200'
-      };
 
       let rootNodes = state.nodes.filter(n => n.isHub);
       if (rootNodes.length === 0) {
@@ -2375,16 +2454,8 @@
         }
 
         const pill = document.createElement('div');
-        pill.className = `px-3 py-1 text-xs font-semibold rounded-full border shadow-xs flex items-center gap-1.5 ${colorPillClasses[node.color] || colorPillClasses.gray}`;
-        pill.innerHTML = `<span>${node.label.replace(/\n/g, ' ')}</span>`;
+        pill.innerHTML = getPillMarkup(node, isDark);
         leftGroup.appendChild(pill);
-
-        if (node.isHub) {
-          const hubBadge = document.createElement('span');
-          hubBadge.className = "text-[10px] font-bold uppercase tracking-wider text-indigo-500 bg-indigo-500/10 border border-indigo-500/30 px-2 py-0.5 rounded-md";
-          hubBadge.textContent = "Hub";
-          leftGroup.appendChild(hubBadge);
-        }
 
         itemRow.appendChild(leftGroup);
 
@@ -2536,7 +2607,6 @@
       const marqueeBoxEl = document.getElementById('marquee-box');
       const modalEl = document.getElementById('add-node-modal');
       const labelInput = document.getElementById('node-label-input');
-      const colorButtons = document.querySelectorAll('.color-choice');
       const sidebar = document.getElementById('sidebar');
 
       // Top Toolbar Buttons
@@ -2564,24 +2634,12 @@
       const btnInlineSave = document.getElementById('btn-inline-save');
       const btnInlineDelete = document.getElementById('btn-inline-delete-node');
       const inlineTextareaEl = document.getElementById('node-inline-textarea');
-      const inlineColorPickers = document.getElementById('inline-color-pickers');
       const btnThemeToggle = document.getElementById('btn-theme-toggle');
       const btnHierarchyThemeToggle = document.getElementById('btn-hierarchy-theme-toggle');
 
-      // Cluster Color Popover buttons
-      const clusterColorPopover = document.getElementById('cluster-color-popover');
-      if (clusterColorPopover) {
-        clusterColorPopover.querySelectorAll('button[data-color]').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (state.clusterColorTargetRootId) {
-              changeClusterColor(state.clusterColorTargetRootId, btn.dataset.color);
-              clusterColorPopover.classList.add('hidden');
-              state.clusterColorTargetRootId = null;
-            }
-          });
-        });
-      }
+      // Render 15-Color Pickers across interface
+      renderColorPickers();
+      renderModalColorChoices();
 
       // Initialize Theme
       applyTheme(state.theme);
@@ -2661,14 +2719,6 @@
 
       if (btnCloseModal && modalEl) btnCloseModal.addEventListener('click', () => modalEl.classList.add('hidden'));
       if (btnCancelModal && modalEl) btnCancelModal.addEventListener('click', () => modalEl.classList.add('hidden'));
-
-      colorButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-          colorButtons.forEach(b => b.classList.remove('ring-2', 'ring-indigo-600'));
-          btn.classList.add('ring-2', 'ring-indigo-600');
-          state.selectedModalColor = btn.dataset.color;
-        });
-      });
 
       if (btnConfirmAdd) {
         btnConfirmAdd.addEventListener('click', () => {
@@ -2759,22 +2809,6 @@
           } else if (e.key === 'Escape') {
             closeInlineEditor(false);
           }
-        });
-      }
-
-      if (inlineColorPickers) {
-        inlineColorPickers.querySelectorAll('button').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (!state.editingNodeId) return;
-            const node = state.nodes.find(n => n.id === state.editingNodeId);
-            if (node) {
-              node.color = btn.dataset.color;
-              commitState(true);
-              openInlineEditor(node.id);
-              renderBoard();
-            }
-          });
         });
       }
 
