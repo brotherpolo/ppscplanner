@@ -1925,8 +1925,8 @@
       applyTransform();
     }
 
-    // --- STRICT COLOR-MATCHED CLUSTER DETECTION ---
-    function getClusterNodesByRootAndColor(rootId, targetColor) {
+    // --- FULLY DYNAMIC CLUSTER DETECTION & SELECTION LOGIC ---
+    function getClusterNodesByRootId(rootId) {
       const result = new Set();
       result.add(rootId);
 
@@ -1935,13 +1935,12 @@
         const curr = queue.shift();
         const children = state.edges
           .filter(e => e.source === curr)
-          .map(e => state.nodes.find(n => n.id === e.target))
-          .filter(Boolean);
+          .map(e => e.target);
 
-        children.forEach(childNode => {
-          if (!result.has(childNode.id) && childNode.color === targetColor) {
-            result.add(childNode.id);
-            queue.push(childNode.id);
+        children.forEach(childId => {
+          if (!result.has(childId)) {
+            result.add(childId);
+            queue.push(childId);
           }
         });
       }
@@ -1949,106 +1948,47 @@
     }
 
     function getDetectedClusters() {
-      const rootCandidates = [];
-      const visitedRoots = new Set();
+      const roots = [];
+      const visited = new Set();
 
       // Priority 1: explicitly marked hubs
       state.nodes.filter(n => n.isHub).forEach(n => {
-        rootCandidates.push(n);
-        visitedRoots.add(n.id);
+        roots.push(n);
+        visited.add(n.id);
       });
 
       // Priority 2: nodes with outgoing links that aren't already considered
       state.nodes.forEach(n => {
-        if (!visitedRoots.has(n.id)) {
+        if (!visited.has(n.id)) {
           const hasChildren = state.edges.some(e => e.source === n.id);
           if (hasChildren) {
-            rootCandidates.push(n);
-            visitedRoots.add(n.id);
+            roots.push(n);
+            visited.add(n.id);
           }
         }
       });
 
-      const clusters = [];
-      const accountedNodeColorPairs = new Set();
-
-      rootCandidates.forEach(rootNode => {
-        // Find all unique colors present in this root and its connected tree branch network
-        const allConnected = getClusterNodesByRootAndColor(rootNode.id, rootNode.color);
-        
-        // Find distinct colors among immediate and descendant nodes
-        const colorsInSubtree = new Set();
-        colorsInSubtree.add(rootNode.color);
-        
-        // Traverse to collect all colors of connected nodes
-        const queue = [rootNode.id];
-        const localVisited = new Set([rootNode.id]);
-        while(queue.length > 0) {
-          const curr = queue.shift();
-          state.edges.filter(e => e.source === curr).forEach(e => {
-            const tgtNode = state.nodes.find(n => n.id === e.target);
-            if (tgtNode) {
-              colorsInSubtree.add(tgtNode.color);
-              if (!localVisited.has(tgtNode.id)) {
-                localVisited.add(tgtNode.id);
-                queue.push(tgtNode.id);
-              }
-            }
-          });
-        }
-
-        // Create a distinct cluster entry for each matching color branch group
-        colorsInSubtree.forEach(colorKey => {
-          const pairKey = `${rootNode.id}_${colorKey}`;
-          if (!accountedNodeColorPairs.has(pairKey)) {
-            accountedNodeColorPairs.add(pairKey);
-            
-            // If root itself matches color, cluster takes root; otherwise find sub-nodes of that color
-            let clusterNodes = [];
-            if (rootNode.color === colorKey) {
-              clusterNodes = getClusterNodesByRootAndColor(rootNode.id, colorKey);
-            } else {
-              // Find children under this root having the specific color
-              const subRoots = state.edges
-                .filter(e => e.source === rootNode.id)
-                .map(e => state.nodes.find(n => n.id === e.target && n.color === colorKey))
-                .filter(Boolean);
-              
-              const nodeSet = new Set();
-              subRoots.forEach(sr => {
-                getClusterNodesByRootAndColor(sr.id, colorKey).forEach(n => nodeSet.add(n));
-              });
-              clusterNodes = Array.from(nodeSet);
-            }
-
-            if (clusterNodes.length > 0) {
-              const cleanName = rootNode.label.replace(/\n/g, ' ').trim() || 'Cluster';
-              const displayName = (colorKey !== rootNode.color) ? `${cleanName} (${colorKey})` : cleanName;
-              clusters.push({
-                id: `${rootNode.id}__${colorKey}`,
-                rootId: rootNode.id,
-                targetColor: colorKey,
-                name: displayName,
-                color: colorKey,
-                count: clusterNodes.length,
-                nodes: clusterNodes
-              });
-            }
-          }
-        });
+      return roots.map(rootNode => {
+        const connectedNodes = getClusterNodesByRootId(rootNode.id);
+        const cleanName = rootNode.label.replace(/\n/g, ' ').trim() || 'Cluster';
+        return {
+          id: rootNode.id,
+          name: cleanName,
+          color: rootNode.color || 'gray',
+          count: connectedNodes.length,
+          nodes: connectedNodes
+        };
       });
-
-      return clusters;
     }
 
-    function selectDynamicCluster(clusterId) {
-      const clusterObj = getDetectedClusters().find(c => c.id === clusterId);
-      if (!clusterObj || clusterObj.nodes.length === 0) return;
+    function selectDynamicCluster(rootId) {
+      const clusterNodes = getClusterNodesByRootId(rootId);
+      if (clusterNodes.length === 0) return;
 
       switchPage('canvas');
 
       state.selectedNodeIds.clear();
-      clusterObj.nodes.forEach(n => state.selectedNodeIds.add(n.id));
+      clusterNodes.forEach(n => state.selectedNodeIds.add(n.id));
       state.selectedEdgeId = null;
       updateSelectionVisuals();
 
@@ -2063,7 +2003,7 @@
         const height = (rect && rect.height > 0) ? rect.height : window.innerHeight;
 
         let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-        clusterObj.nodes.forEach(n => {
+        clusterNodes.forEach(n => {
           if (n.x < minX) minX = n.x;
           if (n.x > maxX) maxX = n.x;
           if (n.y < minY) minY = n.y;
@@ -2082,7 +2022,7 @@
         state.view.y = (height / 2) - (centerY * targetZoom);
         applyTransform();
 
-        showToast(`Selected ${clusterObj.nodes.length} nodes in cluster.`);
+        showToast(`Selected ${clusterNodes.length} nodes in cluster.`);
       }, 50);
     }
 
@@ -2162,6 +2102,108 @@
       updateSelectionVisuals();
     }
 
+    // --- ISOLATED CLUSTER GENERATION (SHIFT + Z + X) ---
+    function createIsolatedGroup() {
+      pushHistory();
+      switchPage('canvas');
+
+      const chosenColor = PALETTE_15[Math.floor(Math.random() * PALETTE_15.length)].key;
+
+      let originX = 500;
+      let originY = 500;
+
+      if (state.nodes.length > 0) {
+        let maxX = -Infinity;
+        let avgY = 0;
+        state.nodes.forEach(n => {
+          if (n.x > maxX) maxX = n.x;
+          avgY += n.y;
+        });
+        avgY = avgY / state.nodes.length;
+        originX = Math.round(maxX + 420);
+        originY = Math.round(avgY);
+      }
+
+      const timestamp = Date.now();
+      const baseId = `node_${timestamp}_base`;
+      const baseNode = {
+        id: baseId,
+        label: "New\nHub",
+        x: originX,
+        y: originY,
+        color: "gray"
+      };
+
+      const newNodes = [baseNode];
+      const newEdges = [];
+
+      const offsets = [
+        { label: "Branch 1", dx: -160, dy: -130 },
+        { label: "Branch 2", dx: 160, dy: -130 },
+        { label: "Branch 3", dx: -160, dy: 130 },
+        { label: "Branch 4", dx: 160, dy: 130 }
+      ];
+
+      offsets.forEach((offset, idx) => {
+        const childId = `node_${timestamp}_c${idx + 1}`;
+        newNodes.push({
+          id: childId,
+          label: offset.label,
+          x: originX + offset.dx,
+          y: originY + offset.dy,
+          color: chosenColor
+        });
+        newEdges.push({
+          id: `edge_${timestamp}_e${idx + 1}`,
+          source: baseId,
+          target: childId
+        });
+      });
+
+      state.nodes.push(...newNodes);
+      state.edges.push(...newEdges);
+
+      state.selectedNodeIds.clear();
+      newNodes.forEach(n => state.selectedNodeIds.add(n.id));
+      state.selectedEdgeId = null;
+
+      commitState(true, true);
+      renderBoard();
+
+      setTimeout(() => {
+        const viewportEl = document.getElementById('board-viewport');
+        const sidebar = document.getElementById('sidebar');
+        const rect = viewportEl ? viewportEl.getBoundingClientRect() : null;
+        const isCollapsed = sidebar ? sidebar.classList.contains('collapsed') : false;
+        const width = (rect && rect.width > 0) ? rect.width : (window.innerWidth - (isCollapsed ? 68 : 256));
+        const height = (rect && rect.height > 0) ? rect.height : window.innerHeight;
+
+        state.view.zoom = 1;
+        state.view.x = (width / 2) - (originX * state.view.zoom);
+        state.view.y = (height / 2) - (originY * state.view.zoom);
+        applyTransform();
+        showToast("Created new isolated cluster!");
+      }, 50);
+    }
+
+    // Helper: Dynamic Pill HTML for all 15 colors
+    function getPillMarkup(node, isDark) {
+      const hex = COLOR_HEX_MAP[node.color] || '#64748b';
+      const hubMarkup = node.isHub ? `<span class="text-[9px] font-bold uppercase tracking-wider text-indigo-500 bg-indigo-500/10 border border-indigo-500/30 px-1.5 py-0.2 rounded">Hub</span>` : '';
+      
+      const bg = isDark ? `${hex}25` : `${hex}18`;
+      const border = isDark ? `${hex}60` : `${hex}45`;
+      const color = isDark ? '#ffffff' : hex;
+
+      return `
+        <span style="background-color: ${bg}; border-color: ${border}; color: ${color};" class="px-2.5 py-0.5 text-xs font-semibold rounded-full border shadow-xs inline-flex items-center gap-1.5">
+          <span>${node.label.replace(/\n/g, ' ')}</span>
+        </span>
+        ${hubMarkup}
+      `;
+    }
+
+    // Real-Time Searchable Parent Dropdown Generator
     function populateParentDropdown(selectedId = null, filterQuery = "") {
       const dropdownItemsContainer = document.getElementById('parent-dropdown-items');
       const dropdownSelected = document.getElementById('parent-dropdown-selected');
@@ -2169,6 +2211,7 @@
 
       const isDark = state.theme === 'dark' || state.theme === 'black';
 
+      // Update current selected item display pill
       if (selectedId) {
         const found = state.nodes.find(n => n.id === selectedId);
         if (found) {
@@ -2183,6 +2226,7 @@
       dropdownItemsContainer.innerHTML = '';
       const query = filterQuery.toLowerCase().trim();
 
+      // "None (Root Node)" item
       if (!query || "none root node".includes(query)) {
         const noneOption = document.createElement('div');
         noneOption.className = `modal-dropdown-item p-2 rounded-lg cursor-pointer flex items-center justify-between text-xs transition-colors ${!selectedId ? 'font-semibold' : ''}`;
@@ -2194,6 +2238,7 @@
         dropdownItemsContainer.appendChild(noneOption);
       }
 
+      // Filter nodes based on label search query
       const matchingNodes = state.nodes.filter(node => {
         if (!query) return true;
         const normalizedLabel = node.label.replace(/\n/g, ' ').toLowerCase();
@@ -2240,6 +2285,7 @@
       if (dropdownMenu) dropdownMenu.classList.add('hidden');
     }
 
+    // Render the 15 colors in the Add Node modal with contrast border/background shades
     function renderModalColorChoices() {
       const container = document.getElementById('color-options');
       if (!container) return;
@@ -2271,6 +2317,7 @@
       });
     }
 
+    // Render the 15 colors in the inline editor & cluster popover
     function renderColorPickers() {
       const inlineContainer = document.getElementById('inline-color-pickers');
       if (inlineContainer) {
@@ -2380,13 +2427,13 @@
       }
     }
 
-    // Apply color change to a specific cluster branch group
-    function changeClusterColor(clusterId, newColor) {
+    // Apply color change to an entire cluster
+    function changeClusterColor(rootId, newColor) {
       pushHistory();
-      const clusterObj = getDetectedClusters().find(c => c.id === clusterId);
-      if (!clusterObj || clusterObj.nodes.length === 0) return;
+      const clusterNodes = getClusterNodesByRootId(rootId);
+      if (clusterNodes.length === 0) return;
 
-      clusterObj.nodes.forEach(node => {
+      clusterNodes.forEach(node => {
         node.color = newColor;
       });
 
