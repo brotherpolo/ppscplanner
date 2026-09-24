@@ -946,7 +946,7 @@
     </main>
   </div>
 
-  <!-- Themed Add Node Modal -->
+  <!-- Themed Add Node Modal with Searchable Parent Dropdown -->
   <div id="add-node-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
     <div class="modal-box rounded-2xl p-5 sm:p-6 w-full max-w-sm flex flex-col gap-4">
       <div class="flex items-center justify-between">
@@ -956,7 +956,7 @@
         </button>
       </div>
 
-      <!-- Color-Coded Pill Parent Selector Dropdown -->
+      <!-- Real-Time Searchable Color-Coded Pill Parent Selector -->
       <div class="flex flex-col gap-1.5">
         <label class="modal-label text-xs font-semibold">Parent Item</label>
         <div id="parent-dropdown-container" class="relative w-full">
@@ -967,8 +967,16 @@
             <i class="fa-solid fa-chevron-down text-[11px] opacity-50 mr-1 transition-transform"></i>
           </button>
           
-          <div id="parent-dropdown-menu" class="modal-dropdown-menu hidden absolute top-full left-0 right-0 mt-1 max-h-56 overflow-y-auto rounded-xl z-50 p-1 flex flex-col gap-1">
-            <!-- Dynamically populated with color pills -->
+          <div id="parent-dropdown-menu" class="modal-dropdown-menu hidden absolute top-full left-0 right-0 mt-1 max-h-64 overflow-hidden rounded-xl z-50 p-2 flex flex-col gap-1.5 shadow-xl">
+            <!-- Live Search Bar -->
+            <div class="relative w-full">
+              <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-[11px] opacity-40"></i>
+              <input type="text" id="parent-search-input" placeholder="Search parents..." class="modal-input w-full rounded-lg pl-8 pr-2.5 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+            </div>
+            <!-- Scrollable Filtered List -->
+            <div id="parent-dropdown-items" class="max-h-48 overflow-y-auto no-scrollbar flex flex-col gap-1">
+              <!-- Dynamically populated with searchable color pills -->
+            </div>
           </div>
         </div>
       </div>
@@ -999,6 +1007,15 @@
   <!-- Toast Notification -->
   <div id="toast" class="fixed top-16 sm:top-20 left-1/2 -translate-x-1/2 z-50 glass-panel border border-slate-500/30 text-xs px-4 py-2 rounded-xl shadow-lg transition-opacity duration-300 opacity-0 pointer-events-none text-center whitespace-nowrap">
     Notice
+  </div>
+
+  <!-- Context Color Picker for Clusters -->
+  <div id="cluster-color-popover" class="fixed z-[150] hidden glass-panel border border-slate-500/30 p-2 rounded-2xl shadow-2xl flex items-center gap-2">
+    <button data-color="red" class="w-6 h-6 rounded-full bg-red-500 hover:scale-125 transition-transform" title="Red"></button>
+    <button data-color="green" class="w-6 h-6 rounded-full bg-emerald-500 hover:scale-125 transition-transform" title="Green"></button>
+    <button data-color="blue" class="w-6 h-6 rounded-full bg-blue-500 hover:scale-125 transition-transform" title="Blue"></button>
+    <button data-color="purple" class="w-6 h-6 rounded-full bg-purple-500 hover:scale-125 transition-transform" title="Purple"></button>
+    <button data-color="gray" class="w-6 h-6 rounded-full bg-gray-500 hover:scale-125 transition-transform" title="Gray"></button>
   </div>
 
   <!-- Login Modal for Authorized Users -->
@@ -1140,6 +1157,7 @@
       currentPage: 'canvas',
       modalParentNodeId: null,
       contextClickPos: null,
+      clusterColorTargetRootId: null,
       theme: localStorage.getItem(THEME_STORAGE_KEY) || 'light'
     };
 
@@ -2046,13 +2064,15 @@
       `;
     }
 
-    function populateParentDropdown(selectedId = null) {
-      const dropdownMenu = document.getElementById('parent-dropdown-menu');
+    // Real-Time Searchable Parent Dropdown Generator
+    function populateParentDropdown(selectedId = null, filterQuery = "") {
+      const dropdownItemsContainer = document.getElementById('parent-dropdown-items');
       const dropdownSelected = document.getElementById('parent-dropdown-selected');
-      if (!dropdownMenu || !dropdownSelected) return;
+      if (!dropdownItemsContainer || !dropdownSelected) return;
 
       const isDark = state.theme === 'dark' || state.theme === 'black';
 
+      // Update current selected item display pill
       if (selectedId) {
         const found = state.nodes.find(n => n.id === selectedId);
         if (found) {
@@ -2064,18 +2084,29 @@
         dropdownSelected.innerHTML = `<span class="opacity-60 font-medium px-2 py-0.5">None (Root Node)</span>`;
       }
 
-      dropdownMenu.innerHTML = '';
+      dropdownItemsContainer.innerHTML = '';
+      const query = filterQuery.toLowerCase().trim();
 
-      const noneOption = document.createElement('div');
-      noneOption.className = `modal-dropdown-item p-2 rounded-lg cursor-pointer flex items-center justify-between text-xs transition-colors ${!selectedId ? 'font-semibold' : ''}`;
-      noneOption.innerHTML = `<span class="modal-label px-1 font-medium">None (Root Node)</span>`;
-      noneOption.addEventListener('click', (e) => {
-        e.stopPropagation();
-        selectParentOption(null);
+      // "None (Root Node)" item
+      if (!query || "none root node".includes(query)) {
+        const noneOption = document.createElement('div');
+        noneOption.className = `modal-dropdown-item p-2 rounded-lg cursor-pointer flex items-center justify-between text-xs transition-colors ${!selectedId ? 'font-semibold' : ''}`;
+        noneOption.innerHTML = `<span class="modal-label px-1 font-medium">None (Root Node)</span>`;
+        noneOption.addEventListener('click', (e) => {
+          e.stopPropagation();
+          selectParentOption(null);
+        });
+        dropdownItemsContainer.appendChild(noneOption);
+      }
+
+      // Filter nodes based on label search query
+      const matchingNodes = state.nodes.filter(node => {
+        if (!query) return true;
+        const normalizedLabel = node.label.replace(/\n/g, ' ').toLowerCase();
+        return normalizedLabel.includes(query);
       });
-      dropdownMenu.appendChild(noneOption);
 
-      state.nodes.forEach(node => {
+      matchingNodes.forEach(node => {
         const opt = document.createElement('div');
         opt.className = `modal-dropdown-item p-1.5 rounded-lg cursor-pointer flex items-center justify-between text-xs transition-colors ${selectedId === node.id ? 'font-semibold' : ''}`;
         opt.innerHTML = `
@@ -2088,8 +2119,15 @@
           e.stopPropagation();
           selectParentOption(node.id);
         });
-        dropdownMenu.appendChild(opt);
+        dropdownItemsContainer.appendChild(opt);
       });
+
+      if (matchingNodes.length === 0 && query && !"none root node".includes(query)) {
+        const noMatch = document.createElement('div');
+        noMatch.className = "p-3 text-center text-xs opacity-50 italic";
+        noMatch.textContent = "No matching items found";
+        dropdownItemsContainer.appendChild(noMatch);
+      }
     }
 
     function selectParentOption(nodeId) {
@@ -2118,11 +2156,16 @@
       const modalEl = document.getElementById('add-node-modal');
       const modalTitleEl = document.getElementById('add-modal-title');
       const labelInput = document.getElementById('node-label-input');
+      const searchInput = document.getElementById('parent-search-input');
       const colorButtons = document.querySelectorAll('.color-choice');
+      const dropdownMenu = document.getElementById('parent-dropdown-menu');
 
       if (!modalEl || !labelInput) return;
 
-      populateParentDropdown(parentNodeId);
+      if (searchInput) searchInput.value = '';
+      if (dropdownMenu) dropdownMenu.classList.add('hidden');
+
+      populateParentDropdown(parentNodeId, '');
 
       if (parentNodeId) {
         const parentNode = state.nodes.find(n => n.id === parentNodeId);
@@ -2172,6 +2215,22 @@
       }
     }
 
+    // Apply color change to an entire cluster
+    function changeClusterColor(rootId, newColor) {
+      const clusterNodes = getClusterNodesByRootId(rootId);
+      if (clusterNodes.length === 0) return;
+
+      clusterNodes.forEach(node => {
+        node.color = newColor;
+      });
+
+      commitState(true);
+      renderBoard();
+      updateClusterCounts();
+      if (state.currentPage === 'hierarchy') renderHierarchyTree();
+      showToast(`Cluster color updated to ${newColor}!`);
+    }
+
     // Dynamically render and update the sidebar clusters list
     function updateClusterCounts() {
       const clusterListEl = document.getElementById('sidebar-cluster-list');
@@ -2212,9 +2271,24 @@
           <span class="text-[11px] font-semibold opacity-60 shrink-0">${cluster.count}</span>
         `;
 
+        // Left click to select and focus
         btn.addEventListener('click', (e) => {
           e.stopPropagation();
           selectDynamicCluster(cluster.id);
+        });
+
+        // Right-click to show cluster color changer popover
+        btn.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          state.clusterColorTargetRootId = cluster.id;
+          const popover = document.getElementById('cluster-color-popover');
+          if (popover) {
+            popover.style.left = `${Math.min(window.innerWidth - 170, e.clientX + 10)}px`;
+            popover.style.top = `${Math.min(window.innerHeight - 60, e.clientY)}px`;
+            popover.classList.remove('hidden');
+          }
         });
 
         clusterListEl.appendChild(btn);
@@ -2436,10 +2510,15 @@
       }
     }
 
-    // Dismiss any open hierarchy 3-dot dropdowns when tapping outside
+    // Dismiss any open hierarchy 3-dot dropdowns and popovers when tapping outside
     document.addEventListener('click', (e) => {
       if (!e.target.closest('.tree-actions-mobile')) {
         document.querySelectorAll('.tree-mobile-menu').forEach(m => m.classList.add('hidden'));
+      }
+      if (!e.target.closest('#cluster-color-popover')) {
+        const popover = document.getElementById('cluster-color-popover');
+        if (popover) popover.classList.add('hidden');
+        state.clusterColorTargetRootId = null;
       }
     });
 
@@ -2481,19 +2560,40 @@
       const btnThemeToggle = document.getElementById('btn-theme-toggle');
       const btnHierarchyThemeToggle = document.getElementById('btn-hierarchy-theme-toggle');
 
+      // Cluster Color Popover buttons
+      const clusterColorPopover = document.getElementById('cluster-color-popover');
+      if (clusterColorPopover) {
+        clusterColorPopover.querySelectorAll('button[data-color]').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (state.clusterColorTargetRootId) {
+              changeClusterColor(state.clusterColorTargetRootId, btn.dataset.color);
+              clusterColorPopover.classList.add('hidden');
+              state.clusterColorTargetRootId = null;
+            }
+          });
+        });
+      }
+
       // Initialize Theme
       applyTheme(state.theme);
       if (btnThemeToggle) btnThemeToggle.addEventListener('click', cycleTheme);
       if (btnHierarchyThemeToggle) btnHierarchyThemeToggle.addEventListener('click', cycleTheme);
 
-      // Custom Parent Dropdown Toggle
+      // Custom Parent Dropdown Toggle & Live Search
       const parentDropdownBtn = document.getElementById('parent-dropdown-btn');
       const parentDropdownMenu = document.getElementById('parent-dropdown-menu');
+      const parentSearchInput = document.getElementById('parent-search-input');
 
       if (parentDropdownBtn && parentDropdownMenu) {
         parentDropdownBtn.addEventListener('click', (e) => {
           e.stopPropagation();
-          parentDropdownMenu.classList.toggle('hidden');
+          const isOpening = parentDropdownMenu.classList.toggle('hidden') === false;
+          if (isOpening && parentSearchInput) {
+            parentSearchInput.value = '';
+            populateParentDropdown(state.modalParentNodeId, '');
+            setTimeout(() => parentSearchInput.focus(), 60);
+          }
         });
 
         document.addEventListener('click', (e) => {
@@ -2501,6 +2601,13 @@
             parentDropdownMenu.classList.add('hidden');
           }
         });
+      }
+
+      if (parentSearchInput) {
+        parentSearchInput.addEventListener('input', (e) => {
+          populateParentDropdown(state.modalParentNodeId, e.target.value);
+        });
+        parentSearchInput.addEventListener('click', (e) => e.stopPropagation());
       }
 
       if (btnSelectMode) btnSelectMode.addEventListener('click', () => setAppMode('select'));
