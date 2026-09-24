@@ -1301,24 +1301,31 @@
       applyTransform();
     }
 
-    function focusNodeOnCanvas(nodeId) {
+   function focusNodeOnCanvas(nodeId) {
       const node = state.nodes.find(n => n.id === nodeId);
-      const viewportEl = document.getElementById('board-viewport');
-      if (!node || !viewportEl) return;
+      if (!node) return;
 
+      // 1. Switch to canvas page first
       switchPage('canvas');
 
+      // 2. Select and highlight the target node
       state.selectedNodeIds.clear();
       state.selectedNodeIds.add(nodeId);
       updateSelectionVisuals();
 
-      const rect = viewportEl.getBoundingClientRect();
-      state.view.zoom = 1.25;
-      state.view.x = (rect.width / 2) - node.x * state.view.zoom;
-      state.view.y = (rect.height / 2) - node.y * state.view.zoom;
-      applyTransform();
+      // 3. Defer coordinate calculation to allow the DOM viewport to measure non-zero dimensions
+      requestAnimationFrame(() => {
+        const rect = viewportEl.getBoundingClientRect();
+        const width = rect.width || window.innerWidth - (sidebar.classList.contains('collapsed') ? 68 : 256);
+        const height = rect.height || window.innerHeight;
 
-      showToast(`Focused on ${node.label.replace('\n', ' ')}`);
+        state.view.zoom = 1.25;
+        state.view.x = (width / 2) - (node.x * state.view.zoom);
+        state.view.y = (height / 2) - (node.y * state.view.zoom);
+        applyTransform();
+
+        showToast(`Focused on ${node.label.replace(/\n/g, ' ')}`);
+      });
     }
 
     function resetView() {
