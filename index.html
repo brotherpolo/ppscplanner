@@ -217,7 +217,7 @@
       border-color: inherit;
       background-color: var(--node-bg, inherit);
       z-index: -1;
-      transition: background-color 0.2s ease, border-color 0.2s ease;
+      transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
     }
 
     .node-shape-pill::before { border-radius: 9999px; }
@@ -245,6 +245,7 @@
       stroke-width: 2.25px;
       stroke-linejoin: round;
       stroke-linecap: round;
+      transition: stroke 0.2s ease, filter 0.2s ease;
     }
 
     .node:active {
@@ -252,10 +253,17 @@
     }
 
     .node.selected {
-      outline: 3px solid #2563eb;
-      outline-offset: 3px;
-      box-shadow: 0 0 18px rgba(37, 99, 235, 0.45);
+      outline: none !important;
+      box-shadow: none !important;
       z-index: 30 !important;
+    }
+    .node.selected::before {
+      box-shadow: 0 0 0 3.5px #2563eb, 0 0 20px rgba(37, 99, 235, 0.5);
+    }
+    .node.selected .node-polygon-bg polygon {
+      stroke: #2563eb !important;
+      stroke-width: 4.5px !important;
+      filter: drop-shadow(0 0 10px rgba(37, 99, 235, 0.7));
     }
 
     .node.connect-source {
@@ -889,7 +897,7 @@
       <div class="flex flex-col">
         <div class="px-4 py-1.5 flex items-center justify-between text-[11px] font-mono font-medium opacity-40 select-none">
           <span class="sidebar-label tracking-wider uppercase">Version</span>
-          <span class="mx-auto sidebar-extra font-semibold">v0.98</span>
+          <span class="mx-auto sidebar-extra font-semibold">v0.96</span>
         </div>
 
         <div class="p-3 border-t border-slate-200/50 flex flex-col gap-2">
@@ -3155,6 +3163,7 @@
 
       if (modalBox) {
         modalBox.style.transform = 'none';
+        modalBox.style.position = 'absolute';
         modalBox.style.left = `${(window.innerWidth - modalBox.offsetWidth) / 2}px`;
         modalBox.style.top = `${(window.innerHeight - modalBox.offsetHeight) / 2}px`;
       }
