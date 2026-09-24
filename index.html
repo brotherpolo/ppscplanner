@@ -1049,6 +1049,8 @@
               <div class="flex flex-col border-t border-slate-500/20 pt-2 gap-2">
                 <span class="text-[10px] font-bold opacity-60 uppercase">Color</span>
                 <div class="grid grid-cols-8 gap-1.5" id="inline-color-pickers"></div>
+                <span class="text-[10px] font-bold opacity-60 uppercase mt-1">Background (Pastel)</span>
+                <div class="grid grid-cols-8 gap-1.5" id="inline-bg-color-pickers"></div>
                 <span class="text-[10px] font-bold opacity-60 uppercase mt-1">Shape</span>
                 <div class="grid grid-cols-4 gap-1.5" id="inline-shape-pickers"></div>
                 <div class="flex justify-end pt-1">
@@ -1137,7 +1139,7 @@
 
   <!-- Themed Add Node Modal with Searchable Parent Dropdown -->
   <div id="add-node-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-    <div class="modal-box rounded-2xl p-5 sm:p-6 w-full max-w-sm flex flex-col gap-4">
+    <div class="modal-box rounded-2xl p-5 sm:p-6 w-full max-w-sm flex flex-col gap-4 max-h-[90vh] overflow-y-auto no-scrollbar">
       <div class="flex items-center justify-between">
         <h3 id="add-modal-title" class="font-bold text-base">Create New Node</h3>
         <button id="btn-close-modal" class="opacity-60 hover:opacity-100 p-1 transition-opacity">
@@ -1196,6 +1198,14 @@
         <label class="modal-label text-xs font-semibold">Category Color (15 Choices)</label>
         <div class="grid grid-cols-5 gap-1.5" id="color-options">
           <!-- 15 Color Choices rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- Pastel Background Color Choices -->
+      <div class="flex flex-col gap-1.5">
+        <label class="modal-label text-xs font-semibold">Background Color (Pastel)</label>
+        <div class="grid grid-cols-5 gap-1.5" id="bg-color-options">
+          <!-- Pastel Color Choices rendered dynamically -->
         </div>
       </div>
 
@@ -1361,7 +1371,8 @@
                 width: Number(n.width) || 0,
                 height: Number(n.height) || 0,
                 shape: n.shape || 'pill',
-                fontSize: n.fontSize || ''
+                fontSize: n.fontSize || '',
+                bgColor: n.bgColor || ''
               })),
               edges: parsed.edges,
               view: parsed.view || { x: 0, y: 0, zoom: 1 },
@@ -1401,6 +1412,7 @@
       selectedModalColor: 'red',
       selectedModalShape: 'pill',
       selectedModalFontSize: '',
+      selectedModalBgColor: '',
       editingNodeId: null,
       currentPage: 'canvas',
       modalParentNodeId: null,
@@ -1530,7 +1542,6 @@
 
     function renderFormattedLabel(rawText) {
       if (!rawText) return '';
-      // Clean legacy inline span styles if present
       let cleanText = rawText.replace(/<span style="font-size:\s*[^;]+;">(.*?)<\/span>/gi, '$1');
 
       let escaped = cleanText
@@ -1593,8 +1604,10 @@
       }
       populateParentDropdown(state.modalParentNodeId);
       renderModalColorChoices();
+      renderModalBgColorChoices();
       renderModalShapeChoices();
       renderColorPickers();
+      renderBgColorPickers();
       renderShapePickers();
     }
 
@@ -1738,6 +1751,7 @@
       inlineEditorEl.style.boxShadow = `0 18px 40px -6px rgba(0, 0, 0, 0.35), 0 0 0 2px ${hex}`;
 
       renderColorPickers();
+      renderBgColorPickers();
       renderShapePickers();
 
       setTimeout(() => {
@@ -1813,6 +1827,14 @@
         const shape = nodeData.shape || 'pill';
         nodeEl.className = `node node-${nodeData.color} node-shape-${shape} ${nodeData.isHub ? 'node-hub' : ''}`;
         
+        const isDark = state.theme === 'dark' || state.theme === 'black';
+        if (nodeData.bgColor && COLOR_HEX_MAP[nodeData.bgColor]) {
+          const bgHex = COLOR_HEX_MAP[nodeData.bgColor];
+          nodeEl.style.backgroundColor = isDark ? `${bgHex}28` : `${bgHex}18`;
+        } else {
+          nodeEl.style.backgroundColor = '';
+        }
+
         if (shape === 'diamond' || shape === 'hexagon' || shape === 'triangle') {
           const polyBg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
           polyBg.setAttribute("class", "node-polygon-bg");
@@ -1825,6 +1847,10 @@
             poly.setAttribute("points", "25,2 75,2 98,50 75,98 25,98 2,50");
           } else if (shape === 'triangle') {
             poly.setAttribute("points", "50,2 98,98 2,98");
+          }
+          if (nodeData.bgColor && COLOR_HEX_MAP[nodeData.bgColor]) {
+            const bgHex = COLOR_HEX_MAP[nodeData.bgColor];
+            poly.style.fill = isDark ? `${bgHex}28` : `${bgHex}18`;
           }
           polyBg.appendChild(poly);
           nodeEl.appendChild(polyBg);
@@ -2629,7 +2655,8 @@
         y: originY,
         color: "gray",
         shape: "pill",
-        fontSize: ''
+        fontSize: '',
+        bgColor: ''
       };
 
       const newNodes = [baseNode];
@@ -2651,7 +2678,8 @@
           y: originY + offset.dy,
           color: chosenColor,
           shape: "pill",
-          fontSize: ''
+          fontSize: '',
+          bgColor: ''
         });
         newEdges.push({
           id: `edge_${timestamp}_e${idx + 1}`,
@@ -2690,7 +2718,8 @@
       const hex = COLOR_HEX_MAP[node.color] || '#64748b';
       const hubMarkup = node.isHub ? `<span class="text-[9px] font-bold uppercase tracking-wider text-indigo-500 bg-indigo-500/10 border border-indigo-500/30 px-1.5 py-0.2 rounded">Hub</span>` : '';
       
-      const bg = isDark ? `${hex}25` : `${hex}18`;
+      const bgHex = node.bgColor && COLOR_HEX_MAP[node.bgColor] ? COLOR_HEX_MAP[node.bgColor] : hex;
+      const bg = isDark ? `${bgHex}28` : `${bgHex}18`;
       const border = isDark ? `${hex}60` : `${hex}45`;
       const color = isDark ? '#ffffff' : hex;
       const fontStyle = node.fontSize ? `font-size: ${node.fontSize};` : '';
@@ -2707,7 +2736,8 @@
       const hex = COLOR_HEX_MAP[node.color] || '#64748b';
       const hubMarkup = node.isHub ? `<span class="text-[9px] font-bold uppercase tracking-wider text-indigo-500 bg-indigo-500/10 border border-indigo-500/30 px-1.5 py-0.2 rounded">Hub</span>` : '';
       
-      const bg = isDark ? `${hex}25` : `${hex}18`;
+      const bgHex = node.bgColor && COLOR_HEX_MAP[node.bgColor] ? COLOR_HEX_MAP[node.bgColor] : hex;
+      const bg = isDark ? `${bgHex}28` : `${bgHex}18`;
       const border = isDark ? `${hex}60` : `${hex}45`;
       const color = isDark ? '#ffffff' : hex;
       const fontStyle = node.fontSize ? `font-size: ${node.fontSize};` : '';
@@ -2794,7 +2824,9 @@
           state.selectedModalColor = parentNode.color;
           state.selectedModalShape = parentNode.shape || 'pill';
           state.selectedModalFontSize = parentNode.fontSize || '';
+          state.selectedModalBgColor = parentNode.bgColor || '';
           renderModalColorChoices();
+          renderModalBgColorChoices();
           renderModalShapeChoices();
           const selectModalFontsize = document.getElementById('select-modal-fontsize');
           if (selectModalFontsize) selectModalFontsize.value = state.selectedModalFontSize;
@@ -2830,6 +2862,48 @@
         btn.addEventListener('click', () => {
           state.selectedModalColor = c.key;
           renderModalColorChoices();
+        });
+
+        container.appendChild(btn);
+      });
+    }
+
+    function renderModalBgColorChoices() {
+      const container = document.getElementById('bg-color-options');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const isDark = state.theme === 'dark' || state.theme === 'black';
+
+      // Default / None Option
+      const noneBtn = document.createElement('button');
+      noneBtn.type = 'button';
+      noneBtn.className = `color-choice h-8 rounded-xl border-2 flex items-center justify-center font-bold text-[10px] transition-all ${!state.selectedModalBgColor ? 'ring-2 ring-indigo-500 scale-105 bg-indigo-500/10 border-indigo-500 text-indigo-500' : (isDark ? 'border-zinc-700 bg-zinc-800 text-zinc-400' : 'border-slate-200 bg-white text-slate-500')}`;
+      noneBtn.textContent = 'Default';
+      noneBtn.addEventListener('click', () => {
+        state.selectedModalBgColor = '';
+        renderModalBgColorChoices();
+      });
+      container.appendChild(noneBtn);
+
+      PALETTE_15.forEach(c => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.dataset.bgcolor = c.key;
+        btn.className = `color-choice h-8 rounded-xl border-2 flex items-center justify-center font-bold text-[11px] transition-all capitalize ${state.selectedModalBgColor === c.key ? 'ring-2 ring-indigo-500 scale-105' : 'hover:scale-105'}`;
+
+        const bg = isDark ? `${c.hex}35` : `${c.hex}22`;
+        const border = isDark ? `${c.hex}80` : `${c.hex}50`;
+        const color = isDark ? '#ffffff' : c.hex;
+
+        btn.style.backgroundColor = bg;
+        btn.style.borderColor = border;
+        btn.style.color = color;
+        btn.textContent = c.name;
+
+        btn.addEventListener('click', () => {
+          state.selectedModalBgColor = c.key;
+          renderModalBgColorChoices();
         });
 
         container.appendChild(btn);
@@ -2912,6 +2986,52 @@
       }
     }
 
+    function renderBgColorPickers() {
+      const inlineBgContainer = document.getElementById('inline-bg-color-pickers');
+      if (inlineBgContainer) {
+        inlineBgContainer.innerHTML = '';
+        const node = state.nodes.find(n => n.id === state.editingNodeId);
+        
+        // Default / None button
+        const noneBtn = document.createElement('button');
+        const isNoneSelected = !node || !node.bgColor;
+        noneBtn.className = `w-5 h-5 rounded-full hover:scale-125 transition-transform border flex items-center justify-center text-[9px] font-bold ${isNoneSelected ? 'ring-2 ring-indigo-500 scale-110 bg-indigo-500 text-white' : 'border-slate-400 bg-slate-200 text-slate-700'}`;
+        noneBtn.title = 'Default / None';
+        noneBtn.innerHTML = '✕';
+        noneBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (!state.editingNodeId || !node) return;
+          pushHistory();
+          node.bgColor = '';
+          commitState(true, true);
+          openInlineEditor(node.id);
+          renderBoard();
+        });
+        inlineBgContainer.appendChild(noneBtn);
+
+        PALETTE_15.forEach(c => {
+          const btn = document.createElement('button');
+          btn.dataset.bgcolor = c.key;
+          const isSelected = node && node.bgColor === c.key;
+          btn.className = `w-5 h-5 rounded-full hover:scale-125 transition-transform border shadow-xs ${isSelected ? 'ring-2 ring-indigo-500 scale-110' : 'border-black/20'}`;
+          btn.style.backgroundColor = c.hex;
+          btn.title = c.name;
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (!state.editingNodeId) return;
+            if (node) {
+              pushHistory();
+              node.bgColor = c.key;
+              commitState(true, true);
+              openInlineEditor(node.id);
+              renderBoard();
+            }
+          });
+          inlineBgContainer.appendChild(btn);
+        });
+      }
+    }
+
     function renderShapePickers() {
       const inlineShapeContainer = document.getElementById('inline-shape-pickers');
       if (inlineShapeContainer) {
@@ -2966,11 +3086,13 @@
         state.selectedModalColor = parentNode ? parentNode.color : 'red';
         state.selectedModalShape = parentNode ? (parentNode.shape || 'pill') : 'pill';
         state.selectedModalFontSize = parentNode ? (parentNode.fontSize || '') : '';
+        state.selectedModalBgColor = parentNode ? (parentNode.bgColor || '') : '';
       } else {
         if (modalTitleEl) modalTitleEl.textContent = 'Create New Node';
         state.selectedModalColor = 'red';
         state.selectedModalShape = 'pill';
         state.selectedModalFontSize = '';
+        state.selectedModalBgColor = '';
       }
 
       if (selectModalFontsize) {
@@ -2978,6 +3100,7 @@
       }
 
       renderModalColorChoices();
+      renderModalBgColorChoices();
       renderModalShapeChoices();
 
       modalEl.classList.remove('hidden');
@@ -3363,8 +3486,10 @@
       if (btnHierarchyExportPdf) btnHierarchyExportPdf.addEventListener('click', exportHierarchyToPDF);
 
       renderColorPickers();
+      renderBgColorPickers();
       renderShapePickers();
       renderModalColorChoices();
+      renderModalBgColorChoices();
       renderModalShapeChoices();
 
       applyTheme(state.theme);
@@ -3494,7 +3619,8 @@
             y: posY,
             color: state.selectedModalColor || 'red',
             shape: state.selectedModalShape || 'pill',
-            fontSize: state.selectedModalFontSize || ''
+            fontSize: state.selectedModalFontSize || '',
+            bgColor: state.selectedModalBgColor || ''
           };
 
           state.nodes.push(newNode);
@@ -3894,7 +4020,8 @@
               width: Number(n.width) || 0,
               height: Number(n.height) || 0,
               shape: n.shape || 'pill',
-              fontSize: n.fontSize || ''
+              fontSize: n.fontSize || '',
+              bgColor: n.bgColor || ''
             }));
             state.edges = cloudData.edges;
             state.lastModified = cloudTimestamp;
