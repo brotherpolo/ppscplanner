@@ -1925,19 +1925,9 @@
       applyTransform();
     }
 
-    // --- FULLY DYNAMIC COLOR-BASED CLUSTER DETECTION & SELECTION LOGIC ---
+    // --- COLOR-BASED CLUSTER DETECTION & PARENT-BASED NAMING ---
     function getDetectedClusters() {
       const clusterMap = {};
-
-      // Initialize a bucket for every color in the palette
-      PALETTE_15.forEach(c => {
-        clusterMap[c.key] = {
-          id: c.key,
-          name: c.name,
-          color: c.key,
-          nodes: []
-        };
-      });
 
       // Group nodes strictly by their assigned color
       state.nodes.forEach(node => {
@@ -1945,7 +1935,6 @@
         if (!clusterMap[colorKey]) {
           clusterMap[colorKey] = {
             id: colorKey,
-            name: colorKey.toUpperCase(),
             color: colorKey,
             nodes: []
           };
@@ -1953,14 +1942,47 @@
         clusterMap[colorKey].nodes.push(node);
       });
 
-      // Filter out empty clusters and format for the sidebar
       return Object.values(clusterMap)
         .filter(cluster => cluster.nodes.length > 0)
         .map(cluster => {
+          const colorKey = cluster.color;
+          const nodeIdsInCluster = new Set(cluster.nodes.map(n => n.id));
+
+          let clusterName = null;
+
+          // If the cluster contains only 1 node, use that node's label as its name
+          if (cluster.nodes.length === 1) {
+            clusterName = cluster.nodes[0].label.replace(/\n/g, ' ').trim();
+          } else {
+            // 1. Check for an internal hub or parent node inside this color group
+            const internalHub = cluster.nodes.find(n => n.isHub || state.edges.some(e => e.source === n.id && nodeIdsInCluster.has(e.target)));
+            if (internalHub) {
+              clusterName = internalHub.label.replace(/\n/g, ' ').trim();
+            }
+
+            // 2. Check for an external parent node connected to nodes in this cluster
+            if (!clusterName) {
+              for (const edge of state.edges) {
+                if (nodeIdsInCluster.has(edge.target) && !nodeIdsInCluster.has(edge.source)) {
+                  const parentNode = state.nodes.find(n => n.id === edge.source);
+                  if (parentNode) {
+                    clusterName = parentNode.label.replace(/\n/g, ' ').trim();
+                    break;
+                  }
+                }
+              }
+            }
+          }
+
+          // 3. Fallback
+          if (!clusterName) {
+            clusterName = cluster.nodes[0].label.replace(/\n/g, ' ').trim() || colorKey;
+          }
+
           return {
-            id: cluster.color,
-            name: cluster.name.toUpperCase(),
-            color: cluster.color,
+            id: colorKey,
+            name: clusterName.toUpperCase(),
+            color: colorKey,
             count: cluster.nodes.length,
             nodes: cluster.nodes
           };
