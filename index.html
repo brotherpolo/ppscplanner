@@ -1050,6 +1050,8 @@
               <div class="flex flex-col border-t border-slate-500/20 pt-2 gap-2">
                 <span class="text-[10px] font-bold opacity-60 uppercase">Link URL (Optional)</span>
                 <input type="url" id="node-inline-url" placeholder="https://example.com" class="modal-input w-full rounded-lg px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500" />
+                <span class="text-[10px] font-bold opacity-60 uppercase">Link Caption (Optional)</span>
+                <input type="text" id="node-inline-caption" placeholder="Display label..." class="modal-input w-full rounded-lg px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500" />
                 <span class="text-[10px] font-bold opacity-60 uppercase">Color</span>
                 <div class="grid grid-cols-8 gap-1.5" id="inline-color-pickers"></div>
                 <span class="text-[10px] font-bold opacity-60 uppercase mt-1">Background (Pastel)</span>
@@ -1200,6 +1202,11 @@
       <div class="flex flex-col gap-1.5">
         <label class="modal-label text-xs font-semibold">Link URL (Optional)</label>
         <input type="url" id="node-modal-url" placeholder="https://example.com" class="modal-input w-full rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+      </div>
+
+      <div class="flex flex-col gap-1.5">
+        <label class="modal-label text-xs font-semibold">Link Caption (Optional)</label>
+        <input type="text" id="node-modal-caption" placeholder="Display label..." class="modal-input w-full rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500" />
       </div>
 
       <div class="flex flex-col gap-1.5">
@@ -1381,7 +1388,8 @@
                 shape: n.shape || 'pill',
                 fontSize: n.fontSize || '',
                 bgColor: n.bgColor || '',
-                linkUrl: n.linkUrl || ''
+                linkUrl: n.linkUrl || '',
+                linkCaption: n.linkCaption || ''
               })),
               edges: parsed.edges,
               view: parsed.view || { x: 0, y: 0, zoom: 1 },
@@ -1745,6 +1753,7 @@
       const inlineTextareaEl = document.getElementById('node-inline-textarea');
       const selectInlineFontsize = document.getElementById('select-inline-fontsize');
       const inlineUrlEl = document.getElementById('node-inline-url');
+      const inlineCaptionEl = document.getElementById('node-inline-caption');
       if (!node || !inlineEditorEl || !inlineTextareaEl) return;
 
       state.editingNodeId = nodeId;
@@ -1754,6 +1763,9 @@
       }
       if (inlineUrlEl) {
         inlineUrlEl.value = node.linkUrl || '';
+      }
+      if (inlineCaptionEl) {
+        inlineCaptionEl.value = node.linkCaption || '';
       }
 
       inlineEditorEl.style.display = 'flex';
@@ -1777,6 +1789,7 @@
       const inlineEditorEl = document.getElementById('node-inline-editor');
       const inlineTextareaEl = document.getElementById('node-inline-textarea');
       const inlineUrlEl = document.getElementById('node-inline-url');
+      const inlineCaptionEl = document.getElementById('node-inline-caption');
       if (!state.editingNodeId) return;
 
       if (save && inlineTextareaEl) {
@@ -1784,10 +1797,12 @@
         if (node) {
           const val = inlineTextareaEl.value.trim();
           const urlVal = inlineUrlEl ? inlineUrlEl.value.trim() : '';
-          if (val && (val !== node.label || urlVal !== node.linkUrl)) {
+          const captionVal = inlineCaptionEl ? inlineCaptionEl.value.trim() : '';
+          if (val && (val !== node.label || urlVal !== node.linkUrl || captionVal !== node.linkCaption)) {
             pushHistory();
             node.label = val;
             node.linkUrl = urlVal;
+            node.linkCaption = captionVal;
             commitState(true, true);
           }
         }
@@ -1887,7 +1902,8 @@
         }
 
         if (nodeData.linkUrl) {
-          contentSpan.innerHTML = `<a href="${nodeData.linkUrl}" target="_blank" rel="noopener noreferrer" class="underline hover:opacity-80 flex items-center gap-1">${renderFormattedLabel(nodeData.linkUrl.replace(/^https?:\/\//, ''))} <i class="fa-solid fa-external-link-alt text-[9px]"></i></a>`;
+          const displayLabel = nodeData.linkCaption ? renderFormattedLabel(nodeData.linkCaption) : renderFormattedLabel(nodeData.label);
+          contentSpan.innerHTML = `<a href="${nodeData.linkUrl}" target="_blank" rel="noopener noreferrer" class="underline hover:opacity-80 flex items-center gap-1">${displayLabel} <i class="fa-solid fa-external-link-alt text-[9px]"></i></a>`;
         } else {
           contentSpan.innerHTML = renderFormattedLabel(nodeData.label);
         }
@@ -2686,7 +2702,8 @@
         shape: "pill",
         fontSize: '',
         bgColor: '',
-        linkUrl: ''
+        linkUrl: '',
+        linkCaption: ''
       };
 
       const newNodes = [baseNode];
@@ -2710,7 +2727,8 @@
           shape: "pill",
           fontSize: '',
           bgColor: '',
-          linkUrl: ''
+          linkUrl: '',
+          linkCaption: ''
         });
         newEdges.push({
           id: `edge_${timestamp}_e${idx + 1}`,
@@ -2757,7 +2775,7 @@
 
       return `
         <div style="background-color: ${bg}; border-color: ${border}; color: ${color}; ${fontStyle}" class="px-3 py-1 text-xs font-semibold rounded-full border shadow-xs inline-flex items-center justify-center text-center gap-1.5 mx-auto w-max max-w-[200px]">
-          <span class="truncate">${renderFormattedLabel(node.label).replace(/<br\/?>/g, ' ')}</span>
+          <span class="truncate">${renderFormattedLabel(node.linkCaption || node.label).replace(/<br\/?>/g, ' ')}</span>
         </div>
         ${hubMarkup}
       `;
@@ -2773,7 +2791,7 @@
       const color = isDark ? '#ffffff' : hex;
       const fontStyle = node.fontSize ? `font-size: ${node.fontSize};` : '';
 
-      const cleanText = cleanClusterLabel(node.label);
+      const cleanText = cleanClusterLabel(node.linkCaption || node.label);
 
       return `
         <div style="background-color: ${bg}; border-color: ${border}; color: ${color}; ${fontStyle}" class="px-3 py-1 text-xs font-semibold rounded-full border shadow-xs inline-flex items-center justify-center text-center gap-1.5 mx-auto w-max max-w-[200px]">
@@ -2817,7 +2835,7 @@
 
       const matchingNodes = state.nodes.filter(node => {
         if (!query) return true;
-        const normalizedLabel = cleanClusterLabel(node.label).toLowerCase();
+        const normalizedLabel = cleanClusterLabel(node.linkCaption || node.label).toLowerCase();
         return normalizedLabel.includes(query);
       });
 
@@ -3103,6 +3121,7 @@
       const dropdownMenu = document.getElementById('parent-dropdown-menu');
       const selectModalFontsize = document.getElementById('select-modal-fontsize');
       const modalUrlEl = document.getElementById('node-modal-url');
+      const modalCaptionEl = document.getElementById('node-modal-caption');
 
       if (!modalEl || !labelInput) return;
 
@@ -3130,9 +3149,8 @@
       if (selectModalFontsize) {
         selectModalFontsize.value = state.selectedModalFontSize;
       }
-      if (modalUrlEl) {
-        modalUrlEl.value = '';
-      }
+      if (modalUrlEl) modalUrlEl.value = '';
+      if (modalCaptionEl) modalCaptionEl.value = '';
 
       renderModalColorChoices();
       renderModalBgColorChoices();
@@ -3647,7 +3665,9 @@
           }
 
           const modalUrlEl = document.getElementById('node-modal-url');
+          const modalCaptionEl = document.getElementById('node-modal-caption');
           const urlVal = modalUrlEl ? modalUrlEl.value.trim() : '';
+          const captionVal = modalCaptionEl ? modalCaptionEl.value.trim() : '';
 
           const newNodeId = "node_" + Date.now();
           const newNode = {
@@ -3659,7 +3679,8 @@
             shape: state.selectedModalShape || 'pill',
             fontSize: state.selectedModalFontSize || '',
             bgColor: state.selectedModalBgColor || '',
-            linkUrl: urlVal
+            linkUrl: urlVal,
+            linkCaption: captionVal
           };
 
           state.nodes.push(newNode);
@@ -4061,7 +4082,8 @@
               shape: n.shape || 'pill',
               fontSize: n.fontSize || '',
               bgColor: n.bgColor || '',
-              linkUrl: n.linkUrl || ''
+              linkUrl: n.linkUrl || '',
+              linkCaption: n.linkCaption || ''
             }));
             state.edges = cloudData.edges;
             state.lastModified = cloudTimestamp;
