@@ -182,14 +182,14 @@
       border-radius: 4px;
     }
 
-    /* Node Shape Base Classes */
+    /* Standardized Node Container & Shape Rendering */
     .node {
       position: absolute;
       transform: translate(-50%, -50%);
-      min-width: 96px;
+      min-width: 100px;
       max-width: 320px;
-      min-height: 48px;
-      padding: 10px 18px;
+      min-height: 52px;
+      padding: 14px 22px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -199,26 +199,33 @@
       font-weight: 600;
       letter-spacing: -0.01em;
       cursor: grab;
-      border: 2.25px solid;
-      white-space: normal;
-      word-break: normal;
-      overflow-wrap: break-word;
-      line-height: 1.25;
       z-index: 10;
       touch-action: none;
       box-sizing: border-box;
-      transition: box-shadow 0.15s ease, border-color 0.15s ease, background-color 0.2s ease, color 0.2s ease;
+      background: transparent;
+      border: none;
     }
 
-    /* Shape Variations */
-    .node-shape-pill { border-radius: 9999px; }
-    .node-shape-rect { border-radius: 4px; }
-    .node-shape-square { border-radius: 4px; }
-    .node-shape-roundrect { border-radius: 14px; }
-    .node-shape-circle { border-radius: 50%; }
-    .node-shape-diamond { border-radius: 12px; clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); padding: 22px; }
-    .node-shape-hexagon { border-radius: 8px; clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%); padding: 18px; }
-    .node-shape-triangle { border-radius: 4px; clip-path: polygon(50% 0%, 100% 100%, 0% 100%); padding: 24px 14px 12px 14px; }
+    .node::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border: 2.25px solid;
+      border-color: inherit;
+      background-color: inherit;
+      z-index: -1;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+
+    /* 8 Shape Variations using pseudo-element */
+    .node-shape-pill::before { border-radius: 9999px; }
+    .node-shape-rect::before { border-radius: 4px; }
+    .node-shape-square::before { border-radius: 4px; }
+    .node-shape-roundrect::before { border-radius: 14px; }
+    .node-shape-circle::before { border-radius: 50%; }
+    .node-shape-diamond::before { border-radius: 12px; clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); }
+    .node-shape-hexagon::before { border-radius: 8px; clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%); }
+    .node-shape-triangle::before { border-radius: 4px; clip-path: polygon(50% 0%, 100% 100%, 0% 100%); }
 
     .node:active {
       cursor: grabbing;
@@ -242,7 +249,7 @@
       50% { outline-color: #059669; }
     }
 
-    /* Node Hover Action Buttons & Resize Handles on Canvas */
+    /* Always Accessible Action Buttons & Resize Handle */
     .node-action-btn {
       position: absolute;
       width: 24px;
@@ -263,10 +270,10 @@
 
     .node-resize-handle {
       position: absolute;
-      width: 14px;
-      height: 14px;
-      bottom: 2px;
-      right: 2px;
+      width: 16px;
+      height: 16px;
+      bottom: -6px;
+      right: -6px;
       cursor: se-resize;
       opacity: 0;
       transition: opacity 0.15s;
@@ -274,8 +281,10 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 9px;
+      font-size: 10px;
       pointer-events: auto;
+      background: rgba(0,0,0,0.1);
+      border-radius: 50%;
     }
 
     @media (hover: none) and (pointer: coarse) {
@@ -292,16 +301,16 @@
     }
 
     .btn-edit-node {
-      top: -10px;
-      right: 20px;
+      top: -12px;
+      right: 22px;
     }
     .btn-edit-node:hover, .btn-edit-node:active {
       transform: scale(1.15);
     }
 
     .btn-delete-node-quick {
-      top: -10px;
-      right: -8px;
+      top: -12px;
+      right: -6px;
     }
     .btn-delete-node-quick:hover, .btn-delete-node-quick:active {
       transform: scale(1.15);
@@ -311,7 +320,7 @@
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
       font-size: 15px;
       font-weight: 700;
-      padding: 14px 24px;
+      padding: 16px 26px;
     }
 
     #node-inline-editor {
@@ -323,7 +332,7 @@
       z-index: 100;
       display: none;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
       min-width: 290px;
     }
 
@@ -556,25 +565,26 @@
       box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.08);
       color: #334155;
     }
-    body.theme-light .node {
+    body.theme-light .node::before {
       background-color: #ffffff;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03);
     }
-    body.theme-light .node-red { border-color: #dc2626; color: #991b1b; }
-    body.theme-light .node-orange { border-color: #ea580c; color: #9a3412; }
-    body.theme-light .node-amber { border-color: #d97706; color: #92400e; }
-    body.theme-light .node-yellow { border-color: #ca8a04; color: #854d0e; }
-    body.theme-light .node-lime { border-color: #65a30d; color: #3f6212; }
-    body.theme-light .node-green { border-color: #16a34a; color: #166534; }
-    body.theme-light .node-emerald { border-color: #059669; color: #065f46; }
-    body.theme-light .node-teal { border-color: #0d9488; color: #115e59; }
-    body.theme-light .node-cyan { border-color: #0891b2; color: #155e75; }
-    body.theme-light .node-blue { border-color: #2563eb; color: #1e40af; }
-    body.theme-light .node-indigo { border-color: #4f46e5; color: #3730a3; }
-    body.theme-light .node-violet { border-color: #7c3aed; color: #5b21b6; }
-    body.theme-light .node-purple { border-color: #9333ea; color: #6b21a8; }
-    body.theme-light .node-pink { border-color: #db2777; color: #9d174d; }
-    body.theme-light .node-gray { border-color: #475569; color: #1e293b; }
+    body.theme-light .node-red::before { border-color: #dc2626; } body.theme-light .node-red { color: #991b1b; }
+    body.theme-light .node-orange::before { border-color: #ea580c; } body.theme-light .node-orange { color: #9a3412; }
+    body.theme-light .node-amber::before { border-color: #d97706; } body.theme-light .node-amber { color: #92400e; }
+    body.theme-light .node-yellow::before { border-color: #ca8a04; } body.theme-light .node-yellow { color: #854d0e; }
+    body.theme-light .node-lime::before { border-color: #65a30d; } body.theme-light .node-lime { color: #3f6212; }
+    body.theme-light .node-green::before { border-color: #16a34a; } body.theme-light .node-green { color: #166534; }
+    body.theme-light .node-emerald::before { border-color: #059669; } body.theme-light .node-emerald { color: #065f46; }
+    body.theme-light .node-teal::before { border-color: #0d9488; } body.theme-light .node-teal { color: #115e59; }
+    body.theme-light .node-cyan::before { border-color: #0891b2; } body.theme-light .node-cyan { color: #155e75; }
+    body.theme-light .node-blue::before { border-color: #2563eb; } body.theme-light .node-blue { color: #1e40af; }
+    body.theme-light .node-indigo::before { border-color: #4f46e5; } body.theme-light .node-indigo { color: #3730a3; }
+    body.theme-light .node-violet::before { border-color: #7c3aed; } body.theme-light .node-violet { color: #5b21b6; }
+    body.theme-light .node-purple::before { border-color: #9333ea; } body.theme-light .node-purple { color: #6b21a8; }
+    body.theme-light .node-pink::before { border-color: #db2777; } body.theme-light .node-pink { color: #9d174d; }
+    body.theme-light .node-gray::before { border-color: #475569; } body.theme-light .node-gray { color: #1e293b; }
+
     body.theme-light .edge-line { stroke: #64748b; }
     body.theme-light .node-action-btn { background: #ffffff; border-color: #cbd5e1; color: #475569; }
     body.theme-light .node-resize-handle { color: #64748b; }
@@ -630,25 +640,26 @@
       background-color: #1e293b;
       color: #ffffff;
     }
-    body.theme-dark .node {
+    body.theme-dark .node::before {
       background-color: #1e293b;
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
     }
-    body.theme-dark .node-red { border-color: #ef4444; color: #fca5a5; }
-    body.theme-dark .node-orange { border-color: #f97316; color: #fdba74; }
-    body.theme-dark .node-amber { border-color: #f59e0b; color: #fcd34d; }
-    body.theme-dark .node-yellow { border-color: #eab308; color: #fef08a; }
-    body.theme-dark .node-lime { border-color: #84cc16; color: #bef264; }
-    body.theme-dark .node-green { border-color: #22c55e; color: #86efac; }
-    body.theme-dark .node-emerald { border-color: #10b981; color: #6ee7b7; }
-    body.theme-dark .node-teal { border-color: #14b8a6; color: #5eead4; }
-    body.theme-dark .node-cyan { border-color: #06b6d4; color: #67e8f9; }
-    body.theme-dark .node-blue { border-color: #3b82f6; color: #93c5fd; }
-    body.theme-dark .node-indigo { border-color: #6366f1; color: #a5b4fc; }
-    body.theme-dark .node-violet { border-color: #8b5cf6; color: #c4b5fd; }
-    body.theme-dark .node-purple { border-color: #a855f7; color: #d8b4fe; }
-    body.theme-dark .node-pink { border-color: #ec4899; color: #f472b6; }
-    body.theme-dark .node-gray { border-color: #64748b; color: #cbd5e1; }
+    body.theme-dark .node-red::before { border-color: #ef4444; } body.theme-dark .node-red { color: #fca5a5; }
+    body.theme-dark .node-orange::before { border-color: #f97316; } body.theme-dark .node-orange { color: #fdba74; }
+    body.theme-dark .node-amber::before { border-color: #f59e0b; } body.theme-dark .node-amber { color: #fcd34d; }
+    body.theme-dark .node-yellow::before { border-color: #eab308; } body.theme-dark .node-yellow { color: #fef08a; }
+    body.theme-dark .node-lime::before { border-color: #84cc16; } body.theme-dark .node-lime { color: #bef264; }
+    body.theme-dark .node-green::before { border-color: #22c55e; } body.theme-dark .node-green { color: #86efac; }
+    body.theme-dark .node-emerald::before { border-color: #10b981; } body.theme-dark .node-emerald { color: #6ee7b7; }
+    body.theme-dark .node-teal::before { border-color: #14b8a6; } body.theme-dark .node-teal { color: #5eead4; }
+    body.theme-dark .node-cyan::before { border-color: #06b6d4; } body.theme-dark .node-cyan { color: #67e8f9; }
+    body.theme-dark .node-blue::before { border-color: #3b82f6; } body.theme-dark .node-blue { color: #93c5fd; }
+    body.theme-dark .node-indigo::before { border-color: #6366f1; } body.theme-dark .node-indigo { color: #a5b4fc; }
+    body.theme-dark .node-violet::before { border-color: #8b5cf6; } body.theme-dark .node-violet { color: #c4b5fd; }
+    body.theme-dark .node-purple::before { border-color: #a855f7; } body.theme-dark .node-purple { color: #d8b4fe; }
+    body.theme-dark .node-pink::before { border-color: #ec4899; } body.theme-dark .node-pink { color: #f472b6; }
+    body.theme-dark .node-gray::before { border-color: #64748b; } body.theme-dark .node-gray { color: #cbd5e1; }
+
     body.theme-dark .edge-line { stroke: #475569; }
     body.theme-dark .node-action-btn { background: #0f172a; border-color: #334155; color: #94a3b8; }
     body.theme-dark .node-resize-handle { color: #94a3b8; }
@@ -708,25 +719,26 @@
       background-color: #27272a;
       color: #ffffff;
     }
-    body.theme-black .node {
+    body.theme-black .node::before {
       background-color: #09090b;
       box-shadow: 0 0 16px rgba(0, 0, 0, 0.8);
     }
-    body.theme-black .node-red { border-color: #f87171; color: #fca5a5; }
-    body.theme-black .node-orange { border-color: #fb923c; color: #fdba74; }
-    body.theme-black .node-amber { border-color: #fbbf24; color: #fcd34d; }
-    body.theme-black .node-yellow { border-color: #facc15; color: #fef08a; }
-    body.theme-black .node-lime { border-color: #a3e635; color: #bef264; }
-    body.theme-black .node-green { border-color: #4ade80; color: #86efac; }
-    body.theme-black .node-emerald { border-color: #34d399; color: #6ee7b7; }
-    body.theme-black .node-teal { border-color: #2dd4bf; color: #5eead4; }
-    body.theme-black .node-cyan { border-color: #22d3ee; color: #67e8f9; }
-    body.theme-black .node-blue { border-color: #60a5fa; color: #93c5fd; }
-    body.theme-black .node-indigo { border-color: #818cf8; color: #a5b4fc; }
-    body.theme-black .node-violet { border-color: #a78bfa; color: #c4b5fd; }
-    body.theme-black .node-purple { border-color: #c084fc; color: #e9d5ff; }
-    body.theme-black .node-pink { border-color: #f472b6; color: #fbcfe8; }
-    body.theme-black .node-gray { border-color: #a1a1aa; color: #e4e4e7; }
+    body.theme-black .node-red::before { border-color: #f87171; } body.theme-black .node-red { color: #fca5a5; }
+    body.theme-black .node-orange::before { border-color: #fb923c; } body.theme-black .node-orange { color: #fdba74; }
+    body.theme-black .node-amber::before { border-color: #fbbf24; } body.theme-black .node-amber { color: #fcd34d; }
+    body.theme-black .node-yellow::before { border-color: #facc15; } body.theme-black .node-yellow { color: #fef08a; }
+    body.theme-black .node-lime::before { border-color: #a3e635; } body.theme-black .node-lime { color: #bef264; }
+    body.theme-black .node-green::before { border-color: #4ade80; } body.theme-black .node-green { color: #86efac; }
+    body.theme-black .node-emerald::before { border-color: #34d399; } body.theme-black .node-emerald { color: #6ee7b7; }
+    body.theme-black .node-teal::before { border-color: #2dd4bf; } body.theme-black .node-teal { color: #5eead4; }
+    body.theme-black .node-cyan::before { border-color: #22d3ee; } body.theme-black .node-cyan { color: #67e8f9; }
+    body.theme-black .node-blue::before { border-color: #60a5fa; } body.theme-black .node-blue { color: #93c5fd; }
+    body.theme-black .node-indigo::before { border-color: #818cf8; } body.theme-black .node-indigo { color: #a5b4fc; }
+    body.theme-black .node-violet::before { border-color: #a78bfa; } body.theme-black .node-violet { color: #c4b5fd; }
+    body.theme-black .node-purple::before { border-color: #c084fc; } body.theme-black .node-purple { color: #e9d5ff; }
+    body.theme-black .node-pink::before { border-color: #f472b6; } body.theme-black .node-pink { color: #fbcfe8; }
+    body.theme-black .node-gray::before { border-color: #a1a1aa; } body.theme-black .node-gray { color: #e4e4e7; }
+
     body.theme-black .edge-line { stroke: #52525b; stroke-width: 2.75px; }
     body.theme-black .node-action-btn { background: #000000; border-color: #3f3f46; color: #d4d4d8; }
     body.theme-black .node-resize-handle { color: #a1a1aa; }
@@ -938,17 +950,18 @@
             <!-- In-place Direct Node Editor -->
             <div id="node-inline-editor">
               <div class="flex items-center justify-between pb-1 border-b border-slate-500/20 text-[11px] font-semibold">
-                <span>Edit Node Label</span>
+                <span>Edit Node Properties</span>
                 <button id="btn-inline-delete-node" class="text-rose-500 hover:text-rose-700 p-1" title="Delete Node">
                   <i class="fa-solid fa-trash-can text-xs"></i>
                 </button>
               </div>
               <textarea id="node-inline-textarea" rows="2" placeholder="Node title..."></textarea>
               <div class="flex flex-col border-t border-slate-500/20 pt-2 gap-2">
-                <div class="grid grid-cols-8 gap-1.5" id="inline-color-pickers">
-                  <!-- 15 Color Options populated via script -->
-                </div>
-                <div class="flex justify-end">
+                <span class="text-[10px] font-bold opacity-60 uppercase">Color</span>
+                <div class="grid grid-cols-8 gap-1.5" id="inline-color-pickers"></div>
+                <span class="text-[10px] font-bold opacity-60 uppercase mt-1">Shape</span>
+                <div class="grid grid-cols-4 gap-1.5" id="inline-shape-pickers"></div>
+                <div class="flex justify-end pt-1">
                   <button id="btn-inline-save" class="px-3 py-1 bg-indigo-600 text-white rounded-lg text-xs font-semibold hover:bg-indigo-700 shadow-sm">
                     Done
                   </button>
@@ -1151,9 +1164,9 @@
     // --- 8 SHAPE VARIATIONS ---
     const SHAPES_8 = [
       { key: 'pill', name: 'Pill', icon: 'fa-capsules' },
-      { key: 'rect', name: 'Rectangle', icon: 'fa-square' },
+      { key: 'rect', name: 'Rect', icon: 'fa-square' },
       { key: 'square', name: 'Square', icon: 'fa-stop' },
-      { key: 'roundrect', name: 'Rounded', icon: 'fa-square-full' },
+      { key: 'roundrect', name: 'Round', icon: 'fa-square-full' },
       { key: 'circle', name: 'Circle', icon: 'fa-circle' },
       { key: 'diamond', name: 'Diamond', icon: 'fa-gem' },
       { key: 'hexagon', name: 'Hexagon', icon: 'fa-cube' },
@@ -1428,6 +1441,7 @@
       renderModalColorChoices();
       renderModalShapeChoices();
       renderColorPickers();
+      renderShapePickers();
     }
 
     function cycleTheme() {
@@ -1564,6 +1578,9 @@
       const hex = COLOR_HEX_MAP[node.color] || '#3b82f6';
       inlineEditorEl.style.boxShadow = `0 18px 40px -6px rgba(0, 0, 0, 0.35), 0 0 0 2px ${hex}`;
 
+      renderColorPickers();
+      renderShapePickers();
+
       setTimeout(() => {
         inlineTextareaEl.focus();
         inlineTextareaEl.select();
@@ -1652,7 +1669,7 @@
 
         const editBtn = document.createElement('button');
         editBtn.className = 'node-action-btn btn-edit-node';
-        editBtn.title = 'Edit node title';
+        editBtn.title = 'Edit node properties';
         editBtn.innerHTML = '<i class="fa-solid fa-pencil"></i>';
         ['mousedown', 'touchstart'].forEach(evt => editBtn.addEventListener(evt, (e) => e.stopPropagation()));
         editBtn.addEventListener('click', (e) => {
@@ -1740,8 +1757,8 @@
         if (!isResizing) return;
         const dx = (clientX - startX) / state.view.zoom;
         const dy = (clientY - startY) / state.view.zoom;
-        const newWidth = Math.max(80, Math.round(startWidth + dx));
-        const newHeight = Math.max(48, Math.round(startHeight + dy));
+        const newWidth = Math.max(90, Math.round(startWidth + dx));
+        const newHeight = Math.max(52, Math.round(startHeight + dy));
 
         nodeData.width = newWidth;
         nodeData.height = newHeight;
@@ -2561,7 +2578,7 @@
       if (dropdownMenu) dropdownMenu.classList.add('hidden');
     }
 
-    // Render the 15 colors in the Add Node modal with contrast border/background shades
+    // Render the 15 colors in the Add Node modal
     function renderModalColorChoices() {
       const container = document.getElementById('color-options');
       if (!container) return;
@@ -2629,13 +2646,14 @@
         PALETTE_15.forEach(c => {
           const btn = document.createElement('button');
           btn.dataset.color = c.key;
-          btn.className = "w-5 h-5 rounded-full hover:scale-125 transition-transform border border-black/20 shadow-xs";
+          const node = state.nodes.find(n => n.id === state.editingNodeId);
+          const isSelected = node && node.color === c.key;
+          btn.className = `w-5 h-5 rounded-full hover:scale-125 transition-transform border shadow-xs ${isSelected ? 'ring-2 ring-indigo-500 scale-110' : 'border-black/20'}`;
           btn.style.backgroundColor = c.hex;
           btn.title = c.name;
           btn.addEventListener('click', (e) => {
             e.stopPropagation();
             if (!state.editingNodeId) return;
-            const node = state.nodes.find(n => n.id === state.editingNodeId);
             if (node) {
               pushHistory();
               node.color = c.key;
@@ -2666,6 +2684,37 @@
             }
           });
           clusterContainer.appendChild(btn);
+        });
+      }
+    }
+
+    // Render the 8 shapes inside the inline editor
+    function renderShapePickers() {
+      const inlineShapeContainer = document.getElementById('inline-shape-pickers');
+      if (inlineShapeContainer) {
+        inlineShapeContainer.innerHTML = '';
+        SHAPES_8.forEach(s => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          const node = state.nodes.find(n => n.id === state.editingNodeId);
+          const isSelected = node && (node.shape || 'pill') === s.key;
+          const isDark = state.theme === 'dark' || state.theme === 'black';
+
+          btn.className = `h-7 rounded-lg border flex items-center justify-center text-[10px] font-semibold transition-all gap-1 ${isSelected ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs' : (isDark ? 'border-zinc-700 bg-zinc-800 text-zinc-300 hover:border-zinc-500' : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300')}`;
+          btn.innerHTML = `<i class="fa-solid ${s.icon} text-[10px]"></i><span class="truncate">${s.name}</span>`;
+
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (!state.editingNodeId) return;
+            if (node) {
+              pushHistory();
+              node.shape = s.key;
+              commitState(true, true);
+              openInlineEditor(node.id);
+              renderBoard();
+            }
+          });
+          inlineShapeContainer.appendChild(btn);
         });
       }
     }
@@ -3058,6 +3107,7 @@
 
       // Render 15-Color Pickers across interface
       renderColorPickers();
+      renderShapePickers();
       renderModalColorChoices();
       renderModalShapeChoices();
 
