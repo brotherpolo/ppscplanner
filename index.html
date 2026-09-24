@@ -1736,9 +1736,10 @@
       if (btnInlineUnderline) btnInlineUnderline.classList.toggle('text-white', !!node.isUnderline);
 
       const screenPos = worldToScreen(node.x, node.y);
+      
       inlineEditorEl.style.display = 'flex';
-      inlineEditorEl.style.transform = 'none';
       inlineEditorEl.style.position = 'absolute';
+      inlineEditorEl.style.transform = 'none';
       inlineEditorEl.style.left = `${Math.max(20, Math.min(window.innerWidth - 320, screenPos.x - 145))}px`;
       inlineEditorEl.style.top = `${Math.max(20, Math.min(window.innerHeight - 300, screenPos.y - 120))}px`;
 
@@ -3543,17 +3544,13 @@
       let isDragging = false;
       let startX = 0;
       let startY = 0;
-      let initialLeft = 0;
-      let initialTop = 0;
+      let startModalX = 0;
+      let startModalY = 0;
 
       handleEl.addEventListener('mousedown', (e) => {
         if (e.button !== 0 || e.target.closest('button')) return;
         e.stopPropagation();
         e.preventDefault();
-
-        isDragging = true;
-        startX = e.clientX;
-        startY = e.clientY;
 
         const rect = modalBoxEl.getBoundingClientRect();
         
@@ -3562,8 +3559,11 @@
         modalBoxEl.style.left = `${rect.left}px`;
         modalBoxEl.style.top = `${rect.top}px`;
 
-        initialLeft = rect.left;
-        initialTop = rect.top;
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        startModalX = rect.left;
+        startModalY = rect.top;
 
         const onMouseMove = (ev) => {
           if (!isDragging) return;
@@ -3573,8 +3573,8 @@
           const dx = ev.clientX - startX;
           const dy = ev.clientY - startY;
 
-          let newLeft = initialLeft + dx;
-          let newTop = initialTop + dy;
+          let newLeft = startModalX + dx;
+          let newTop = startModalY + dy;
 
           const w = modalBoxEl.offsetWidth;
           const h = modalBoxEl.offsetHeight;
