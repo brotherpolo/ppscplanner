@@ -1268,24 +1268,6 @@ const firebaseConfig = window.FIREBASE_CONFIG;
     const auth = firebase.auth();
     window.boardRef = db.ref("mindmap/board");
 
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
-    const db = firebase.database();
-    const auth = firebase.auth();
-    window.boardRef = db.ref("mindmap/board");
-
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
-}
-
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
-    const db = firebase.database();
-    const auth = firebase.auth();
-    window.boardRef = db.ref("mindmap/board");
-
     const LOCAL_STORAGE_KEY = 'mindmap_whiteboard_state_v2';
     const THEME_STORAGE_KEY = 'mindmap_whiteboard_theme';
 
