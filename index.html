@@ -1740,8 +1740,17 @@
       inlineEditorEl.style.display = 'flex';
       inlineEditorEl.style.transform = 'none';
       inlineEditorEl.style.position = 'absolute';
-      inlineEditorEl.style.left = `${Math.max(20, Math.min(window.innerWidth - 320, screenPos.x - 145))}px`;
-      inlineEditorEl.style.top = `${Math.max(20, Math.min(window.innerHeight - 300, screenPos.y - 120))}px`;
+
+      const boxWidth = 310;
+      const boxHeight = 450;
+      let leftPos = screenPos.x - (boxWidth / 2);
+      let topPos = screenPos.y + 25;
+
+      leftPos = Math.max(20, Math.min(window.innerWidth - boxWidth - 20, leftPos));
+      topPos = Math.max(20, Math.min(window.innerHeight - boxHeight - 20, topPos));
+
+      inlineEditorEl.style.left = `${leftPos}px`;
+      inlineEditorEl.style.top = `${topPos}px`;
 
       const hex = COLOR_HEX_MAP[node.color] || '#3b82f6';
       inlineEditorEl.style.boxShadow = `0 18px 40px -6px rgba(0, 0, 0, 0.35), 0 0 0 2px ${hex}`;
@@ -2127,8 +2136,10 @@
             const inlineEditorEl = document.getElementById('node-inline-editor');
             if (editingNode && inlineEditorEl) {
               const screenPos = worldToScreen(editingNode.x, editingNode.y);
-              inlineEditorEl.style.left = `${Math.max(20, Math.min(window.innerWidth - 320, screenPos.x - 145))}px`;
-              inlineEditorEl.style.top = `${Math.max(20, Math.min(window.innerHeight - 300, screenPos.y - 120))}px`;
+              const boxW = inlineEditorEl.offsetWidth || 310;
+              const boxH = inlineEditorEl.offsetHeight || 450;
+              inlineEditorEl.style.left = `${Math.max(20, Math.min(window.innerWidth - boxW - 20, screenPos.x - (boxW / 2)))}px`;
+              inlineEditorEl.style.top = `${Math.max(20, Math.min(window.innerHeight - boxH - 20, screenPos.y + 25))}px`;
             }
           }
         }
