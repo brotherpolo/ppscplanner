@@ -116,7 +116,7 @@
       height: 100%;
       position: relative;
       overflow: hidden;
-      cursor: default;
+      cursor: grab;
       touch-action: none;
       transition: background-color 0.2s ease;
     }
@@ -812,7 +812,7 @@
           </div>
 
           <!-- Mode Buttons -->
-          <button id="btn-select-mode" title="Select & Reposition (V)" class="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-xl transition-all bg-indigo-600 text-white shadow-sm shrink-0">
+          <button id="btn-select-mode" title="Select & Reposition (V)" class="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-xl transition-all shrink-0">
             <i class="fa-solid fa-arrow-pointer"></i>
             <span class="hidden md:inline">Select</span>
           </button>
@@ -822,7 +822,7 @@
             <span class="hidden md:inline">Connect</span>
           </button>
 
-          <button id="btn-pan-mode" title="Pan Canvas (H / Spacebar)" class="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-xl transition-all shrink-0">
+          <button id="btn-pan-mode" title="Pan Canvas (H / Spacebar)" class="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-xl transition-all bg-indigo-600 text-white shadow-sm shrink-0">
             <i class="fa-solid fa-hand"></i>
             <span class="hidden md:inline">Pan</span>
           </button>
@@ -1157,7 +1157,7 @@
       edges: initial.edges,
       selectedNodeIds: new Set(),
       selectedEdgeId: null,
-      mode: 'select',
+      mode: 'pan',
       connectSourceId: null,
       view: initial.view,
       lastModified: initial.lastModified,
@@ -2482,6 +2482,9 @@
       if (btnResetDefault) btnResetDefault.addEventListener('click', resetToDefaultDiagram);
       if (btnResetView) btnResetView.addEventListener('click', resetView);
       if (btnCenterDiagram) btnCenterDiagram.addEventListener('click', centerDiagram);
+
+      // Default the sidebar & board mode to pan
+      setAppMode('pan');
 
       if (btnZoomIn) {
         btnZoomIn.addEventListener('click', () => {
