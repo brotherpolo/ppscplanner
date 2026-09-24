@@ -1091,9 +1091,12 @@
               <h1 class="text-xl font-bold tracking-tight">Adam's PPSC Hierarchy</h1>
               <p class="text-xs opacity-60 mt-1">Direct representation of graph nodes and clusters dynamically linked with the canvas.</p>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
               <button id="btn-hierarchy-add-root" class="px-3 py-1.5 text-xs font-semibold text-emerald-600 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-xl transition-all flex items-center gap-1.5">
                 <i class="fa-solid fa-circle-plus"></i> Add Item
+              </button>
+              <button id="btn-hierarchy-export-pdf" class="px-3 py-1.5 text-xs font-semibold text-indigo-600 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 rounded-xl transition-all flex items-center gap-1.5">
+                <i class="fa-solid fa-file-pdf"></i> Export PDF
               </button>
               <button id="btn-collapse-all-tree" class="hierarchy-btn-secondary px-3 py-1.5 text-xs font-semibold border rounded-xl transition-all">
                 <i class="fa-solid fa-angles-up mr-1"></i> Collapse All
@@ -1246,10 +1249,8 @@
     ];
 
     // --- USER PROFILE IMAGES MAPPING BY UID (Optional custom mapping) ---
-    // You can also assign user.photoURL to store pictures per logged-in account
-   const USER_AVATAR_MAP = {
-      "mrnrYxtNwuV8vgru9Gr2KkJ1HzI2": "adam.jpeg",
-      "b0Ji8It6eQOt0G3pvyvqrpWUF1m2": "taylor.jpg" // Make sure this image file is also in your project folder!
+    const USER_AVATAR_MAP = {
+      // "YOUR_FIREBASE_UID_HERE": "adam.jpeg"
     };
 
     // --- 1. FIREBASE CONFIGURATION ---
@@ -2493,6 +2494,40 @@
       }, 500);
     }
 
+    // --- HIERARCHY PAGE PDF EXPORT ---
+    function exportHierarchyToPDF() {
+      showToast("Generating Hierarchy PDF...", 3000);
+      const container = document.getElementById('page-hierarchy');
+      if (!container) return;
+
+      const themeToggleBtn = container.querySelector('.fixed.top-4.right-4');
+      if (themeToggleBtn) themeToggleBtn.style.display = 'none';
+
+      html2canvas(container, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: getComputedStyle(container).backgroundColor || '#ffffff'
+      }).then(canvas => {
+        if (themeToggleBtn) themeToggleBtn.style.display = 'block';
+
+        const imgData = canvas.toDataURL('image/png');
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({
+          orientation: canvas.width > canvas.height ? 'landscape' : 'portrait',
+          unit: 'px',
+          format: [canvas.width, canvas.height]
+        });
+
+        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+        pdf.save('Adam_Pollack_PPSC_Hierarchy.pdf');
+        showToast("Hierarchy PDF exported successfully!");
+      }).catch(err => {
+        console.error("Hierarchy PDF export error:", err);
+        if (themeToggleBtn) themeToggleBtn.style.display = 'block';
+        showToast("Failed to export Hierarchy PDF.");
+      });
+    }
+
     // --- ISOLATED CLUSTER GENERATION (SHIFT + Z + X) ---
     function createIsolatedGroup() {
       pushHistory();
@@ -3180,6 +3215,7 @@
       const btnSelectAll = document.getElementById('btn-select-all');
       const btnDeleteSelected = document.getElementById('btn-delete-selected');
       const btnExportPdf = document.getElementById('btn-export-pdf');
+      const btnHierarchyExportPdf = document.getElementById('btn-hierarchy-export-pdf');
       const btnResetDefault = document.getElementById('btn-reset-default');
       const btnResetView = document.getElementById('btn-reset-view');
       const btnCenterDiagram = document.getElementById('btn-center-diagram');
@@ -3206,6 +3242,7 @@
       if (btnUndo) btnUndo.addEventListener('click', performUndo);
       if (btnRedo) btnRedo.addEventListener('click', performRedo);
       if (btnExportPdf) btnExportPdf.addEventListener('click', exportToPDF);
+      if (btnHierarchyExportPdf) btnHierarchyExportPdf.addEventListener('click', exportHierarchyToPDF);
 
       // Render 15-Color Pickers across interface
       renderColorPickers();
