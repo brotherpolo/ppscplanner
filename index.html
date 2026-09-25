@@ -3557,17 +3557,10 @@
         e.stopPropagation();
         e.preventDefault();
 
-        const rect = modalBoxEl.getBoundingClientRect();
-        
-        modalBoxEl.style.transform = 'none';
-        modalBoxEl.style.position = 'absolute';
-        modalBoxEl.style.left = `${rect.left}px`;
-        modalBoxEl.style.top = `${rect.top}px`;
-
         const startX = e.clientX;
         const startY = e.clientY;
-        const startLeft = rect.left;
-        const startTop = rect.top;
+        const startLeft = modalBoxEl.offsetLeft;
+        const startTop = modalBoxEl.offsetTop;
 
         const onMouseMove = (ev) => {
           ev.stopPropagation();
