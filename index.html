@@ -170,7 +170,8 @@
     }
 
     .edge-line.directed {
-      stroke-dasharray: 6, 4;
+      stroke: #10b981 !important;
+      stroke-dasharray: 4, 6;
       stroke-width: 3px;
     }
 
@@ -943,10 +944,10 @@
             <span class="hidden md:inline">Connect</span>
           </button>
 
-          <!-- Directed Flow Connect Mode Button -->
-          <button id="btn-connect-directed-mode" title="Connect One-Way Arrow Flow (A)" class="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-xl transition-all shrink-0">
-            <i class="fa-solid fa-arrow-right"></i>
-            <span class="hidden md:inline">Arrow Flow</span>
+          <!-- Green Dotted Flow Connect Mode Button -->
+          <button id="btn-connect-directed-mode" title="Connect Green Dotted Flow (A)" class="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-xl transition-all shrink-0">
+            <i class="fa-solid fa-ellipsis text-emerald-500"></i>
+            <span class="hidden md:inline">Dotted Flow</span>
           </button>
 
           <button id="btn-pan-mode" title="Pan Canvas (H / Spacebar)" class="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-xl transition-all bg-indigo-600 text-white shadow-sm shrink-0">
@@ -1834,38 +1835,6 @@
         visualPath.setAttribute("class", edgeClass);
         visualPath.dataset.edgeId = edge.id;
 
-        g.appendChild(hitPath);
-        g.appendChild(visualPath);
-
-        // Render explicit arrowhead polygon at target node
-        if (edge.directed) {
-          const dx = targetNode.x - sourceNode.x;
-          const dy = targetNode.y - sourceNode.y;
-          const len = Math.hypot(dx, dy) || 1;
-          const udx = dx / len;
-          const udy = dy / len;
-          
-          const arrowX = targetNode.x - udx * 40;
-          const arrowY = targetNode.y - udy * 40;
-          const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-
-          const arrowPolygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
-          arrowPolygon.setAttribute("points", "0,-6 14,0 0,6");
-          arrowPolygon.setAttribute("transform", `translate(${arrowX}, ${arrowY}) rotate(${angle})`);
-          
-          const isSelected = state.selectedEdgeId === edge.id;
-          arrowPolygon.setAttribute("fill", isSelected ? "#ef4444" : "#64748b");
-          arrowPolygon.setAttribute("class", "edge-arrow");
-          arrowPolygon.dataset.edgeId = edge.id;
-          
-          const onArrowClick = (e) => {
-            e.stopPropagation();
-            deleteEdge(edge.id);
-          };
-          arrowPolygon.addEventListener("click", onArrowClick);
-          g.appendChild(arrowPolygon);
-        }
-
         const onEdgeClick = (e) => {
           e.stopPropagation();
           deleteEdge(edge.id);
@@ -1874,6 +1843,8 @@
         hitPath.addEventListener("click", onEdgeClick);
         visualPath.addEventListener("click", onEdgeClick);
 
+        g.appendChild(hitPath);
+        g.appendChild(visualPath);
         edgesGroupEl.appendChild(g);
       });
 
@@ -1998,36 +1969,15 @@
       if (!edgesGroupEl) return;
       const edgePaths = edgesGroupEl.querySelectorAll('path.edge-line');
       const hitPaths = edgesGroupEl.querySelectorAll('path.edge-hit-area');
-      const arrowPolys = edgesGroupEl.querySelectorAll('polygon.edge-arrow');
 
-      let pathIdx = 0;
-      let arrowIdx = 0;
-
-      state.edges.forEach((edge) => {
+      state.edges.forEach((edge, idx) => {
         const sourceNode = state.nodes.find(n => n.id === edge.source);
         const targetNode = state.nodes.find(n => n.id === edge.target);
         if (!sourceNode || !targetNode) return;
 
         const d = createCurvedPath(sourceNode.x, sourceNode.y, targetNode.x, targetNode.y);
-        if (edgePaths[pathIdx]) edgePaths[pathIdx].setAttribute("d", d);
-        if (hitPaths[pathIdx]) hitPaths[pathIdx].setAttribute("d", d);
-        pathIdx++;
-
-        if (edge.directed && arrowPolys[arrowIdx]) {
-          const dx = targetNode.x - sourceNode.x;
-          const dy = targetNode.y - sourceNode.y;
-          const len = Math.hypot(dx, dy) || 1;
-          const udx = dx / len;
-          const udy = dy / len;
-          
-          const arrowX = targetNode.x - udx * 40;
-          const arrowY = targetNode.y - udy * 40;
-          const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-
-          arrowPolys[arrowIdx].setAttribute("points", "0,-6 14,0 0,6");
-          arrowPolys[arrowIdx].setAttribute("transform", `translate(${arrowX}, ${arrowY}) rotate(${angle})`);
-          arrowIdx++;
-        }
+        if (edgePaths[idx]) edgePaths[idx].setAttribute("d", d);
+        if (hitPaths[idx]) hitPaths[idx].setAttribute("d", d);
       });
     }
 
@@ -2044,12 +1994,6 @@
       const edgeElements = edgesGroupEl.querySelectorAll('path.edge-line');
       edgeElements.forEach(line => {
         line.classList.toggle('selected', line.dataset.edgeId === state.selectedEdgeId);
-      });
-
-      const arrowElements = edgesGroupEl.querySelectorAll('polygon.edge-arrow');
-      arrowElements.forEach(arrow => {
-        const isSel = arrow.dataset.edgeId === state.selectedEdgeId;
-        arrow.setAttribute("fill", isSel ? "#ef4444" : "#64748b");
       });
     }
 
@@ -2307,7 +2251,7 @@
       if (!state.connectSourceId) {
         state.connectSourceId = nodeId;
         updateSelectionVisuals();
-        showToast(state.mode === 'connect-directed' ? "Select target node for flow direction." : "Select second node to complete link.");
+        showToast(state.mode === 'connect-directed' ? "Select target node for dotted flow." : "Select second node to complete link.");
       } else if (state.connectSourceId === nodeId) {
         state.connectSourceId = null;
         updateSelectionVisuals();
@@ -2328,7 +2272,7 @@
             directed: isDirected
           });
           commitState(true, true);
-          showToast(isDirected ? "One-way flow created!" : "Relationship connected!");
+          showToast(isDirected ? "Green dotted flow created!" : "Relationship connected!");
         } else {
           showToast("Relationship already exists.");
         }
@@ -2591,7 +2535,7 @@
       } else if (mode === 'connect-directed' && btnConnectDirectedMode) {
         btnConnectDirectedMode.classList.add('bg-indigo-600', 'text-white', 'shadow-sm');
         if (viewportEl) viewportEl.style.cursor = 'crosshair';
-        showToast("Arrow Flow Mode: Tap source node, then target node for directional arrow.");
+        showToast("Dotted Flow Mode: Tap source node, then target node for green dotted line.");
       } else if (mode === 'pan' && btnPanMode) {
         btnPanMode.classList.add('bg-indigo-600', 'text-white', 'shadow-sm');
         if (viewportEl) viewportEl.style.cursor = 'grab';
@@ -4159,7 +4103,7 @@
         let initialTouchDistance = 0;
         let initialZoom = 1;
         let initialTouchCenter = { x: 0, y: 0 };
-        let initialViewAtPinch = { x: 0, y:0 };
+        let initialViewAtPinch = { x: 0, y: 0 };
 
         viewportEl.addEventListener('touchstart', (e) => {
           if (state.editingNodeId && !e.target.closest('#node-inline-editor')) {
