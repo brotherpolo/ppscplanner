@@ -180,6 +180,12 @@
       stroke-dasharray: none !important;
     }
 
+    .edge-arrow {
+      pointer-events: stroke;
+      cursor: pointer;
+      transition: fill 0.15s ease;
+    }
+
     #marquee-box {
       position: absolute;
       border: 1.5px dashed #2563eb;
@@ -1017,9 +1023,6 @@
                 <marker id="arrow" viewBox="0 0 10 10" refX="18" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
                   <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#64748b" />
                 </marker>
-                <marker id="arrow-directed" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-                  <path d="M 0 1 L 9 5 L 0 9 z" fill="context-stroke" />
-                </marker>
               </defs>
               <g id="edges-group"></g>
             </svg>
@@ -1837,8 +1840,34 @@
         visualPath.setAttribute("class", edgeClass);
         visualPath.dataset.edgeId = edge.id;
 
+        g.appendChild(hitPath);
+        g.appendChild(visualPath);
+
+        // If directed, render a clean arrowhead triangle at the target end pointing towards targetNode
         if (edge.directed) {
-          visualPath.setAttribute("marker-end", "url(#arrow-directed)");
+          const dx = targetNode.x - sourceNode.x;
+          const dy = targetNode.y - sourceNode.y;
+          const len = Math.hypot(dx, dy) || 1;
+          const udx = dx / len;
+          const udy = dy / len;
+          
+          // Position arrow slightly back from the target center so it sits nicely on the edge
+          const arrowX = targetNode.x - udx * 36;
+          const arrowY = targetNode.y - udy * 36;
+          const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+
+          const arrowPolygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+          arrowPolygon.setAttribute("points", "0,-5 12,0 0,5");
+          arrowPolygon.setAttribute("transform", `translate(${arrowX}, ${arrowY}) rotate(${angle})`);
+          arrowPolygon.setAttribute("class", `edge-arrow ${state.selectedEdgeId === edge.id ? 'fill-rose-500' : 'fill-slate-500'}`);
+          arrowPolygon.dataset.edgeId = edge.id;
+          
+          const onArrowClick = (e) => {
+            e.stopPropagation();
+            deleteEdge(edge.id);
+          };
+          arrowPolygon.addEventListener("click", onArrowClick);
+          g.appendChild(arrowPolygon);
         }
 
         const onEdgeClick = (e) => {
@@ -1849,8 +1878,6 @@
         hitPath.addEventListener("click", onEdgeClick);
         visualPath.addEventListener("click", onEdgeClick);
 
-        g.appendChild(hitPath);
-        g.appendChild(visualPath);
         edgesGroupEl.appendChild(g);
       });
 
@@ -1973,17 +2000,38 @@
     function updateEdgeCoordinates() {
       const edgesGroupEl = document.getElementById('edges-group');
       if (!edgesGroupEl) return;
-      const edgeElements = edgesGroupEl.querySelectorAll('path.edge-line');
-      const hitElements = edgesGroupEl.querySelectorAll('path.edge-hit-area');
+      const edgePaths = edgesGroupEl.querySelectorAll('path.edge-line');
+      const hitPaths = edgesGroupEl.querySelectorAll('path.edge-hit-area');
+      const arrowPolys = edgesGroupEl.querySelectorAll('polygon.edge-arrow');
 
-      state.edges.forEach((edge, idx) => {
+      let pathIdx = 0;
+      let arrowIdx = 0;
+
+      state.edges.forEach((edge) => {
         const sourceNode = state.nodes.find(n => n.id === edge.source);
         const targetNode = state.nodes.find(n => n.id === edge.target);
         if (!sourceNode || !targetNode) return;
 
         const d = createCurvedPath(sourceNode.x, sourceNode.y, targetNode.x, targetNode.y);
-        if (edgeElements[idx]) edgeElements[idx].setAttribute("d", d);
-        if (hitElements[idx]) hitElements[idx].setAttribute("d", d);
+        if (edgePaths[pathIdx]) edgePaths[pathIdx].setAttribute("d", d);
+        if (hitPaths[pathIdx]) hitPaths[pathIdx].setAttribute("d", d);
+        pathIdx++;
+
+        if (edge.directed && arrowPolys[arrowIdx]) {
+          const dx = targetNode.x - sourceNode.x;
+          const dy = targetNode.y - sourceNode.y;
+          const len = Math.hypot(dx, dy) || 1;
+          const udx = dx / len;
+          const udy = dy / len;
+          
+          const arrowX = targetNode.x - udx * 36;
+          const arrowY = targetNode.y - udy * 36;
+          const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+
+          arrowPolys[arrowIdx].setAttribute("points", "0,-5 12,0 0,5");
+          arrowPolys[arrowIdx].setAttribute("transform", `translate(${arrowX}, ${arrowY}) rotate(${angle})`);
+          arrowIdx++;
+        }
       });
     }
 
@@ -2000,6 +2048,13 @@
       const edgeElements = edgesGroupEl.querySelectorAll('path.edge-line');
       edgeElements.forEach(line => {
         line.classList.toggle('selected', line.dataset.edgeId === state.selectedEdgeId);
+      });
+
+      const arrowElements = edgesGroupEl.querySelectorAll('polygon.edge-arrow');
+      arrowElements.forEach(arrow => {
+        const isSel = arrow.dataset.edgeId === state.selectedEdgeId;
+        arrow.classList.toggle('fill-rose-500', isSel);
+        arrow.classList.toggle('fill-slate-500', !isSel);
       });
     }
 
