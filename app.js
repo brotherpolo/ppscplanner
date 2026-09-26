@@ -125,7 +125,11 @@ function loadInitialState() {
             ...e,
             directed: !!e.directed
           })),
-          tasks: Array.isArray(parsed.tasks) ? parsed.tasks : [],
+          tasks: Array.isArray(parsed.tasks) ? parsed.tasks.map(t => ({
+            ...t,
+            completedAt: t.completedAt || '',
+            completionNotes: t.completionNotes || ''
+          })) : [],
           view: parsed.view || { x: 0, y: 0, zoom: 1 },
           lastModified: parsed.lastModified || 0
         };
@@ -171,6 +175,7 @@ const state = {
   selectedModalItalic: false,
   selectedModalUnderline: false,
   selectedTaskNodeId: null,
+  activeEditingTaskId: null,
   editingNodeId: null,
   inventoryEditingNodeId: null,
   currentPage: 'canvas',
@@ -321,6 +326,16 @@ function cleanClusterLabel(rawText) {
     .replace(/<\/span>/g, '')
     .replace(/\n/g, ' ')
     .trim();
+}
+
+function getLocalDateTimeString(d = new Date()) {
+  const pad = num => String(num).padStart(2, '0');
+  const year = d.getFullYear();
+  const month = pad(d.getMonth() + 1);
+  const day = pad(d.getDate());
+  const hours = pad(d.getHours());
+  const minutes = pad(d.getMinutes());
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
 }
 
 function applyTheme(themeName) {
@@ -1786,6 +1801,47 @@ function openTaskModal(preselectedNodeId = null) {
   descInput.focus();
 }
 
+function openTaskCompletionModal(taskId) {
+  const task = state.tasks.find(t => t.id === taskId);
+  if (!task) return;
+
+  state.activeEditingTaskId = taskId;
+
+  const modal = document.getElementById('task-completion-modal');
+  const nodePillContainer = document.getElementById('completion-modal-node-pill');
+  const descEl = document.getElementById('completion-modal-desc');
+  const checkbox = document.getElementById('completion-status-checkbox');
+  const timeInput = document.getElementById('completion-time-input');
+  const notesInput = document.getElementById('completion-notes-input');
+
+  if (!modal || !descEl || !checkbox || !timeInput || !notesInput) return;
+
+  const linkedNode = state.nodes.find(n => n.id === task.nodeId);
+  const isDark = state.theme === 'dark' || state.theme === 'black';
+
+  if (nodePillContainer) {
+    nodePillContainer.innerHTML = getPillMarkup(linkedNode, isDark);
+  }
+
+  descEl.textContent = task.description || '';
+  checkbox.checked = !!task.completed;
+  notesInput.value = task.completionNotes || '';
+
+  if (task.completedAt) {
+    timeInput.value = task.completedAt;
+  } else {
+    timeInput.value = getLocalDateTimeString();
+  }
+
+  checkbox.onclick = () => {
+    if (checkbox.checked && !timeInput.value) {
+      timeInput.value = getLocalDateTimeString();
+    }
+  };
+
+  modal.classList.remove('hidden');
+}
+
 function renderModalColorChoices() {
   const container = document.getElementById('color-options');
   if (!container) return;
@@ -2066,94 +2122,6 @@ function renderShapePickers() {
       inlineShapeContainer.appendChild(btn);
     });
   }
-}
-
-function openAddModal(parentNodeId = null) {
-  state.modalParentNodeId = parentNodeId;
-
-  const modalEl = document.getElementById('add-node-modal');
-  const modalBox = modalEl ? modalEl.querySelector('.modal-box') : null;
-  const modalTitleEl = document.getElementById('add-modal-title');
-  const labelInput = document.getElementById('node-label-input');
-  const searchInput = document.getElementById('parent-search-input');
-  const dropdownMenu = document.getElementById('parent-dropdown-menu');
-  const selectModalFontsize = document.getElementById('select-modal-fontsize');
-  const modalUrlEl = document.getElementById('node-modal-url');
-  const modalCaptionEl = document.getElementById('node-modal-caption');
-  const btnModalBold = document.getElementById('btn-modal-bold');
-  const btnModalItalic = document.getElementById('btn-modal-italic');
-  const btnModalUnderline = document.getElementById('btn-modal-underline');
-
-  if (!modalEl || !labelInput) return;
-
-  modalEl.classList.remove('hidden');
-
-  if (modalBox) {
-    modalBox.style.transform = 'none';
-    modalBox.style.position = 'absolute';
-    modalBox.style.left = `${(window.innerWidth - modalBox.offsetWidth) / 2}px`;
-    modalBox.style.top = `${(window.innerHeight - modalBox.offsetHeight) / 2}px`;
-  }
-
-  if (searchInput) searchInput.value = '';
-  if (dropdownMenu) dropdownMenu.classList.add('hidden');
-
-  populateParentDropdown(parentNodeId, '');
-
-  if (parentNodeId) {
-    const parentNode = state.nodes.find(n => n.id === parentNodeId);
-    const parentName = parentNode ? cleanClusterLabel(parentNode.linkCaption || parentNode.label) : 'Item';
-    if (modalTitleEl) modalTitleEl.textContent = `Add Child to "${parentName}"`;
-    state.selectedModalColor = parentNode ? parentNode.color : 'red';
-    state.selectedModalShape = parentNode ? (parentNode.shape || 'pill') : 'pill';
-    state.selectedModalFontSize = parentNode ? (parentNode.fontSize || '') : '';
-    state.selectedModalBgColor = parentNode ? (parentNode.bgColor || '') : '';
-    state.selectedModalTextColor = parentNode ? (parentNode.textColor || '') : '';
-    state.selectedModalBold = parentNode ? !!parentNode.isBold : false;
-    state.selectedModalItalic = parentNode ? !!parentNode.isItalic : false;
-    state.selectedModalUnderline = parentNode ? !!parentNode.isUnderline : false;
-  } else {
-    if (modalTitleEl) modalTitleEl.textContent = 'Create New Node';
-    state.selectedModalColor = 'red';
-    state.selectedModalShape = 'pill';
-    state.selectedModalFontSize = '';
-    state.selectedModalBgColor = '';
-    state.selectedModalTextColor = '';
-    state.selectedModalBold = false;
-    state.selectedModalItalic = false;
-    state.selectedModalUnderline = false;
-  }
-
-  if (selectModalFontsize) selectModalFontsize.value = state.selectedModalFontSize;
-  if (modalUrlEl) modalUrlEl.value = '';
-  if (modalCaptionEl) modalCaptionEl.value = '';
-
-  if (btnModalBold) {
-    btnModalBold.classList.toggle('bg-indigo-600', state.selectedModalBold);
-    btnModalBold.classList.toggle('text-white', state.selectedModalBold);
-  }
-  if (btnModalItalic) {
-    btnModalItalic.classList.toggle('bg-indigo-600', state.selectedModalItalic);
-    btnModalItalic.classList.toggle('text-white', state.selectedModalItalic);
-  }
-  if (btnModalUnderline) {
-    btnModalUnderline.classList.toggle('bg-indigo-600', state.selectedModalUnderline);
-    btnModalUnderline.classList.toggle('text-white', state.selectedModalUnderline);
-  }
-
-  renderModalColorChoices();
-  renderModalBgColorChoices();
-  renderModalTextColorChoices();
-  renderModalShapeChoices();
-
-  labelInput.value = '';
-  setTimeout(() => {
-    if (modalBox) {
-      modalBox.style.left = `${(window.innerWidth - modalBox.offsetWidth) / 2}px`;
-      modalBox.style.top = `${(window.innerHeight - modalBox.offsetHeight) / 2}px`;
-    }
-    labelInput.focus();
-  }, 30);
 }
 
 function switchPage(pageId) {
@@ -2496,6 +2464,9 @@ function renderTasksList(searchFilter = '') {
     checkbox.addEventListener('change', () => {
       pushHistory();
       task.completed = checkbox.checked;
+      if (task.completed && !task.completedAt) {
+        task.completedAt = getLocalDateTimeString();
+      }
       commitState(true, true);
       renderTasksList(taskSearchQuery());
     });
@@ -2610,12 +2581,7 @@ function renderCalendarView() {
 
       taskBadge.addEventListener('click', (e) => {
         e.stopPropagation();
-        switchPage('tasks');
-        const searchInput = document.getElementById('tasks-search');
-        if (searchInput) {
-          searchInput.value = task.description;
-          renderTasksList(task.description);
-        }
+        openTaskCompletionModal(task.id);
       });
 
       tasksContainer.appendChild(taskBadge);
@@ -2970,6 +2936,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const marqueeBoxEl = document.getElementById('marquee-box');
   const modalEl = document.getElementById('add-node-modal');
   const taskModalEl = document.getElementById('task-modal');
+  const completionModalEl = document.getElementById('task-completion-modal');
   const labelInput = document.getElementById('node-label-input');
   const sidebar = document.getElementById('sidebar');
 
@@ -2978,10 +2945,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const addModalHeader = document.querySelector('#add-node-modal h3')?.parentElement;
   const taskModalBox = document.querySelector('#task-modal .modal-box');
   const taskModalHeader = document.querySelector('#task-modal h3')?.parentElement;
+  const completionModalBox = document.querySelector('#task-completion-modal .modal-box');
+  const completionModalHeader = document.querySelector('#task-completion-modal h3')?.parentElement;
 
   if (inlineEditorEl) makeModalDraggable(inlineEditorEl, inlineEditorEl.querySelector('div:first-child'));
   if (addNodeModalBox && addModalHeader) makeModalDraggable(addNodeModalBox, addModalHeader);
   if (taskModalBox && taskModalHeader) makeModalDraggable(taskModalBox, taskModalHeader);
+  if (completionModalBox && completionModalHeader) makeModalDraggable(completionModalBox, completionModalHeader);
 
   const btnSelectMode = document.getElementById('btn-select-mode');
   const btnConnectMode = document.getElementById('btn-connect-mode');
@@ -3013,6 +2983,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnCloseTaskModal = document.getElementById('btn-close-task-modal');
   const btnCancelTaskModal = document.getElementById('btn-cancel-task-modal');
   const btnConfirmTask = document.getElementById('btn-confirm-task');
+
+  const btnCloseCompletionModal = document.getElementById('btn-close-completion-modal');
+  const btnCancelCompletionModal = document.getElementById('btn-cancel-completion-modal');
+  const btnSaveCompletion = document.getElementById('btn-save-completion');
+  const btnDeleteCompletionTask = document.getElementById('btn-delete-completion-task');
+
   const btnSignOut = document.getElementById('btn-sign-out');
   const loginBtn = document.getElementById('btn-login-submit');
   const loginPassword = document.getElementById('login-password');
@@ -3316,6 +3292,55 @@ document.addEventListener("DOMContentLoaded", () => {
   if (btnCloseTaskModal && taskModalEl) btnCloseTaskModal.addEventListener('click', () => taskModalEl.classList.add('hidden'));
   if (btnCancelTaskModal && taskModalEl) btnCancelTaskModal.addEventListener('click', () => taskModalEl.classList.add('hidden'));
 
+  if (btnCloseCompletionModal && completionModalEl) btnCloseCompletionModal.addEventListener('click', () => completionModalEl.classList.add('hidden'));
+  if (btnCancelCompletionModal && completionModalEl) btnCancelCompletionModal.addEventListener('click', () => completionModalEl.classList.add('hidden'));
+
+  if (btnSaveCompletion) {
+    btnSaveCompletion.addEventListener('click', () => {
+      if (!state.activeEditingTaskId) return;
+
+      const task = state.tasks.find(t => t.id === state.activeEditingTaskId);
+      if (!task) return;
+
+      const checkbox = document.getElementById('completion-status-checkbox');
+      const timeInput = document.getElementById('completion-time-input');
+      const notesInput = document.getElementById('completion-notes-input');
+
+      pushHistory();
+
+      task.completed = checkbox ? checkbox.checked : false;
+      task.completedAt = timeInput ? timeInput.value : '';
+      task.completionNotes = notesInput ? notesInput.value.trim() : '';
+
+      commitState(true, true);
+      completionModalEl.classList.add('hidden');
+      state.activeEditingTaskId = null;
+
+      if (state.currentPage === 'calendar') renderCalendarView();
+      if (state.currentPage === 'tasks') renderTasksList(taskSearchQuery());
+
+      showToast("Task updated!");
+    });
+  }
+
+  if (btnDeleteCompletionTask) {
+    btnDeleteCompletionTask.addEventListener('click', () => {
+      if (!state.activeEditingTaskId) return;
+
+      pushHistory();
+      state.tasks = state.tasks.filter(t => t.id !== state.activeEditingTaskId);
+      commitState(true, true);
+
+      completionModalEl.classList.add('hidden');
+      state.activeEditingTaskId = null;
+
+      if (state.currentPage === 'calendar') renderCalendarView();
+      if (state.currentPage === 'tasks') renderTasksList(taskSearchQuery());
+
+      showToast("Task deleted.");
+    });
+  }
+
   if (btnConfirmTask) {
     btnConfirmTask.addEventListener('click', () => {
       const descInput = document.getElementById('task-desc-input');
@@ -3342,7 +3367,9 @@ document.addEventListener("DOMContentLoaded", () => {
         description: desc,
         dueDate: dueDate,
         nodeId: nodeId,
-        completed: false
+        completed: false,
+        completedAt: '',
+        completionNotes: ''
       });
 
       commitState(true, true);
@@ -3833,7 +3860,11 @@ function initDatabaseSync() {
           ...e,
           directed: !!e.directed
         }));
-        state.tasks = Array.isArray(cloudData.tasks) ? cloudData.tasks : [];
+        state.tasks = Array.isArray(cloudData.tasks) ? cloudData.tasks.map(t => ({
+          ...t,
+          completedAt: t.completedAt || '',
+          completionNotes: t.completionNotes || ''
+        })) : [];
         state.lastModified = cloudTimestamp;
 
         try {
