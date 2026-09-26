@@ -584,6 +584,115 @@ function closeInlineEditor(save = true) {
   renderBoard();
 }
 
+function getDetectedClusters() {
+  const clusterMap = {};
+
+  state.nodes.forEach(node => {
+    const colorKey = node.color || 'gray';
+    if (!clusterMap[colorKey]) {
+      clusterMap[colorKey] = {
+        id: colorKey,
+        color: colorKey,
+        nodes: []
+      };
+    }
+    clusterMap[colorKey].nodes.push(node);
+  });
+
+  return Object.values(clusterMap)
+    .filter(cluster => cluster.nodes.length > 0)
+    .map(cluster => {
+      const colorKey = cluster.color;
+      const nodeIdsInCluster = new Set(cluster.nodes.map(n => n.id));
+      let clusterName = null;
+
+      if (cluster.nodes.length === 1) {
+        clusterName = cleanClusterLabel(cluster.nodes[0].linkCaption || cluster.nodes[0].label);
+      } else {
+        const internalHub = cluster.nodes.find(n => n.isHub || state.edges.some(e => !e.directed && e.source === n.id && nodeIdsInCluster.has(e.target)));
+        if (internalHub) {
+          clusterName = cleanClusterLabel(internalHub.linkCaption || internalHub.label);
+        }
+
+        if (!clusterName) {
+          for (const edge of state.edges) {
+            if (!edge.directed && nodeIdsInCluster.has(edge.target) && !nodeIdsInCluster.has(edge.source)) {
+              const parentNode = state.nodes.find(n => n.id === edge.source);
+              if (parentNode) {
+                clusterName = cleanClusterLabel(parentNode.linkCaption || parentNode.label);
+                break;
+              }
+            }
+          }
+        }
+      }
+
+      if (!clusterName) {
+        clusterName = cleanClusterLabel(cluster.nodes[0].linkCaption || cluster.nodes[0].label) || colorKey;
+      }
+
+      return {
+        id: colorKey,
+        name: clusterName.toUpperCase(),
+        color: colorKey,
+        count: cluster.nodes.length,
+        nodes: cluster.nodes
+      };
+    });
+}
+
+function updateClusterCounts() {
+  const clusterListEl = document.getElementById('sidebar-cluster-list');
+  if (!clusterListEl) return;
+
+  const clusters = getDetectedClusters();
+  clusterListEl.innerHTML = '';
+
+  if (clusters.length === 0) {
+    const emptyNotice = document.createElement('div');
+    emptyNotice.className = "px-3 py-1 text-[11px] opacity-40 italic";
+    emptyNotice.textContent = "No clusters yet";
+    clusterListEl.appendChild(emptyNotice);
+    return;
+  }
+
+  clusters.forEach(cluster => {
+    const btn = document.createElement('button');
+    btn.dataset.clusterKey = cluster.id;
+    btn.className = "w-full flex items-center justify-between px-3 py-1.5 text-xs rounded-lg hover:bg-slate-500/10 transition-colors text-left";
+
+    const hex = COLOR_HEX_MAP[cluster.color] || '#64748b';
+
+    btn.innerHTML = `
+      <div class="flex items-center gap-2 overflow-hidden mr-2">
+        <span style="background-color: ${hex};" class="w-2.5 h-2.5 rounded-full shrink-0 shadow-xs"></span>
+        <span class="font-medium truncate">${cluster.name}</span>
+      </div>
+      <span class="text-[11px] font-semibold opacity-60 shrink-0">${cluster.count}</span>
+    `;
+
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      selectDynamicCluster(cluster.id);
+    });
+
+    btn.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      state.clusterColorTargetRootId = cluster.id;
+      const popover = document.getElementById('cluster-color-popover');
+      if (popover) {
+        popover.style.left = `${Math.min(window.innerWidth - 220, e.clientX + 10)}px`;
+        popover.style.top = `${Math.min(window.innerHeight - 120, e.clientY)}px`;
+        popover.classList.remove('hidden');
+      }
+    });
+
+    clusterListEl.appendChild(btn);
+  });
+}
+
 function renderBoard() {
   const edgesGroupEl = document.getElementById('edges-group');
   const nodesContainerEl = document.getElementById('nodes-container');
