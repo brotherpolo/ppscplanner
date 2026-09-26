@@ -2171,28 +2171,29 @@ function switchPage(pageId) {
   const navTasks = document.getElementById('nav-tasks');
   const navCalendar = document.getElementById('nav-calendar');
 
-  if (!pageCanvas || !pageHierarchy || !pageInventory || !pageTasks || !pageCalendar || !navCanvas || !navHierarchy || !navInventory || !navTasks || !navCalendar) return;
+  const pages = [pageCanvas, pageHierarchy, pageInventory, pageTasks, pageCalendar];
+  const navs = [navCanvas, navHierarchy, navInventory, navTasks, navCalendar];
 
-  [pageCanvas, pageHierarchy, pageInventory, pageTasks, pageCalendar].forEach(p => p.classList.add('hidden'));
-  [navCanvas, navHierarchy, navInventory, navTasks, navCalendar].forEach(n => n.classList.remove('active'));
+  pages.forEach(p => { if (p) p.classList.add('hidden'); });
+  navs.forEach(n => { if (n) n.classList.remove('active'); });
 
-  if (pageId === 'canvas') {
+  if (pageId === 'canvas' && pageCanvas && navCanvas) {
     pageCanvas.classList.remove('hidden');
     navCanvas.classList.add('active');
     applyTransform();
-  } else if (pageId === 'hierarchy') {
+  } else if (pageId === 'hierarchy' && pageHierarchy && navHierarchy) {
     pageHierarchy.classList.remove('hidden');
     navHierarchy.classList.add('active');
     renderHierarchyTree();
-  } else if (pageId === 'inventory') {
+  } else if (pageId === 'inventory' && pageInventory && navInventory) {
     pageInventory.classList.remove('hidden');
     navInventory.classList.add('active');
     renderInventoryList();
-  } else if (pageId === 'tasks') {
+  } else if (pageId === 'tasks' && pageTasks && navTasks) {
     pageTasks.classList.remove('hidden');
     navTasks.classList.add('active');
     renderTasksList();
-  } else if (pageId === 'calendar') {
+  } else if (pageId === 'calendar' && pageCalendar && navCalendar) {
     pageCalendar.classList.remove('hidden');
     navCalendar.classList.add('active');
     renderCalendarView();
@@ -2276,7 +2277,7 @@ function renderInventoryList(searchFilter = '') {
 
       tr.innerHTML = `
         <td class="p-4 align-middle">
-          <button class="btn-inv-save w-7 h-7 rounded-lg bg-emerald-500 text-white flex items-center justify-center hover:bg-emerald-600 transition-colors shadow-xs" title="Save changes">
+          <button class="btn-inv-save w-7 h-7 rounded-lg bg-emerald-500 text-white flex items-center justify-center hover:bg-emerald-600 transition-colors shadow-xs cursor-pointer" title="Save changes">
             <i class="fa-solid fa-check text-xs"></i>
           </button>
         </td>
@@ -2303,7 +2304,7 @@ function renderInventoryList(searchFilter = '') {
           <input type="url" class="inv-edit-url modal-input w-full rounded-lg px-2 py-1 text-xs" value="${node.linkUrl || ''}" placeholder="https://..." />
         </td>
         <td class="p-4 text-right align-middle">
-          <button class="btn-inv-cancel px-2.5 py-1 text-xs font-semibold bg-slate-500/10 hover:bg-slate-500/20 rounded-lg transition-all">
+          <button class="btn-inv-cancel px-2.5 py-1 text-xs font-semibold bg-slate-500/10 hover:bg-slate-500/20 rounded-lg transition-all cursor-pointer">
             Cancel
           </button>
         </td>
@@ -2348,7 +2349,7 @@ function renderInventoryList(searchFilter = '') {
     } else {
       tr.innerHTML = `
         <td class="p-4 align-middle">
-          <button class="btn-inv-edit w-7 h-7 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 flex items-center justify-center transition-colors shadow-xs" title="Edit row">
+          <button class="btn-inv-edit w-7 h-7 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 flex items-center justify-center transition-colors shadow-xs cursor-pointer" title="Edit row">
             <i class="fa-solid fa-pencil text-xs"></i>
           </button>
         </td>
@@ -2373,10 +2374,10 @@ function renderInventoryList(searchFilter = '') {
         </td>
         <td class="p-4 text-right align-middle">
           <div class="flex items-center justify-end gap-2">
-            <button class="btn-inv-add-task px-2.5 py-1 text-xs font-semibold bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 rounded-lg transition-all flex items-center gap-1">
+            <button class="btn-inv-add-task px-2.5 py-1 text-xs font-semibold bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 rounded-lg transition-all flex items-center gap-1 cursor-pointer">
               <i class="fa-solid fa-plus text-[10px]"></i> Task
             </button>
-            <button class="btn-locate-node px-2.5 py-1 text-xs font-semibold bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 rounded-lg transition-all flex items-center gap-1.5">
+            <button class="btn-locate-node px-2.5 py-1 text-xs font-semibold bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer">
               <i class="fa-solid fa-crosshairs text-[11px]"></i> Locate
             </button>
           </div>
@@ -2485,7 +2486,7 @@ function renderTasksList(searchFilter = '') {
         ${task.dueDate || 'No due date'}
       </td>
       <td class="p-4 text-right align-middle">
-        <button class="btn-delete-task px-2 py-1 text-xs font-semibold text-rose-500 hover:bg-rose-500/10 rounded-lg transition-all" title="Delete Task">
+        <button class="btn-delete-task px-2 py-1 text-xs font-semibold text-rose-500 hover:bg-rose-500/10 rounded-lg transition-all cursor-pointer" title="Delete Task">
           <i class="fa-solid fa-trash-can"></i>
         </button>
       </td>
@@ -2556,17 +2557,24 @@ function renderCalendarView() {
     const cell = document.createElement('div');
     const isToday = dateKey === todayStr;
 
-    cell.className = `min-h-[100px] p-2 rounded-xl border flex flex-col gap-1 transition-colors ${
+    cell.className = `min-h-[100px] p-2 rounded-xl border flex flex-col gap-1 transition-colors cursor-pointer ${
       isToday
         ? 'border-indigo-500/80 bg-indigo-500/10 font-bold'
-        : (isDark ? 'border-slate-800 bg-slate-900/40' : 'border-slate-100 bg-slate-50/50')
+        : (isDark ? 'border-slate-800 bg-slate-900/40 hover:bg-slate-800/50' : 'border-slate-100 bg-slate-50/50 hover:bg-slate-100/80')
     }`;
+
+    cell.addEventListener('click', (e) => {
+      if (e.target.closest('.btn-cal-add-task') || e.target.closest('.task-badge')) return;
+      openTaskModal(null);
+      const dateInput = document.getElementById('task-date-input');
+      if (dateInput) dateInput.value = dateKey;
+    });
 
     const header = document.createElement('div');
     header.className = "flex items-center justify-between text-xs";
     header.innerHTML = `
       <span class="${isToday ? 'w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[11px]' : 'opacity-70'}">${day}</span>
-      <button class="btn-cal-add-task text-[10px] opacity-0 hover:opacity-100 text-indigo-500 font-semibold transition-opacity" title="Add Task for this date">+</button>
+      <button class="btn-cal-add-task text-[10px] opacity-40 hover:opacity-100 text-indigo-500 font-semibold transition-opacity cursor-pointer p-0.5" title="Add Task for this date">+</button>
     `;
 
     const addBtn = header.querySelector('.btn-cal-add-task');
@@ -2588,7 +2596,7 @@ function renderCalendarView() {
       const hex = linkedNode ? (COLOR_HEX_MAP[linkedNode.color] || '#64748b') : '#64748b';
 
       const taskBadge = document.createElement('div');
-      taskBadge.className = `px-1.5 py-1 rounded-lg text-[10px] font-medium border flex items-center gap-1 cursor-pointer truncate ${
+      taskBadge.className = `task-badge px-1.5 py-1 rounded-lg text-[10px] font-medium border flex items-center gap-1 cursor-pointer truncate ${
         task.completed ? 'line-through opacity-45' : ''
       }`;
       taskBadge.style.backgroundColor = `${hex}20`;
@@ -2600,7 +2608,8 @@ function renderCalendarView() {
         <span class="truncate">${task.description}</span>
       `;
 
-      taskBadge.addEventListener('click', () => {
+      taskBadge.addEventListener('click', (e) => {
+        e.stopPropagation();
         switchPage('tasks');
         const searchInput = document.getElementById('tasks-search');
         if (searchInput) {
@@ -2664,7 +2673,7 @@ function updateClusterCounts() {
   clusters.forEach(cluster => {
     const btn = document.createElement('button');
     btn.dataset.clusterKey = cluster.id;
-    btn.className = "w-full flex items-center justify-between px-3 py-1.5 text-xs rounded-lg hover:bg-slate-500/10 transition-colors text-left";
+    btn.className = "w-full flex items-center justify-between px-3 py-1.5 text-xs rounded-lg hover:bg-slate-500/10 transition-colors text-left cursor-pointer";
 
     const hex = COLOR_HEX_MAP[cluster.color] || '#64748b';
 
@@ -2737,7 +2746,7 @@ function renderHierarchyTree() {
 
     if (childNodes.length > 0) {
       const toggleBtn = document.createElement('button');
-      toggleBtn.className = "w-6 h-6 rounded-lg opacity-60 hover:opacity-100 flex items-center justify-center text-xs transition-colors shrink-0";
+      toggleBtn.className = "w-6 h-6 rounded-lg opacity-60 hover:opacity-100 flex items-center justify-center text-xs transition-colors shrink-0 cursor-pointer";
       toggleBtn.innerHTML = '<i class="fa-solid fa-chevron-down transition-transform"></i>';
       toggleBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -2773,7 +2782,7 @@ function renderHierarchyTree() {
     actionsDesktop.className = "tree-actions-desktop opacity-80 group-hover:opacity-100 transition-opacity";
 
     const btnAddChild = document.createElement('button');
-    btnAddChild.className = "px-2 py-1 text-xs font-medium text-emerald-500 hover:bg-emerald-500/10 rounded-lg transition-all flex items-center gap-1";
+    btnAddChild.className = "px-2 py-1 text-xs font-medium text-emerald-500 hover:bg-emerald-500/10 rounded-lg transition-all flex items-center gap-1 cursor-pointer";
     btnAddChild.title = "Add Sub-item";
     btnAddChild.innerHTML = '<i class="fa-solid fa-plus text-[11px]"></i><span>Add</span>';
     btnAddChild.addEventListener('click', (e) => {
@@ -2783,7 +2792,7 @@ function renderHierarchyTree() {
     actionsDesktop.appendChild(btnAddChild);
 
     const btnLocate = document.createElement('button');
-    btnLocate.className = "px-2 py-1 text-xs font-medium opacity-70 hover:opacity-100 hover:text-indigo-400 hover:bg-indigo-500/10 rounded-lg transition-all flex items-center gap-1";
+    btnLocate.className = "px-2 py-1 text-xs font-medium opacity-70 hover:opacity-100 hover:text-indigo-400 hover:bg-indigo-500/10 rounded-lg transition-all flex items-center gap-1 cursor-pointer";
     btnLocate.title = "Locate on Canvas";
     btnLocate.innerHTML = '<i class="fa-solid fa-crosshairs text-[11px]"></i><span>Locate</span>';
     btnLocate.addEventListener('click', (e) => {
@@ -2793,7 +2802,7 @@ function renderHierarchyTree() {
     actionsDesktop.appendChild(btnLocate);
 
     const btnDeleteRow = document.createElement('button');
-    btnDeleteRow.className = "px-2 py-1 text-xs font-medium opacity-50 hover:opacity-100 hover:text-rose-500 hover:bg-rose-500/10 rounded-lg transition-all";
+    btnDeleteRow.className = "px-2 py-1 text-xs font-medium opacity-50 hover:opacity-100 hover:text-rose-500 hover:bg-rose-500/10 rounded-lg transition-all cursor-pointer";
     btnDeleteRow.title = "Delete Item";
     btnDeleteRow.innerHTML = '<i class="fa-solid fa-trash-can text-[11px]"></i>';
     btnDeleteRow.addEventListener('click', (e) => {
@@ -2809,14 +2818,14 @@ function renderHierarchyTree() {
     actionsMobile.className = "tree-actions-mobile";
 
     const dotsBtn = document.createElement('button');
-    dotsBtn.className = "w-7 h-7 rounded-lg flex items-center justify-center opacity-60 hover:opacity-100 hover:bg-slate-500/10 transition-colors";
+    dotsBtn.className = "w-7 h-7 rounded-lg flex items-center justify-center opacity-60 hover:opacity-100 hover:bg-slate-500/10 transition-colors cursor-pointer";
     dotsBtn.innerHTML = '<i class="fa-solid fa-ellipsis-vertical text-xs"></i>';
 
     const dropdownMenu = document.createElement('div');
     dropdownMenu.className = "hidden absolute right-0 top-full mt-1 z-50 min-w-[140px] rounded-xl border p-1.5 flex flex-col gap-1 tree-mobile-menu";
 
     const mobAddOpt = document.createElement('button');
-    mobAddOpt.className = "w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium text-emerald-500 hover:bg-emerald-500/10 flex items-center gap-2";
+    mobAddOpt.className = "w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium text-emerald-500 hover:bg-emerald-500/10 flex items-center gap-2 cursor-pointer";
     mobAddOpt.innerHTML = '<i class="fa-solid fa-plus text-[11px] w-4"></i><span>Add</span>';
     mobAddOpt.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -2826,7 +2835,7 @@ function renderHierarchyTree() {
     dropdownMenu.appendChild(mobAddOpt);
 
     const mobLocateOpt = document.createElement('button');
-    mobLocateOpt.className = "w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium opacity-80 hover:opacity-100 hover:bg-indigo-500/10 hover:text-indigo-400 flex items-center gap-2";
+    mobLocateOpt.className = "w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium opacity-80 hover:opacity-100 hover:bg-indigo-500/10 hover:text-indigo-400 flex items-center gap-2 cursor-pointer";
     mobLocateOpt.innerHTML = '<i class="fa-solid fa-crosshairs text-[11px] w-4"></i><span>Locate</span>';
     mobLocateOpt.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -2836,7 +2845,7 @@ function renderHierarchyTree() {
     dropdownMenu.appendChild(mobLocateOpt);
 
     const mobDelOpt = document.createElement('button');
-    mobDelOpt.className = "w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium text-rose-500 hover:bg-rose-500/10 flex items-center gap-2";
+    mobDelOpt.className = "w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium text-rose-500 hover:bg-rose-500/10 flex items-center gap-2 cursor-pointer";
     mobDelOpt.innerHTML = '<i class="fa-solid fa-trash-can text-[11px] w-4"></i><span>Delete</span>';
     mobDelOpt.addEventListener('click', (e) => {
       e.stopPropagation();
