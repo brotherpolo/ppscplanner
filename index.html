@@ -10,11 +10,10 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-
-  <!-- App Stylesheet -->
+  <!-- Custom Styles -->
   <link rel="stylesheet" href="styles.css" />
 
-  <!-- Config file -->
+  <!-- 1. Load config file first -->
   <script src="config.js"></script>
   
   <!-- Firebase JS SDK (Compat Libraries) -->
@@ -84,6 +83,12 @@
             <i class="fa-solid fa-list-check text-base shrink-0"></i>
             <span class="sidebar-label">Tasks</span>
           </button>
+
+          <!-- Calendar View Button (Positioned Below Tasks) -->
+          <button id="nav-calendar" class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-xs transition-all">
+            <i class="fa-solid fa-calendar-days text-base shrink-0"></i>
+            <span class="sidebar-label">Calendar View</span>
+          </button>
         </div>
 
         <div class="px-4 pt-3 pb-1 sidebar-extra">
@@ -97,7 +102,7 @@
       <div class="flex flex-col">
         <div class="px-4 py-1.5 flex items-center justify-between text-[11px] font-mono font-medium opacity-40 select-none">
           <span class="sidebar-label tracking-wider uppercase">Version</span>
-          <span class="mx-auto sidebar-extra font-semibold">v1.0</span>
+          <span class="mx-auto sidebar-extra font-semibold">v0.96</span>
         </div>
 
         <div class="p-3 border-t border-slate-200/50 flex flex-col gap-2">
@@ -135,7 +140,6 @@
             <span class="hidden md:inline">Connect</span>
           </button>
 
-          <!-- Green Dotted Flow Connect Mode Button -->
           <button id="btn-connect-directed-mode" title="Connect Green Dotted Flow (A)" class="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-xl transition-all shrink-0">
             <i class="fa-solid fa-ellipsis text-emerald-500"></i>
             <span class="hidden md:inline">Dotted Flow</span>
@@ -173,7 +177,6 @@
             <span class="hidden lg:inline">Delete</span>
           </button>
 
-          <!-- PNG Export Button -->
           <button id="btn-export-png" title="Export to PNG" class="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-indigo-600 bg-indigo-500/10 hover:bg-indigo-500/20 rounded-xl transition-all shrink-0">
             <i class="fa-solid fa-file-image"></i>
             <span class="hidden sm:inline">PNG</span>
@@ -415,6 +418,40 @@
         </div>
       </section>
 
+      <!-- Calendar View Page Section -->
+      <section id="page-calendar" class="app-page hidden overflow-y-auto p-4 sm:p-8">
+        <div class="max-w-6xl mx-auto flex flex-col gap-6 pb-20 pt-10 sm:pt-4">
+          <div class="hierarchy-surface flex flex-col sm:flex-row sm:items-center justify-between gap-4 border p-6 rounded-2xl shadow-sm transition-colors">
+            <div>
+              <h1 class="text-xl font-bold tracking-tight">Calendar Schedule</h1>
+              <p class="text-xs opacity-60 mt-1">View scheduled node tasks in an interactive monthly calendar.</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="flex items-center gap-1.5 bg-slate-500/10 p-1 rounded-xl border border-slate-500/20">
+                <button id="btn-cal-prev" class="w-8 h-8 rounded-lg hover:bg-slate-500/20 flex items-center justify-center text-xs transition-colors">
+                  <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <span id="cal-month-year" class="px-3 text-xs font-bold font-mono tracking-wide">Month Year</span>
+                <button id="btn-cal-next" class="w-8 h-8 rounded-lg hover:bg-slate-500/20 flex items-center justify-center text-xs transition-colors">
+                  <i class="fa-solid fa-chevron-right"></i>
+                </button>
+              </div>
+              <button id="btn-cal-today" class="px-3 py-2 text-xs font-semibold bg-indigo-600 text-white rounded-xl shadow hover:bg-indigo-700 transition-colors">
+                Today
+              </button>
+            </div>
+          </div>
+
+          <div class="hierarchy-surface border rounded-2xl shadow-sm overflow-hidden p-4 sm:p-6 transition-colors">
+            <div class="grid grid-cols-7 gap-1 text-center font-bold text-xs uppercase opacity-60 pb-3 border-b border-slate-500/20">
+              <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+            </div>
+            <div id="calendar-grid" class="grid grid-cols-7 gap-1 sm:gap-2 pt-2 min-h-[500px]">
+            </div>
+          </div>
+        </div>
+      </section>
+
     </main>
   </div>
 
@@ -511,7 +548,7 @@
     </div>
   </div>
 
-  <!-- Create Task Modal with Custom Pill Dropdown -->
+  <!-- Create Task Modal -->
   <div id="task-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
     <div class="modal-box rounded-2xl p-5 sm:p-6 w-full max-w-sm flex flex-col gap-4">
       <div class="flex items-center justify-between">
@@ -559,6 +596,24 @@
     </div>
   </div>
 
+  <!-- Task Details Popover for Calendar -->
+  <div id="calendar-task-popover" class="fixed z-[160] hidden glass-panel border border-slate-500/30 p-4 rounded-2xl shadow-2xl flex flex-col gap-3 min-w-[260px] max-w-[320px]">
+    <div class="flex items-center justify-between pb-2 border-b border-slate-500/20">
+      <span class="font-bold text-xs uppercase tracking-wider opacity-60">Task Details</span>
+      <button id="btn-close-cal-popover" class="opacity-60 hover:opacity-100 p-0.5">
+        <i class="fa-solid fa-xmark text-sm"></i>
+      </button>
+    </div>
+    <div id="cal-popover-node-pill" class="flex items-center justify-start"></div>
+    <p id="cal-popover-desc" class="text-xs font-medium leading-relaxed opacity-90"></p>
+    <div class="flex items-center justify-between pt-2 border-t border-slate-500/20 text-[11px]">
+      <span id="cal-popover-date" class="font-mono opacity-60"></span>
+      <button id="btn-cal-popover-locate" class="px-2.5 py-1 bg-indigo-500/10 text-indigo-600 hover:bg-indigo-500/20 rounded-lg font-semibold flex items-center gap-1 transition-colors">
+        <i class="fa-solid fa-crosshairs text-[10px]"></i> Locate Node
+      </button>
+    </div>
+  </div>
+
   <div id="toast" class="fixed top-16 sm:top-20 left-1/2 -translate-x-1/2 z-50 glass-panel border border-slate-500/30 text-xs px-4 py-2 rounded-xl shadow-lg transition-opacity duration-300 opacity-0 pointer-events-none text-center whitespace-nowrap">
     Notice
   </div>
@@ -587,7 +642,7 @@
     </div>
   </div>
 
-  <!-- Main JavaScript App Logic -->
+  <!-- Application Logic -->
   <script src="app.js"></script>
 </body>
 </html>
