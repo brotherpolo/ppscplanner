@@ -893,6 +893,11 @@
             <i class="fa-solid fa-sitemap text-base shrink-0"></i>
             <span class="sidebar-label">Hierarchy View</span>
           </button>
+
+          <button id="nav-inventory" class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-xs transition-all">
+            <i class="fa-solid fa-table-list text-base shrink-0"></i>
+            <span class="sidebar-label">Inventory List</span>
+          </button>
         </div>
 
         <div class="px-4 pt-3 pb-1 sidebar-extra">
@@ -1127,6 +1132,43 @@
           </div>
 
           <div id="tree-container" class="hierarchy-surface border p-6 sm:p-8 rounded-2xl shadow-sm flex flex-col gap-4 transition-colors">
+          </div>
+        </div>
+      </section>
+
+      <!-- New Inventory List Page Section -->
+      <section id="page-inventory" class="app-page hidden overflow-y-auto p-4 sm:p-8">
+        <div class="max-w-6xl mx-auto flex flex-col gap-6 pb-20 pt-10 sm:pt-4">
+          <div class="hierarchy-surface flex flex-col sm:flex-row sm:items-center justify-between gap-4 border p-6 rounded-2xl shadow-sm transition-colors">
+            <div>
+              <h1 class="text-xl font-bold tracking-tight">Nodes Inventory List</h1>
+              <p class="text-xs opacity-60 mt-1">Complete record database of all canvas nodes with properties and location metrics.</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs opacity-40"></i>
+                <input type="text" id="inventory-search" placeholder="Search records..." class="modal-input rounded-xl pl-8 pr-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 w-56" />
+              </div>
+            </div>
+          </div>
+
+          <div class="hierarchy-surface border rounded-2xl shadow-sm overflow-hidden transition-colors">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr class="border-b border-slate-500/20 opacity-70 font-semibold uppercase tracking-wider text-[10px]">
+                    <th class="p-4">Node Label</th>
+                    <th class="p-4">Cluster / Color</th>
+                    <th class="p-4">Shape</th>
+                    <th class="p-4">Position (X, Y)</th>
+                    <th class="p-4">Link URL</th>
+                    <th class="p-4 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="inventory-table-body" class="divide-y divide-slate-500/10">
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </section>
@@ -1473,6 +1515,7 @@
       commitState(true, true);
       renderBoard();
       if (state.currentPage === 'hierarchy') renderHierarchyTree();
+      if (state.currentPage === 'inventory') renderInventoryList();
       updateUndoRedoButtons();
       showToast("Undone");
     }
@@ -1498,6 +1541,7 @@
       commitState(true, true);
       renderBoard();
       if (state.currentPage === 'hierarchy') renderHierarchyTree();
+      if (state.currentPage === 'inventory') renderInventoryList();
       updateUndoRedoButtons();
       showToast("Redone");
     }
@@ -1587,6 +1631,9 @@
       if (state.currentPage === 'hierarchy') {
         renderHierarchyTree();
       }
+      if (state.currentPage === 'inventory') {
+        renderInventoryList();
+      }
       populateParentDropdown(state.modalParentNodeId);
       renderModalColorChoices();
       renderModalBgColorChoices();
@@ -1675,6 +1722,7 @@
 
       updateClusterCounts();
       if (state.currentPage === 'hierarchy') renderHierarchyTree();
+      if (state.currentPage === 'inventory') renderInventoryList();
     }
 
     function applyTransform() {
@@ -3283,28 +3331,100 @@
       state.currentPage = pageId;
       const pageCanvas = document.getElementById('page-canvas');
       const pageHierarchy = document.getElementById('page-hierarchy');
+      const pageInventory = document.getElementById('page-inventory');
       const navCanvas = document.getElementById('nav-canvas');
       const navHierarchy = document.getElementById('nav-hierarchy');
+      const navInventory = document.getElementById('nav-inventory');
 
-      if (!pageCanvas || !pageHierarchy || !navCanvas || !navHierarchy) return;
+      if (!pageCanvas || !pageHierarchy || !pageInventory || !navCanvas || !navHierarchy || !navInventory) return;
+
+      pageCanvas.classList.add('hidden');
+      pageHierarchy.classList.add('hidden');
+      pageInventory.classList.add('hidden');
+
+      navCanvas.classList.remove('active');
+      navHierarchy.classList.remove('active');
+      navInventory.classList.remove('active');
 
       if (pageId === 'canvas') {
         pageCanvas.classList.remove('hidden');
-        pageHierarchy.classList.add('hidden');
-
         navCanvas.classList.add('active');
-        navHierarchy.classList.remove('active');
-
         applyTransform();
       } else if (pageId === 'hierarchy') {
-        pageCanvas.classList.add('hidden');
         pageHierarchy.classList.remove('hidden');
-
         navHierarchy.classList.add('active');
-        navCanvas.classList.remove('active');
-
         renderHierarchyTree();
+      } else if (pageId === 'inventory') {
+        pageInventory.classList.remove('hidden');
+        navInventory.classList.add('active');
+        renderInventoryList();
       }
+    }
+
+    function renderInventoryList(searchFilter = '') {
+      const tbody = document.getElementById('inventory-table-body');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      const isDark = state.theme === 'dark' || state.theme === 'black';
+      const query = searchFilter.toLowerCase().trim();
+
+      const filteredNodes = state.nodes.filter(node => {
+        if (!query) return true;
+        const labelText = cleanClusterLabel(node.linkCaption || node.label).toLowerCase();
+        const colorText = (node.color || '').toLowerCase();
+        const shapeText = (node.shape || '').toLowerCase();
+        return labelText.includes(query) || colorText.includes(query) || shapeText.includes(query);
+      });
+
+      if (filteredNodes.length === 0) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td colspan="6" class="p-6 text-center opacity-50 italic">No inventory nodes found</td>`;
+        tbody.appendChild(tr);
+        return;
+      }
+
+      filteredNodes.forEach(node => {
+        const tr = document.createElement('tr');
+        tr.className = isDark ? 'hover:bg-slate-800/40 transition-colors' : 'hover:bg-slate-50 transition-colors';
+
+        const cleanLabel = cleanClusterLabel(node.linkCaption || node.label);
+        const hex = COLOR_HEX_MAP[node.color] || '#64748b';
+
+        tr.innerHTML = `
+          <td class="p-4 font-semibold">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full shrink-0" style="background-color: ${hex};"></span>
+              <span class="truncate max-w-[220px]">${cleanLabel}</span>
+              ${node.isHub ? '<span class="text-[9px] font-bold uppercase tracking-wider text-indigo-500 bg-indigo-500/10 border border-indigo-500/30 px-1.5 py-0.2 rounded">Hub</span>' : ''}
+            </div>
+          </td>
+          <td class="p-4 uppercase text-[10px] font-bold opacity-80">
+            <span class="px-2 py-0.5 rounded-md" style="background-color: ${hex}25; color: ${hex};">${node.color || 'gray'}</span>
+          </td>
+          <td class="p-4 capitalize opacity-70">
+            ${node.shape || 'pill'}
+          </td>
+          <td class="p-4 font-mono text-[11px] opacity-75">
+            X: ${node.x}, Y: ${node.y}
+          </td>
+          <td class="p-4 truncate max-w-[180px]">
+            ${node.linkUrl ? `<a href="${node.linkUrl}" target="_blank" class="text-indigo-500 underline truncate block">${node.linkUrl}</a>` : '<span class="opacity-35 italic">None</span>'}
+          </td>
+          <td class="p-4 text-right">
+            <button class="btn-locate-node px-2.5 py-1 text-xs font-semibold bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 rounded-lg transition-all flex items-center gap-1.5 ml-auto">
+              <i class="fa-solid fa-crosshairs text-[11px]"></i> Locate
+            </button>
+          </td>
+        `;
+
+        const locateBtn = tr.querySelector('.btn-locate-node');
+        locateBtn.addEventListener('click', () => {
+          focusNodeOnCanvas(node.id);
+        });
+
+        tbody.appendChild(tr);
+      });
     }
 
     function changeClusterColor(rootId, newColor) {
@@ -3320,6 +3440,7 @@
       renderBoard();
       updateClusterCounts();
       if (state.currentPage === 'hierarchy') renderHierarchyTree();
+      if (state.currentPage === 'inventory') renderInventoryList();
       showToast(`Cluster color updated to ${newColor}!`);
     }
 
@@ -3652,6 +3773,7 @@
       const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
       const navCanvas = document.getElementById('nav-canvas');
       const navHierarchy = document.getElementById('nav-hierarchy');
+      const navInventory = document.getElementById('nav-inventory');
       const btnCloseModal = document.getElementById('btn-close-modal');
       const btnCancelModal = document.getElementById('btn-cancel-modal');
       const btnConfirmAdd = document.getElementById('btn-confirm-add');
@@ -3809,6 +3931,13 @@
         parentSearchInput.addEventListener('click', (e) => e.stopPropagation());
       }
 
+      const inventorySearchInput = document.getElementById('inventory-search');
+      if (inventorySearchInput) {
+        inventorySearchInput.addEventListener('input', (e) => {
+          renderInventoryList(e.target.value);
+        });
+      }
+
       if (btnSelectMode) btnSelectMode.addEventListener('click', () => setAppMode('select'));
       if (btnConnectMode) btnConnectMode.addEventListener('click', () => setAppMode('connect'));
       if (btnConnectDirectedMode) btnConnectDirectedMode.addEventListener('click', () => setAppMode('connect-directed'));
@@ -3849,6 +3978,7 @@
 
       if (navCanvas) navCanvas.addEventListener('click', () => switchPage('canvas'));
       if (navHierarchy) navHierarchy.addEventListener('click', () => switchPage('hierarchy'));
+      if (navInventory) navInventory.addEventListener('click', () => switchPage('inventory'));
 
       if (btnCloseModal && modalEl) btnCloseModal.addEventListener('click', () => modalEl.classList.add('hidden'));
       if (btnCancelModal && modalEl) btnCancelModal.addEventListener('click', () => modalEl.classList.add('hidden'));
@@ -3933,6 +4063,7 @@
           if (modalEl) modalEl.classList.add('hidden');
           renderBoard();
           if (state.currentPage === 'hierarchy') renderHierarchyTree();
+          if (state.currentPage === 'inventory') renderInventoryList();
           showToast(`Added "${text}"`);
           state.modalParentNodeId = null;
         });
@@ -4343,6 +4474,7 @@
 
             renderBoard();
             if (state.currentPage === 'hierarchy') renderHierarchyTree();
+            if (state.currentPage === 'inventory') renderInventoryList();
             isIncomingSync = false;
             setSaveStatus('synced', cloudTimestamp);
 
