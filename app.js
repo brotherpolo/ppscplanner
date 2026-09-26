@@ -174,6 +174,7 @@ const state = {
   editingNodeId: null,
   inventoryEditingNodeId: null,
   currentPage: 'canvas',
+  calendarDate: new Date(),
   modalParentNodeId: null,
   contextClickPos: null,
   clusterColorTargetRootId: null,
@@ -234,6 +235,7 @@ function performUndo() {
   if (state.currentPage === 'hierarchy') renderHierarchyTree();
   if (state.currentPage === 'inventory') renderInventoryList();
   if (state.currentPage === 'tasks') renderTasksList();
+  if (state.currentPage === 'calendar') renderCalendarView();
   updateUndoRedoButtons();
   showToast("Undone");
 }
@@ -263,6 +265,7 @@ function performRedo() {
   if (state.currentPage === 'hierarchy') renderHierarchyTree();
   if (state.currentPage === 'inventory') renderInventoryList();
   if (state.currentPage === 'tasks') renderTasksList();
+  if (state.currentPage === 'calendar') renderCalendarView();
   updateUndoRedoButtons();
   showToast("Redone");
 }
@@ -358,6 +361,9 @@ function applyTheme(themeName) {
   if (state.currentPage === 'tasks') {
     renderTasksList();
   }
+  if (state.currentPage === 'calendar') {
+    renderCalendarView();
+  }
   populateParentDropdown(state.modalParentNodeId);
   populateTaskNodeDropdown(state.selectedTaskNodeId);
   renderModalColorChoices();
@@ -451,6 +457,7 @@ function commitState(immediateCloud = true, skipHistoryPush = false) {
   if (state.currentPage === 'hierarchy') renderHierarchyTree();
   if (state.currentPage === 'inventory') renderInventoryList();
   if (state.currentPage === 'tasks') renderTasksList();
+  if (state.currentPage === 'calendar') renderCalendarView();
 }
 
 function applyTransform() {
@@ -2156,22 +2163,18 @@ function switchPage(pageId) {
   const pageHierarchy = document.getElementById('page-hierarchy');
   const pageInventory = document.getElementById('page-inventory');
   const pageTasks = document.getElementById('page-tasks');
+  const pageCalendar = document.getElementById('page-calendar');
+
   const navCanvas = document.getElementById('nav-canvas');
   const navHierarchy = document.getElementById('nav-hierarchy');
   const navInventory = document.getElementById('nav-inventory');
   const navTasks = document.getElementById('nav-tasks');
+  const navCalendar = document.getElementById('nav-calendar');
 
-  if (!pageCanvas || !pageHierarchy || !pageInventory || !pageTasks || !navCanvas || !navHierarchy || !navInventory || !navTasks) return;
+  if (!pageCanvas || !pageHierarchy || !pageInventory || !pageTasks || !pageCalendar || !navCanvas || !navHierarchy || !navInventory || !navTasks || !navCalendar) return;
 
-  pageCanvas.classList.add('hidden');
-  pageHierarchy.classList.add('hidden');
-  pageInventory.classList.add('hidden');
-  pageTasks.classList.add('hidden');
-
-  navCanvas.classList.remove('active');
-  navHierarchy.classList.remove('active');
-  navInventory.classList.remove('active');
-  navTasks.classList.remove('active');
+  [pageCanvas, pageHierarchy, pageInventory, pageTasks, pageCalendar].forEach(p => p.classList.add('hidden'));
+  [navCanvas, navHierarchy, navInventory, navTasks, navCalendar].forEach(n => n.classList.remove('active'));
 
   if (pageId === 'canvas') {
     pageCanvas.classList.remove('hidden');
@@ -2189,6 +2192,10 @@ function switchPage(pageId) {
     pageTasks.classList.remove('hidden');
     navTasks.classList.add('active');
     renderTasksList();
+  } else if (pageId === 'calendar') {
+    pageCalendar.classList.remove('hidden');
+    navCalendar.classList.add('active');
+    renderCalendarView();
   }
 }
 
@@ -2505,6 +2512,111 @@ function renderTasksList(searchFilter = '') {
   });
 }
 
+function renderCalendarView() {
+  const gridEl = document.getElementById('calendar-grid');
+  const monthYearEl = document.getElementById('calendar-month-year');
+  if (!gridEl || !monthYearEl) return;
+
+  gridEl.innerHTML = '';
+  const isDark = state.theme === 'dark' || state.theme === 'black';
+
+  const year = state.calendarDate.getFullYear();
+  const month = state.calendarDate.getMonth();
+
+  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  monthYearEl.textContent = `${monthNames[month]} ${year}`;
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const totalDays = new Date(year, month + 1, 0).getDate();
+  const prevMonthTotalDays = new Date(year, month, 0).getDate();
+
+  const todayStr = new Date().toISOString().split('T')[0];
+
+  const taskMap = {};
+  state.tasks.forEach(task => {
+    if (task.dueDate) {
+      if (!taskMap[task.dueDate]) taskMap[task.dueDate] = [];
+      taskMap[task.dueDate].push(task);
+    }
+  });
+
+  for (let i = firstDay - 1; i >= 0; i--) {
+    const dayNum = prevMonthTotalDays - i;
+    const cell = document.createElement('div');
+    cell.className = "min-h-[90px] p-1.5 rounded-xl border border-transparent opacity-30 text-xs font-medium";
+    cell.innerHTML = `<span>${dayNum}</span>`;
+    gridEl.appendChild(cell);
+  }
+
+  for (let day = 1; day <= totalDays; day++) {
+    const monthStr = String(month + 1).padStart(2, '0');
+    const dayStr = String(day).padStart(2, '0');
+    const dateKey = `${year}-${monthStr}-${dayStr}`;
+
+    const cell = document.createElement('div');
+    const isToday = dateKey === todayStr;
+
+    cell.className = `min-h-[100px] p-2 rounded-xl border flex flex-col gap-1 transition-colors ${
+      isToday
+        ? 'border-indigo-500/80 bg-indigo-500/10 font-bold'
+        : (isDark ? 'border-slate-800 bg-slate-900/40' : 'border-slate-100 bg-slate-50/50')
+    }`;
+
+    const header = document.createElement('div');
+    header.className = "flex items-center justify-between text-xs";
+    header.innerHTML = `
+      <span class="${isToday ? 'w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[11px]' : 'opacity-70'}">${day}</span>
+      <button class="btn-cal-add-task text-[10px] opacity-0 hover:opacity-100 text-indigo-500 font-semibold transition-opacity" title="Add Task for this date">+</button>
+    `;
+
+    const addBtn = header.querySelector('.btn-cal-add-task');
+    addBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openTaskModal(null);
+      const dateInput = document.getElementById('task-date-input');
+      if (dateInput) dateInput.value = dateKey;
+    });
+
+    cell.appendChild(header);
+
+    const taskList = taskMap[dateKey] || [];
+    const tasksContainer = document.createElement('div');
+    tasksContainer.className = "flex flex-col gap-1 overflow-y-auto max-h-[80px] no-scrollbar";
+
+    taskList.forEach(task => {
+      const linkedNode = state.nodes.find(n => n.id === task.nodeId);
+      const hex = linkedNode ? (COLOR_HEX_MAP[linkedNode.color] || '#64748b') : '#64748b';
+
+      const taskBadge = document.createElement('div');
+      taskBadge.className = `px-1.5 py-1 rounded-lg text-[10px] font-medium border flex items-center gap-1 cursor-pointer truncate ${
+        task.completed ? 'line-through opacity-45' : ''
+      }`;
+      taskBadge.style.backgroundColor = `${hex}20`;
+      taskBadge.style.borderColor = `${hex}50`;
+      taskBadge.style.color = isDark ? '#ffffff' : hex;
+
+      taskBadge.innerHTML = `
+        <span class="w-1.5 h-1.5 rounded-full shrink-0" style="background-color: ${hex};"></span>
+        <span class="truncate">${task.description}</span>
+      `;
+
+      taskBadge.addEventListener('click', () => {
+        switchPage('tasks');
+        const searchInput = document.getElementById('tasks-search');
+        if (searchInput) {
+          searchInput.value = task.description;
+          renderTasksList(task.description);
+        }
+      });
+
+      tasksContainer.appendChild(taskBadge);
+    });
+
+    cell.appendChild(tasksContainer);
+    gridEl.appendChild(cell);
+  }
+}
+
 function searchQuery() {
   const searchInput = document.getElementById('inventory-search');
   return searchInput ? searchInput.value : '';
@@ -2530,6 +2642,7 @@ function changeClusterColor(rootId, newColor) {
   if (state.currentPage === 'hierarchy') renderHierarchyTree();
   if (state.currentPage === 'inventory') renderInventoryList(searchQuery());
   if (state.currentPage === 'tasks') renderTasksList(taskSearchQuery());
+  if (state.currentPage === 'calendar') renderCalendarView();
   showToast(`Cluster color updated to ${newColor}!`);
 }
 
@@ -2604,7 +2717,6 @@ function renderHierarchyTree() {
       .filter(e => !e.directed && e.source === node.id)
       .map(e => e.target);
 
-    // RULE 2: Only include children sharing the EXACT SAME color
     const childNodes = state.nodes.filter(n => {
       if (!childEdgeTargets.includes(n.id) || visited.has(n.id)) return false;
       return (n.color || 'gray') === (node.color || 'gray');
@@ -2762,7 +2874,6 @@ function renderHierarchyTree() {
 
   treeContainer.appendChild(createTreeNode(primaryRoot, 0));
 
-  // RULE 1: Direct sub-clusters stemming from root
   const directEdgeTargets = state.edges
     .filter(e => !e.directed && (e.source === primaryRoot.id || e.target === primaryRoot.id))
     .map(e => e.source === primaryRoot.id ? e.target : e.source);
@@ -2886,6 +2997,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const navHierarchy = document.getElementById('nav-hierarchy');
   const navInventory = document.getElementById('nav-inventory');
   const navTasks = document.getElementById('nav-tasks');
+  const navCalendar = document.getElementById('nav-calendar');
   const btnCloseModal = document.getElementById('btn-close-modal');
   const btnCancelModal = document.getElementById('btn-cancel-modal');
   const btnConfirmAdd = document.getElementById('btn-confirm-add');
@@ -3046,7 +3158,6 @@ document.addEventListener("DOMContentLoaded", () => {
     parentSearchInput.addEventListener('click', (e) => e.stopPropagation());
   }
 
-  // Setup Task Node Dropdown Event Listeners
   const taskNodeDropdownBtn = document.getElementById('task-node-dropdown-btn');
   const taskNodeDropdownMenu = document.getElementById('task-node-dropdown-menu');
   const taskNodeSearchInput = document.getElementById('task-node-search-input');
@@ -3161,6 +3272,34 @@ document.addEventListener("DOMContentLoaded", () => {
   if (navHierarchy) navHierarchy.addEventListener('click', () => switchPage('hierarchy'));
   if (navInventory) navInventory.addEventListener('click', () => switchPage('inventory'));
   if (navTasks) navTasks.addEventListener('click', () => switchPage('tasks'));
+  if (navCalendar) navCalendar.addEventListener('click', () => switchPage('calendar'));
+
+  const btnCalPrev = document.getElementById('btn-cal-prev');
+  const btnCalNext = document.getElementById('btn-cal-next');
+  const btnCalToday = document.getElementById('btn-cal-today');
+  const btnCalendarOpenTask = document.getElementById('btn-calendar-open-task');
+
+  if (btnCalPrev) {
+    btnCalPrev.addEventListener('click', () => {
+      state.calendarDate.setMonth(state.calendarDate.getMonth() - 1);
+      renderCalendarView();
+    });
+  }
+  if (btnCalNext) {
+    btnCalNext.addEventListener('click', () => {
+      state.calendarDate.setMonth(state.calendarDate.getMonth() + 1);
+      renderCalendarView();
+    });
+  }
+  if (btnCalToday) {
+    btnCalToday.addEventListener('click', () => {
+      state.calendarDate = new Date();
+      renderCalendarView();
+    });
+  }
+  if (btnCalendarOpenTask) {
+    btnCalendarOpenTask.addEventListener('click', () => openTaskModal(null));
+  }
 
   if (btnCloseModal && modalEl) btnCloseModal.addEventListener('click', () => modalEl.classList.add('hidden'));
   if (btnCancelModal && modalEl) btnCancelModal.addEventListener('click', () => modalEl.classList.add('hidden'));
@@ -3199,7 +3338,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       commitState(true, true);
       taskModalEl.classList.add('hidden');
-      renderTasksList(taskSearchQuery());
+      if (state.currentPage === 'tasks') renderTasksList(taskSearchQuery());
+      if (state.currentPage === 'calendar') renderCalendarView();
       showToast("Task created successfully!");
     });
   }
@@ -3286,6 +3426,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (state.currentPage === 'hierarchy') renderHierarchyTree();
       if (state.currentPage === 'inventory') renderInventoryList(searchQuery());
       if (state.currentPage === 'tasks') renderTasksList(taskSearchQuery());
+      if (state.currentPage === 'calendar') renderCalendarView();
       showToast(`Added "${text}"`);
       state.modalParentNodeId = null;
     });
@@ -3700,6 +3841,7 @@ function initDatabaseSync() {
         if (state.currentPage === 'hierarchy') renderHierarchyTree();
         if (state.currentPage === 'inventory') renderInventoryList(searchQuery());
         if (state.currentPage === 'tasks') renderTasksList(taskSearchQuery());
+        if (state.currentPage === 'calendar') renderCalendarView();
         isIncomingSync = false;
         setSaveStatus('synced', cloudTimestamp);
 
