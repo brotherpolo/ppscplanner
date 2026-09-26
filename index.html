@@ -1157,6 +1157,7 @@
               <table class="w-full text-left border-collapse text-xs">
                 <thead>
                   <tr class="border-b border-slate-500/20 opacity-70 font-semibold uppercase tracking-wider text-[10px]">
+                    <th class="p-4 w-10">Edit</th>
                     <th class="p-4 cursor-pointer hover:text-indigo-500 transition-colors select-none" data-sort="label">
                       Node Label <i class="fa-solid fa-sort ml-1 opacity-50"></i>
                     </th>
@@ -1473,6 +1474,7 @@
       selectedModalItalic: false,
       selectedModalUnderline: false,
       editingNodeId: null,
+      inventoryEditingNodeId: null,
       currentPage: 'canvas',
       modalParentNodeId: null,
       contextClickPos: null,
@@ -3341,6 +3343,7 @@
 
     function switchPage(pageId) {
       state.currentPage = pageId;
+      state.inventoryEditingNodeId = null;
       const pageCanvas = document.getElementById('page-canvas');
       const pageHierarchy = document.getElementById('page-hierarchy');
       const pageInventory = document.getElementById('page-inventory');
@@ -3431,52 +3434,146 @@
 
       if (filteredNodes.length === 0) {
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td colspan="6" class="p-6 text-center opacity-50 italic">No inventory nodes found</td>`;
+        tr.innerHTML = `<td colspan="7" class="p-6 text-center opacity-50 italic">No inventory nodes found</td>`;
         tbody.appendChild(tr);
         return;
       }
 
       filteredNodes.forEach(node => {
         const tr = document.createElement('tr');
+        const isEditingThisRow = state.inventoryEditingNodeId === node.id;
         tr.className = isDark ? 'hover:bg-slate-800/40 transition-colors' : 'hover:bg-slate-50 transition-colors';
 
         const cleanLabel = cleanClusterLabel(node.linkCaption || node.label);
         const hex = COLOR_HEX_MAP[node.color] || '#64748b';
 
-        tr.innerHTML = `
-          <td class="p-4 font-semibold">
-            <div class="flex items-center gap-2">
-              <span class="w-3 h-3 rounded-full shrink-0" style="background-color: ${hex};"></span>
-              <span class="truncate max-w-[220px]">${cleanLabel}</span>
-              ${node.isHub ? '<span class="text-[9px] font-bold uppercase tracking-wider text-indigo-500 bg-indigo-500/10 border border-indigo-500/30 px-1.5 py-0.2 rounded">Hub</span>' : ''}
-            </div>
-          </td>
-          <td class="p-4 uppercase text-[10px] font-bold opacity-80">
-            <span class="px-2 py-0.5 rounded-md" style="background-color: ${hex}25; color: ${hex};">${node.color || 'gray'}</span>
-          </td>
-          <td class="p-4 capitalize opacity-70">
-            ${node.shape || 'pill'}
-          </td>
-          <td class="p-4 font-mono text-[11px] opacity-75">
-            X: ${node.x}, Y: ${node.y}
-          </td>
-          <td class="p-4 truncate max-w-[180px]">
-            ${node.linkUrl ? `<a href="${node.linkUrl}" target="_blank" class="text-indigo-500 underline truncate block">${node.linkUrl}</a>` : '<span class="opacity-35 italic">None</span>'}
-          </td>
-          <td class="p-4 text-right">
-            <button class="btn-locate-node px-2.5 py-1 text-xs font-semibold bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 rounded-lg transition-all flex items-center gap-1.5 ml-auto">
-              <i class="fa-solid fa-crosshairs text-[11px]"></i> Locate
-            </button>
-          </td>
-        `;
+        if (isEditingThisRow) {
+          let colorOptionsHTML = PALETTE_15.map(c => `<option value="${c.key}" ${node.color === c.key ? 'selected' : ''}>${c.name}</option>`).join('');
+          let shapeOptionsHTML = SHAPES_8.map(s => `<option value="${s.key}" ${(node.shape || 'pill') === s.key ? 'selected' : ''}>${s.name}</option>`).join('');
 
-        const locateBtn = tr.querySelector('.btn-locate-node');
-        locateBtn.addEventListener('click', () => {
-          focusNodeOnCanvas(node.id);
-        });
+          tr.innerHTML = `
+            <td class="p-4 align-middle">
+              <button class="btn-inv-save w-7 h-7 rounded-lg bg-emerald-500 text-white flex items-center justify-center hover:bg-emerald-600 transition-colors shadow-xs" title="Save changes">
+                <i class="fa-solid fa-check text-xs"></i>
+              </button>
+            </td>
+            <td class="p-4 align-middle">
+              <input type="text" class="inv-edit-label modal-input w-full rounded-lg px-2 py-1 text-xs" value="${node.label.replace(/"/g, '&quot;')}" />
+            </td>
+            <td class="p-4 align-middle">
+              <select class="inv-edit-color modal-input rounded-lg px-2 py-1 text-xs">
+                ${colorOptionsHTML}
+              </select>
+            </td>
+            <td class="p-4 align-middle">
+              <select class="inv-edit-shape modal-input rounded-lg px-2 py-1 text-xs">
+                ${shapeOptionsHTML}
+              </select>
+            </td>
+            <td class="p-4 align-middle font-mono text-[11px]">
+              <div class="flex items-center gap-1">
+                <span>X:</span><input type="number" class="inv-edit-x modal-input w-16 rounded px-1.5 py-0.5 text-xs" value="${node.x}" />
+                <span>Y:</span><input type="number" class="inv-edit-y modal-input w-16 rounded px-1.5 py-0.5 text-xs" value="${node.y}" />
+              </div>
+            </td>
+            <td class="p-4 align-middle">
+              <input type="url" class="inv-edit-url modal-input w-full rounded-lg px-2 py-1 text-xs" value="${node.linkUrl || ''}" placeholder="https://..." />
+            </td>
+            <td class="p-4 text-right align-middle">
+              <button class="btn-inv-cancel px-2.5 py-1 text-xs font-semibold bg-slate-500/10 hover:bg-slate-500/20 rounded-lg transition-all">
+                Cancel
+              </button>
+            </td>
+          `;
+
+          const saveBtn = tr.querySelector('.btn-inv-save');
+          const cancelBtn = tr.querySelector('.btn-inv-cancel');
+
+          saveBtn.addEventListener('click', () => {
+            const newLabel = tr.querySelector('.inv-edit-label').value.trim();
+            const newColor = tr.querySelector('.inv-edit-color').value;
+            const newShape = tr.querySelector('.inv-edit-shape').value;
+            const newX = parseInt(tr.querySelector('.inv-edit-x').value) || node.x;
+            const newY = parseInt(tr.querySelector('.inv-edit-y').value) || node.y;
+            const newUrl = tr.querySelector('.inv-edit-url').value.trim();
+
+            if (!newLabel) {
+              showToast("Node label cannot be empty.");
+              return;
+            }
+
+            pushHistory();
+            node.label = newLabel;
+            node.color = newColor;
+            node.shape = newShape;
+            node.x = newX;
+            node.y = newY;
+            node.linkUrl = newUrl;
+
+            state.inventoryEditingNodeId = null;
+            commitState(true, true);
+            renderBoard();
+            renderInventoryList(searchQuery());
+            showToast("Node updated successfully!");
+          });
+
+          cancelBtn.addEventListener('click', () => {
+            state.inventoryEditingNodeId = null;
+            renderInventoryList(searchQuery());
+          });
+
+        } else {
+          tr.innerHTML = `
+            <td class="p-4 align-middle">
+              <button class="btn-inv-edit w-7 h-7 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 flex items-center justify-center transition-colors shadow-xs" title="Edit row">
+                <i class="fa-solid fa-pencil text-xs"></i>
+              </button>
+            </td>
+            <td class="p-4 font-semibold align-middle">
+              <div class="flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full shrink-0" style="background-color: ${hex};"></span>
+                <span class="truncate max-w-[200px]">${cleanLabel}</span>
+                ${node.isHub ? '<span class="text-[9px] font-bold uppercase tracking-wider text-indigo-500 bg-indigo-500/10 border border-indigo-500/30 px-1.5 py-0.2 rounded">Hub</span>' : ''}
+              </div>
+            </td>
+            <td class="p-4 uppercase text-[10px] font-bold opacity-80 align-middle">
+              <span class="px-2 py-0.5 rounded-md" style="background-color: ${hex}25; color: ${hex};">${node.color || 'gray'}</span>
+            </td>
+            <td class="p-4 capitalize opacity-70 align-middle">
+              ${node.shape || 'pill'}
+            </td>
+            <td class="p-4 font-mono text-[11px] opacity-75 align-middle">
+              X: ${node.x}, Y: ${node.y}
+            </td>
+            <td class="p-4 truncate max-w-[180px] align-middle">
+              ${node.linkUrl ? `<a href="${node.linkUrl}" target="_blank" class="text-indigo-500 underline truncate block">${node.linkUrl}</a>` : '<span class="opacity-35 italic">None</span>'}
+            </td>
+            <td class="p-4 text-right align-middle">
+              <button class="btn-locate-node px-2.5 py-1 text-xs font-semibold bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 rounded-lg transition-all flex items-center gap-1.5 ml-auto">
+                <i class="fa-solid fa-crosshairs text-[11px]"></i> Locate
+              </button>
+            </td>
+          `;
+
+          const editBtn = tr.querySelector('.btn-inv-edit');
+          editBtn.addEventListener('click', () => {
+            state.inventoryEditingNodeId = node.id;
+            renderInventoryList(searchQuery());
+          });
+
+          const locateBtn = tr.querySelector('.btn-locate-node');
+          locateBtn.addEventListener('click', () => {
+            focusNodeOnCanvas(node.id);
+          });
+        }
 
         tbody.appendChild(tr);
       });
+    }
+
+    function searchQuery() {
+      const searchInput = document.getElementById('inventory-search');
+      return searchInput ? searchInput.value : '';
     }
 
     function changeClusterColor(rootId, newColor) {
@@ -3492,7 +3589,7 @@
       renderBoard();
       updateClusterCounts();
       if (state.currentPage === 'hierarchy') renderHierarchyTree();
-      if (state.currentPage === 'inventory') renderInventoryList();
+      if (state.currentPage === 'inventory') renderInventoryList(searchQuery());
       showToast(`Cluster color updated to ${newColor}!`);
     }
 
@@ -4129,7 +4226,7 @@
           if (modalEl) modalEl.classList.add('hidden');
           renderBoard();
           if (state.currentPage === 'hierarchy') renderHierarchyTree();
-          if (state.currentPage === 'inventory') renderInventoryList();
+          if (state.currentPage === 'inventory') renderInventoryList(searchQuery());
           showToast(`Added "${text}"`);
           state.modalParentNodeId = null;
         });
@@ -4540,7 +4637,7 @@
 
             renderBoard();
             if (state.currentPage === 'hierarchy') renderHierarchyTree();
-            if (state.currentPage === 'inventory') renderInventoryList();
+            if (state.currentPage === 'inventory') renderInventoryList(searchQuery());
             isIncomingSync = false;
             setSaveStatus('synced', cloudTimestamp);
 
