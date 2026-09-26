@@ -3931,31 +3931,32 @@
       });
     }
 
-    function renderHierarchyTree() {
+function renderHierarchyTree() {
       const treeContainer = document.getElementById('tree-container');
       if (!treeContainer) return;
       treeContainer.innerHTML = '';
 
       const isDark = state.theme === 'dark' || state.theme === 'black';
 
-      let rootNode = state.nodes.find(n => n.id === 'adam') || state.nodes.find(n => n.isHub) || state.nodes[0];
-      if (!rootNode) return;
+      // Find the primary root node (Adam or first hub)
+      let primaryRoot = state.nodes.find(n => n.id === 'adam') || state.nodes.find(n => n.isHub) || state.nodes[0];
+      if (!primaryRoot) return;
 
       const visited = new Set();
 
-      function createTreeNode(node, level = 0, parentNodeColor = null) {
+      // Recursive function to build tree branch strictly matching colors
+      function createTreeNode(node, level = 0) {
         visited.add(node.id);
         
+        // Find all outgoing edges from this node
         const childEdgeTargets = state.edges
           .filter(e => !e.directed && e.source === node.id)
           .map(e => e.target);
 
+        // RULE 2 ENFORCED: Only include children that share the EXACT SAME color and haven't been visited
         const childNodes = state.nodes.filter(n => {
           if (!childEdgeTargets.includes(n.id) || visited.has(n.id)) return false;
-          if (parentNodeColor && n.color && n.color !== parentNodeColor) {
-            return false;
-          }
-          return true;
+          return (n.color || 'gray') === (node.color || 'gray');
         });
 
         const nodeWrapper = document.createElement('div');
@@ -4005,6 +4006,7 @@
 
         itemRow.appendChild(leftGroup);
 
+        // Desktop Action Buttons
         const actionsDesktop = document.createElement('div');
         actionsDesktop.className = "tree-actions-desktop opacity-80 group-hover:opacity-100 transition-opacity";
 
@@ -4041,6 +4043,7 @@
 
         itemRow.appendChild(actionsDesktop);
 
+        // Mobile Actions Menu
         const actionsMobile = document.createElement('div');
         actionsMobile.className = "tree-actions-mobile";
 
@@ -4096,11 +4099,12 @@
 
         nodeWrapper.appendChild(itemRow);
 
+        // Recursively append children that match color rule
         if (childNodes.length > 0) {
           const branchDiv = document.createElement('div');
           branchDiv.className = "tree-branch-line flex flex-col gap-2 mt-1";
           childNodes.forEach(child => {
-            branchDiv.appendChild(createTreeNode(child, level + 1, node.color));
+            branchDiv.appendChild(createTreeNode(child, level + 1));
           });
           nodeWrapper.appendChild(branchDiv);
         }
@@ -4108,24 +4112,35 @@
         return nodeWrapper;
       }
 
-      treeContainer.appendChild(createTreeNode(rootNode, 0, rootNode.color));
+      // Render the central Root Node (Adam)
+      treeContainer.appendChild(createTreeNode(primaryRoot, 0));
 
-      const unvisitedRoots = state.nodes.filter(n => !visited.has(n.id) && n.color && n.color !== rootNode.color);
-      unvisitedRoots.forEach(ur => {
-        treeContainer.appendChild(createTreeNode(ur, 0, ur.color));
+      // RULE 1 ENFORCED: Find immediate direct connections from Adam that branch into unique clusters
+      const directEdgeTargets = state.edges
+        .filter(e => !e.directed && (e.source === primaryRoot.id || e.target === primaryRoot.id))
+        .map(e => e.source === primaryRoot.id ? e.target : e.source);
+
+      const subClusterRoots = state.nodes.filter(n => directEdgeTargets.includes(n.id) && !visited.has(n.id));
+
+      // Build individual hierarchical branches for each unique sub-cluster
+      subClusterRoots.forEach(clusterRoot => {
+        treeContainer.appendChild(createTreeNode(clusterRoot, 0));
       });
 
+      // Render any remaining completely unvisited/orphan nodes at the bottom
       const orphans = state.nodes.filter(n => !visited.has(n.id));
       if (orphans.length > 0) {
         const orphanSection = document.createElement('div');
         orphanSection.className = "pt-4 border-t border-slate-500/20 flex flex-col gap-2";
         const orphanTitle = document.createElement('div');
         orphanTitle.className = "text-xs font-bold opacity-40 uppercase tracking-wider";
-        orphanTitle.textContent = "Unconnected Nodes";
+        orphanTitle.textContent = "Unconnected / Other Clusters";
         orphanSection.appendChild(orphanTitle);
 
         orphans.forEach(o => {
-          orphanSection.appendChild(createTreeNode(o, 0, o.color));
+          if (!visited.has(o.id)) {
+            orphanSection.appendChild(createTreeNode(o, 0));
+          }
         });
         treeContainer.appendChild(orphanSection);
       }
