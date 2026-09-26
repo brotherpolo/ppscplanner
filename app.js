@@ -3923,3 +3923,30 @@ auth.onAuthStateChanged((user) => {
     hideSplashScreen();
   }
 });
+}
+
+auth.onAuthStateChanged((user) => {
+  const authModal = document.getElementById('auth-modal');
+  const userDisplayEmail = document.getElementById('user-display-email');
+  const avatarContainer = document.getElementById('sidebar-user-avatar-container');
+
+  if (user) {
+    if (authModal) authModal.classList.add('hidden');
+    if (userDisplayEmail) userDisplayEmail.textContent = user.email ? user.email.split('@')[0] : 'Member';
+    
+    if (avatarContainer) {
+      const photoUrl = user.photoURL || USER_AVATAR_MAP[user.uid];
+      if (photoUrl) {
+        avatarContainer.innerHTML = `<img src="${photoUrl}" alt="Avatar" class="w-full h-full object-cover" />`;
+      } else {
+        avatarContainer.innerHTML = `<i class="fa-solid fa-user"></i>`;
+      }
+    }
+
+    initDatabaseSync();
+  } else {
+    if (authModal) authModal.classList.remove('hidden');
+    setSaveStatus('offline');
+    hideSplashScreen();
+  }
+});
