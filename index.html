@@ -338,9 +338,17 @@
 
     .btn-edit-node {
       top: -12px;
-      right: 22px;
+      right: 44px;
     }
     .btn-edit-node:hover, .btn-edit-node:active {
+      transform: scale(1.15);
+    }
+
+    .btn-task-node-quick {
+      top: -12px;
+      right: 22px;
+    }
+    .btn-task-node-quick:hover, .btn-task-node-quick:active {
       transform: scale(1.15);
     }
 
@@ -373,7 +381,8 @@
 
     /* Make Modal Headers Draggable */
     #node-inline-editor > div:first-child,
-    #add-node-modal .modal-box > div:first-child {
+    #add-node-modal .modal-box > div:first-child,
+    #task-modal .modal-box > div:first-child {
       cursor: move;
       user-select: none;
     }
@@ -645,6 +654,7 @@
     body.theme-light .node-action-btn { background: #ffffff; border-color: #cbd5e1; color: #475569; }
     body.theme-light .node-resize-handle { color: #64748b; }
     body.theme-light .btn-edit-node { color: #3b82f6; }
+    body.theme-light .btn-task-node-quick { color: #10b981; }
     body.theme-light .btn-delete-node-quick { color: #ef4444; }
     body.theme-light #node-inline-editor { background: #ffffff; }
     body.theme-light #node-inline-textarea { background: #f8fafc; border: 1px solid #e2e8f0; color: #1e293b; }
@@ -737,6 +747,7 @@
     body.theme-dark .node-action-btn { background: #0f172a; border-color: #334155; color: #94a3b8; }
     body.theme-dark .node-resize-handle { color: #94a3b8; }
     body.theme-dark .btn-edit-node { color: #60a5fa; }
+    body.theme-dark .btn-task-node-quick { color: #34d399; }
     body.theme-dark .btn-delete-node-quick { color: #f87171; }
     body.theme-dark #node-inline-editor { background: #0f172a; border: 1px solid #334155; }
     body.theme-dark #node-inline-textarea { background: #1e293b; border: 1px solid #334155; color: #f8fafc; }
@@ -833,6 +844,7 @@
     body.theme-black .node-action-btn { background: #000000; border-color: #3f3f46; color: #d4d4d8; }
     body.theme-black .node-resize-handle { color: #a1a1aa; }
     body.theme-black .btn-edit-node { color: #93c5fd; }
+    body.theme-black .btn-task-node-quick { color: #34d399; }
     body.theme-black .btn-delete-node-quick { color: #fca5a5; }
     body.theme-black #node-inline-editor { background: #000000; border: 1px solid #3f3f46; }
     body.theme-black #node-inline-textarea { background: #18181b; border: 1px solid #3f3f46; color: #ffffff; }
@@ -897,6 +909,11 @@
           <button id="nav-inventory" class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-xs transition-all">
             <i class="fa-solid fa-table-list text-base shrink-0"></i>
             <span class="sidebar-label">Inventory List</span>
+          </button>
+
+          <button id="nav-tasks" class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-xs transition-all">
+            <i class="fa-solid fa-list-check text-base shrink-0"></i>
+            <span class="sidebar-label">Tasks</span>
           </button>
         </div>
 
@@ -1173,7 +1190,7 @@
                     <th class="p-4 cursor-pointer hover:text-indigo-500 transition-colors select-none" data-sort="url">
                       Link URL <i class="fa-solid fa-sort ml-1 opacity-50"></i>
                     </th>
-                    <th class="p-4 text-right">Action</th>
+                    <th class="p-4 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody id="inventory-table-body" class="divide-y divide-slate-500/10">
@@ -1184,9 +1201,55 @@
         </div>
       </section>
 
+      <!-- Tasks Page Section -->
+      <section id="page-tasks" class="app-page hidden overflow-y-auto p-4 sm:p-8">
+        <div class="max-w-6xl mx-auto flex flex-col gap-6 pb-20 pt-10 sm:pt-4">
+          <div class="hierarchy-surface flex flex-col sm:flex-row sm:items-center justify-between gap-4 border p-6 rounded-2xl shadow-sm transition-colors">
+            <div>
+              <h1 class="text-xl font-bold tracking-tight">Tasks Management</h1>
+              <p class="text-xs opacity-60 mt-1">Manage actions, descriptions, and due dates tied directly to canvas nodes.</p>
+            </div>
+            <div class="flex items-center gap-3 flex-wrap">
+              <div class="relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs opacity-40"></i>
+                <input type="text" id="tasks-search" placeholder="Search tasks..." class="modal-input rounded-xl pl-8 pr-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 w-56" />
+              </div>
+              <button id="btn-open-task-modal" class="px-3 py-1.5 text-xs font-semibold text-emerald-600 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-xl transition-all flex items-center gap-1.5">
+                <i class="fa-solid fa-circle-plus"></i> New Task
+              </button>
+            </div>
+          </div>
+
+          <div class="hierarchy-surface border rounded-2xl shadow-sm overflow-hidden transition-colors">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr class="border-b border-slate-500/20 opacity-70 font-semibold uppercase tracking-wider text-[10px]">
+                    <th class="p-4 w-12 text-center">Status</th>
+                    <th class="p-4 cursor-pointer hover:text-indigo-500 transition-colors select-none" data-sort="desc">
+                      Task Description <i class="fa-solid fa-sort ml-1 opacity-50"></i>
+                    </th>
+                    <th class="p-4 cursor-pointer hover:text-indigo-500 transition-colors select-none" data-sort="node">
+                      Linked Node <i class="fa-solid fa-sort ml-1 opacity-50"></i>
+                    </th>
+                    <th class="p-4 cursor-pointer hover:text-indigo-500 transition-colors select-none" data-sort="date">
+                      Due Date <i class="fa-solid fa-sort ml-1 opacity-50"></i>
+                    </th>
+                    <th class="p-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="tasks-table-body" class="divide-y divide-slate-500/10">
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </main>
   </div>
 
+  <!-- Add Node Modal -->
   <div id="add-node-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
     <div class="modal-box rounded-2xl p-5 sm:p-6 w-full max-w-sm flex flex-col gap-4 max-h-[90vh] overflow-y-auto no-scrollbar">
       <div class="flex items-center justify-between">
@@ -1279,6 +1342,39 @@
     </div>
   </div>
 
+  <!-- Create Task Modal -->
+  <div id="task-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="modal-box rounded-2xl p-5 sm:p-6 w-full max-w-sm flex flex-col gap-4">
+      <div class="flex items-center justify-between">
+        <h3 id="task-modal-title" class="font-bold text-base">Create New Task</h3>
+        <button id="btn-close-task-modal" class="opacity-60 hover:opacity-100 p-1 transition-opacity">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="flex flex-col gap-1.5">
+        <label class="modal-label text-xs font-semibold">Task Description</label>
+        <textarea id="task-desc-input" rows="2" class="modal-input w-full rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="e.g. Review requirements..."></textarea>
+      </div>
+
+      <div class="flex flex-col gap-1.5">
+        <label class="modal-label text-xs font-semibold">Due Date</label>
+        <input type="date" id="task-date-input" class="modal-input w-full rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+      </div>
+
+      <div class="flex flex-col gap-1.5">
+        <label class="modal-label text-xs font-semibold">Linked Node</label>
+        <select id="task-node-select" class="modal-input w-full rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </select>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button id="btn-cancel-task-modal" class="modal-btn-cancel px-4 py-2 text-xs font-semibold rounded-xl transition-colors">Cancel</button>
+        <button id="btn-confirm-task" class="px-5 py-2 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow">Save Task</button>
+      </div>
+    </div>
+  </div>
+
   <div id="toast" class="fixed top-16 sm:top-20 left-1/2 -translate-x-1/2 z-50 glass-panel border border-slate-500/30 text-xs px-4 py-2 rounded-xl shadow-lg transition-opacity duration-300 opacity-0 pointer-events-none text-center whitespace-nowrap">
     Notice
   </div>
@@ -1354,7 +1450,7 @@
     const auth = firebase.auth();
     window.boardRef = db.ref("mindmap/board");
 
-    const LOCAL_STORAGE_KEY = 'mindmap_whiteboard_state_v2';
+    const LOCAL_STORAGE_KEY = 'mindmap_whiteboard_state_v3';
     const THEME_STORAGE_KEY = 'mindmap_whiteboard_theme';
 
     const defaultNodes = [
@@ -1431,6 +1527,7 @@
                 ...e,
                 directed: !!e.directed
               })),
+              tasks: Array.isArray(parsed.tasks) ? parsed.tasks : [],
               view: parsed.view || { x: 0, y: 0, zoom: 1 },
               lastModified: parsed.lastModified || 0
             };
@@ -1442,6 +1539,7 @@
       return {
         nodes: JSON.parse(JSON.stringify(defaultNodes)),
         edges: JSON.parse(JSON.stringify(defaultEdges)),
+        tasks: [],
         view: { x: 0, y: 0, zoom: 1 },
         lastModified: 0
       };
@@ -1452,6 +1550,7 @@
     const state = {
       nodes: initial.nodes,
       edges: initial.edges,
+      tasks: initial.tasks,
       selectedNodeIds: new Set(),
       selectedEdgeId: null,
       mode: 'pan',
@@ -1481,7 +1580,9 @@
       clusterColorTargetRootId: null,
       theme: localStorage.getItem(THEME_STORAGE_KEY) || 'light',
       inventorySortColumn: 'label',
-      inventorySortDirection: 'asc'
+      inventorySortDirection: 'asc',
+      taskSortColumn: 'date',
+      taskSortDirection: 'asc'
     };
 
     const historyStack = [];
@@ -1491,7 +1592,8 @@
     function pushHistory() {
       const snapshot = JSON.stringify({
         nodes: state.nodes,
-        edges: state.edges
+        edges: state.edges,
+        tasks: state.tasks
       });
       if (historyStack.length > 0 && historyStack[historyStack.length - 1] === snapshot) {
         return;
@@ -1515,7 +1617,8 @@
       if (historyStack.length === 0) return;
       const currentSnapshot = JSON.stringify({
         nodes: state.nodes,
-        edges: state.edges
+        edges: state.edges,
+        tasks: state.tasks
       });
       redoStack.push(currentSnapshot);
       const prevSnapshot = historyStack.pop();
@@ -1523,6 +1626,7 @@
 
       state.nodes = parsed.nodes;
       state.edges = parsed.edges;
+      state.tasks = parsed.tasks || [];
       state.selectedNodeIds.clear();
       state.selectedEdgeId = null;
 
@@ -1530,6 +1634,7 @@
       renderBoard();
       if (state.currentPage === 'hierarchy') renderHierarchyTree();
       if (state.currentPage === 'inventory') renderInventoryList();
+      if (state.currentPage === 'tasks') renderTasksList();
       updateUndoRedoButtons();
       showToast("Undone");
     }
@@ -1538,7 +1643,8 @@
       if (redoStack.length === 0) return;
       const currentSnapshot = JSON.stringify({
         nodes: state.nodes,
-        edges: state.edges
+        edges: state.edges,
+        tasks: state.tasks
       });
       historyStack.push(currentSnapshot);
       if (historyStack.length > MAX_HISTORY) {
@@ -1549,6 +1655,7 @@
 
       state.nodes = parsed.nodes;
       state.edges = parsed.edges;
+      state.tasks = parsed.tasks || [];
       state.selectedNodeIds.clear();
       state.selectedEdgeId = null;
 
@@ -1556,6 +1663,7 @@
       renderBoard();
       if (state.currentPage === 'hierarchy') renderHierarchyTree();
       if (state.currentPage === 'inventory') renderInventoryList();
+      if (state.currentPage === 'tasks') renderTasksList();
       updateUndoRedoButtons();
       showToast("Redone");
     }
@@ -1648,6 +1756,9 @@
       if (state.currentPage === 'inventory') {
         renderInventoryList();
       }
+      if (state.currentPage === 'tasks') {
+        renderTasksList();
+      }
       populateParentDropdown(state.modalParentNodeId);
       renderModalColorChoices();
       renderModalBgColorChoices();
@@ -1710,6 +1821,7 @@
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({
           nodes: state.nodes,
           edges: state.edges,
+          tasks: state.tasks,
           view: state.view,
           lastModified: now
         }));
@@ -1723,6 +1835,7 @@
         window.boardRef.set({
           nodes: state.nodes,
           edges: state.edges,
+          tasks: state.tasks,
           lastModified: now
         }).then(() => {
           setSaveStatus('synced', now);
@@ -1737,6 +1850,7 @@
       updateClusterCounts();
       if (state.currentPage === 'hierarchy') renderHierarchyTree();
       if (state.currentPage === 'inventory') renderInventoryList();
+      if (state.currentPage === 'tasks') renderTasksList();
     }
 
     function applyTransform() {
@@ -2000,6 +2114,17 @@
           openInlineEditor(nodeData.id);
         });
         nodeEl.appendChild(editBtn);
+
+        const taskBtn = document.createElement('button');
+        taskBtn.className = 'node-action-btn btn-task-node-quick';
+        taskBtn.title = 'Add Task for Node';
+        taskBtn.innerHTML = '<i class="fa-solid fa-plus"></i>';
+        ['mousedown', 'touchstart'].forEach(evt => taskBtn.addEventListener(evt, (e) => e.stopPropagation()));
+        taskBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openTaskModal(nodeData.id);
+        });
+        nodeEl.appendChild(taskBtn);
 
         const delBtn = document.createElement('button');
         delBtn.className = 'node-action-btn btn-delete-node-quick';
@@ -2357,6 +2482,7 @@
       pushHistory();
       state.nodes = state.nodes.filter(n => n.id !== nodeId);
       state.edges = state.edges.filter(e => e.source !== nodeId && e.target !== nodeId);
+      state.tasks = state.tasks.filter(t => t.nodeId !== nodeId);
       state.selectedNodeIds.delete(nodeId);
       if (state.editingNodeId === nodeId) {
         closeInlineEditor(false);
@@ -2380,6 +2506,7 @@
         const toDelete = new Set(state.selectedNodeIds);
         state.nodes = state.nodes.filter(n => !toDelete.has(n.id));
         state.edges = state.edges.filter(e => !toDelete.has(e.source) && !toDelete.has(e.target));
+        state.tasks = state.tasks.filter(t => !toDelete.has(t.nodeId));
         state.selectedNodeIds.clear();
         changed = true;
       }
@@ -2563,6 +2690,7 @@
       pushHistory();
       state.nodes = JSON.parse(JSON.stringify(defaultNodes));
       state.edges = JSON.parse(JSON.stringify(defaultEdges));
+      state.tasks = [];
       state.selectedNodeIds.clear();
       state.selectedEdgeId = null;
       state.connectSourceId = null;
@@ -2822,6 +2950,7 @@
     }
 
     function getPillMarkup(node, isDark) {
+      if (!node) return '<span class="opacity-40 italic">Unassigned</span>';
       const hex = COLOR_HEX_MAP[node.color] || '#64748b';
       const hubMarkup = node.isHub ? `<span class="text-[9px] font-bold uppercase tracking-wider text-indigo-500 bg-indigo-500/10 border border-indigo-500/30 px-1.5 py-0.2 rounded">Hub</span>` : '';
       
@@ -2969,6 +3098,31 @@
 
       populateParentDropdown(nodeId);
       if (dropdownMenu) dropdownMenu.classList.add('hidden');
+    }
+
+    function openTaskModal(preselectedNodeId = null) {
+      const modal = document.getElementById('task-modal');
+      const descInput = document.getElementById('task-desc-input');
+      const dateInput = document.getElementById('task-date-input');
+      const nodeSelect = document.getElementById('task-node-select');
+      if (!modal || !descInput || !dateInput || !nodeSelect) return;
+
+      descInput.value = '';
+      dateInput.value = new Date().toISOString().split('T')[0];
+
+      nodeSelect.innerHTML = '';
+      state.nodes.forEach(n => {
+        const opt = document.createElement('option');
+        opt.value = n.id;
+        opt.textContent = cleanClusterLabel(n.linkCaption || n.label);
+        if (preselectedNodeId && n.id === preselectedNodeId) {
+          opt.selected = true;
+        }
+        nodeSelect.appendChild(opt);
+      });
+
+      modal.classList.remove('hidden');
+      descInput.focus();
     }
 
     function renderModalColorChoices() {
@@ -3347,19 +3501,23 @@
       const pageCanvas = document.getElementById('page-canvas');
       const pageHierarchy = document.getElementById('page-hierarchy');
       const pageInventory = document.getElementById('page-inventory');
+      const pageTasks = document.getElementById('page-tasks');
       const navCanvas = document.getElementById('nav-canvas');
       const navHierarchy = document.getElementById('nav-hierarchy');
       const navInventory = document.getElementById('nav-inventory');
+      const navTasks = document.getElementById('nav-tasks');
 
-      if (!pageCanvas || !pageHierarchy || !pageInventory || !navCanvas || !navHierarchy || !navInventory) return;
+      if (!pageCanvas || !pageHierarchy || !pageInventory || !pageTasks || !navCanvas || !navHierarchy || !navInventory || !navTasks) return;
 
       pageCanvas.classList.add('hidden');
       pageHierarchy.classList.add('hidden');
       pageInventory.classList.add('hidden');
+      pageTasks.classList.add('hidden');
 
       navCanvas.classList.remove('active');
       navHierarchy.classList.remove('active');
       navInventory.classList.remove('active');
+      navTasks.classList.remove('active');
 
       if (pageId === 'canvas') {
         pageCanvas.classList.remove('hidden');
@@ -3373,6 +3531,10 @@
         pageInventory.classList.remove('hidden');
         navInventory.classList.add('active');
         renderInventoryList();
+      } else if (pageId === 'tasks') {
+        pageTasks.classList.remove('hidden');
+        navTasks.classList.add('active');
+        renderTasksList();
       }
     }
 
@@ -3549,9 +3711,14 @@
               ${node.linkUrl ? `<a href="${node.linkUrl}" target="_blank" class="text-indigo-500 underline truncate block">${node.linkUrl}</a>` : '<span class="opacity-35 italic">None</span>'}
             </td>
             <td class="p-4 text-right align-middle">
-              <button class="btn-locate-node px-2.5 py-1 text-xs font-semibold bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 rounded-lg transition-all flex items-center gap-1.5 ml-auto">
-                <i class="fa-solid fa-crosshairs text-[11px]"></i> Locate
-              </button>
+              <div class="flex items-center justify-end gap-2">
+                <button class="btn-inv-add-task px-2.5 py-1 text-xs font-semibold bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 rounded-lg transition-all flex items-center gap-1">
+                  <i class="fa-solid fa-plus text-[10px]"></i> Task
+                </button>
+                <button class="btn-locate-node px-2.5 py-1 text-xs font-semibold bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 rounded-lg transition-all flex items-center gap-1.5">
+                  <i class="fa-solid fa-crosshairs text-[11px]"></i> Locate
+                </button>
+              </div>
             </td>
           `;
 
@@ -3559,6 +3726,11 @@
           editBtn.addEventListener('click', () => {
             state.inventoryEditingNodeId = node.id;
             renderInventoryList(searchQuery());
+          });
+
+          const addTaskBtn = tr.querySelector('.btn-inv-add-task');
+          addTaskBtn.addEventListener('click', () => {
+            openTaskModal(node.id);
           });
 
           const locateBtn = tr.querySelector('.btn-locate-node');
@@ -3571,8 +3743,121 @@
       });
     }
 
+    function renderTasksList(searchFilter = '') {
+      const tbody = document.getElementById('tasks-table-body');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      const isDark = state.theme === 'dark' || state.theme === 'black';
+      const query = searchFilter.toLowerCase().trim();
+
+      const filteredTasks = state.tasks.filter(task => {
+        if (!query) return true;
+        const descText = (task.description || '').toLowerCase();
+        const dateText = (task.dueDate || '').toLowerCase();
+        const node = state.nodes.find(n => n.id === task.nodeId);
+        const nodeText = node ? cleanClusterLabel(node.linkCaption || node.label).toLowerCase() : '';
+        return descText.includes(query) || dateText.includes(query) || nodeText.includes(query);
+      });
+
+      filteredTasks.sort((a, b) => {
+        let valA, valB;
+        if (state.taskSortColumn === 'desc') {
+          valA = (a.description || '').toLowerCase();
+          valB = (b.description || '').toLowerCase();
+        } else if (state.taskSortColumn === 'date') {
+          valA = a.dueDate || '';
+          valB = b.dueDate || '';
+        } else if (state.taskSortColumn === 'node') {
+          const nodeA = state.nodes.find(n => n.id === a.nodeId);
+          const nodeB = state.nodes.find(n => n.id === b.nodeId);
+          valA = nodeA ? cleanClusterLabel(nodeA.linkCaption || nodeA.label).toLowerCase() : '';
+          valB = nodeB ? cleanClusterLabel(nodeB.linkCaption || nodeB.label).toLowerCase() : '';
+        }
+
+        if (valA < valB) return state.taskSortDirection === 'asc' ? -1 : 1;
+        if (valA > valB) return state.taskSortDirection === 'asc' ? 1 : -1;
+        return 0;
+      });
+
+      document.querySelectorAll('#page-tasks th[data-sort]').forEach(th => {
+        const col = th.getAttribute('data-sort');
+        const icon = th.querySelector('i');
+        if (col === state.taskSortColumn) {
+          th.classList.add('text-indigo-500');
+          if (icon) {
+            icon.className = state.taskSortDirection === 'asc' ? 'fa-solid fa-sort-up ml-1 text-indigo-500' : 'fa-solid fa-sort-down ml-1 text-indigo-500';
+          }
+        } else {
+          th.classList.remove('text-indigo-500');
+          if (icon) {
+            icon.className = 'fa-solid fa-sort ml-1 opacity-50';
+          }
+        }
+      });
+
+      if (filteredTasks.length === 0) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td colspan="5" class="p-6 text-center opacity-50 italic">No tasks created yet</td>`;
+        tbody.appendChild(tr);
+        return;
+      }
+
+      filteredTasks.forEach(task => {
+        const tr = document.createElement('tr');
+        tr.className = isDark ? 'hover:bg-slate-800/40 transition-colors' : 'hover:bg-slate-50 transition-colors';
+
+        const linkedNode = state.nodes.find(n => n.id === task.nodeId);
+        const pillHTML = getPillMarkup(linkedNode, isDark);
+
+        tr.innerHTML = `
+          <td class="p-4 text-center align-middle">
+            <input type="checkbox" class="task-checkbox w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer" ${task.completed ? 'checked' : ''} />
+          </td>
+          <td class="p-4 font-medium align-middle ${task.completed ? 'line-through opacity-50' : ''}">
+            ${task.description.replace(/\n/g, '<br/>')}
+          </td>
+          <td class="p-4 align-middle">
+            ${pillHTML}
+          </td>
+          <td class="p-4 font-mono text-[11px] opacity-75 align-middle">
+            ${task.dueDate || 'No due date'}
+          </td>
+          <td class="p-4 text-right align-middle">
+            <button class="btn-delete-task px-2 py-1 text-xs font-semibold text-rose-500 hover:bg-rose-500/10 rounded-lg transition-all" title="Delete Task">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </td>
+        `;
+
+        const checkbox = tr.querySelector('.task-checkbox');
+        checkbox.addEventListener('change', () => {
+          pushHistory();
+          task.completed = checkbox.checked;
+          commitState(true, true);
+          renderTasksList(taskSearchQuery());
+        });
+
+        const deleteBtn = tr.querySelector('.btn-delete-task');
+        deleteBtn.addEventListener('click', () => {
+          pushHistory();
+          state.tasks = state.tasks.filter(t => t.id !== task.id);
+          commitState(true, true);
+          renderTasksList(taskSearchQuery());
+          showToast("Task deleted.");
+        });
+
+        tbody.appendChild(tr);
+      });
+    }
+
     function searchQuery() {
       const searchInput = document.getElementById('inventory-search');
+      return searchInput ? searchInput.value : '';
+    }
+
+    function taskSearchQuery() {
+      const searchInput = document.getElementById('tasks-search');
       return searchInput ? searchInput.value : '';
     }
 
@@ -3590,6 +3875,7 @@
       updateClusterCounts();
       if (state.currentPage === 'hierarchy') renderHierarchyTree();
       if (state.currentPage === 'inventory') renderInventoryList(searchQuery());
+      if (state.currentPage === 'tasks') renderTasksList(taskSearchQuery());
       showToast(`Cluster color updated to ${newColor}!`);
     }
 
@@ -3660,16 +3946,12 @@
       function createTreeNode(node, level = 0, parentNodeColor = null) {
         visited.add(node.id);
         
-        // Strict hierarchy mapping: 
-        // 1. Ignore green dotted flow lines (edges where directed: true)
-        // 2. If node's color is different from its parent's color, treat it as a new distinct tree root (do not nest)
         const childEdgeTargets = state.edges
           .filter(e => !e.directed && e.source === node.id)
           .map(e => e.target);
 
         const childNodes = state.nodes.filter(n => {
           if (!childEdgeTargets.includes(n.id) || visited.has(n.id)) return false;
-          // Rule enforcement: new color coming from a different tree branches out as its own root
           if (parentNodeColor && n.color && n.color !== parentNodeColor) {
             return false;
           }
@@ -3826,10 +4108,8 @@
         return nodeWrapper;
       }
 
-      // Render root tree starting from rootNode
       treeContainer.appendChild(createTreeNode(rootNode, 0, rootNode.color));
 
-      // Render any nodes whose color branches out from root as new independent root trees
       const unvisitedRoots = state.nodes.filter(n => !visited.has(n.id) && n.color && n.color !== rootNode.color);
       unvisitedRoots.forEach(ur => {
         treeContainer.appendChild(createTreeNode(ur, 0, ur.color));
@@ -3909,15 +4189,19 @@
       const viewportEl = document.getElementById('board-viewport');
       const marqueeBoxEl = document.getElementById('marquee-box');
       const modalEl = document.getElementById('add-node-modal');
+      const taskModalEl = document.getElementById('task-modal');
       const labelInput = document.getElementById('node-label-input');
       const sidebar = document.getElementById('sidebar');
 
       const inlineEditorEl = document.getElementById('node-inline-editor');
       const addNodeModalBox = document.querySelector('#add-node-modal .modal-box');
       const addModalHeader = document.querySelector('#add-node-modal h3')?.parentElement;
+      const taskModalBox = document.querySelector('#task-modal .modal-box');
+      const taskModalHeader = document.querySelector('#task-modal h3')?.parentElement;
 
       if (inlineEditorEl) makeModalDraggable(inlineEditorEl, inlineEditorEl.querySelector('div:first-child'));
       if (addNodeModalBox && addModalHeader) makeModalDraggable(addNodeModalBox, addModalHeader);
+      if (taskModalBox && taskModalHeader) makeModalDraggable(taskModalBox, taskModalHeader);
 
       const btnSelectMode = document.getElementById('btn-select-mode');
       const btnConnectMode = document.getElementById('btn-connect-mode');
@@ -3936,13 +4220,18 @@
       const btnZoomOut = document.getElementById('btn-zoom-out');
       const btnOpenAddModal = document.getElementById('btn-open-add-modal');
       const btnHierarchyAddRoot = document.getElementById('btn-hierarchy-add-root');
+      const btnOpenTaskModal = document.getElementById('btn-open-task-modal');
       const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
       const navCanvas = document.getElementById('nav-canvas');
       const navHierarchy = document.getElementById('nav-hierarchy');
       const navInventory = document.getElementById('nav-inventory');
+      const navTasks = document.getElementById('nav-tasks');
       const btnCloseModal = document.getElementById('btn-close-modal');
       const btnCancelModal = document.getElementById('btn-cancel-modal');
       const btnConfirmAdd = document.getElementById('btn-confirm-add');
+      const btnCloseTaskModal = document.getElementById('btn-close-task-modal');
+      const btnCancelTaskModal = document.getElementById('btn-cancel-task-modal');
+      const btnConfirmTask = document.getElementById('btn-confirm-task');
       const btnSignOut = document.getElementById('btn-sign-out');
       const loginBtn = document.getElementById('btn-login-submit');
       const loginPassword = document.getElementById('login-password');
@@ -4104,6 +4393,13 @@
         });
       }
 
+      const tasksSearchInput = document.getElementById('tasks-search');
+      if (tasksSearchInput) {
+        tasksSearchInput.addEventListener('input', (e) => {
+          renderTasksList(e.target.value);
+        });
+      }
+
       document.querySelectorAll('#page-inventory th[data-sort]').forEach(th => {
         th.addEventListener('click', () => {
           const col = th.getAttribute('data-sort');
@@ -4115,6 +4411,20 @@
           }
           const searchTerm = inventorySearchInput ? inventorySearchInput.value : '';
           renderInventoryList(searchTerm);
+        });
+      });
+
+      document.querySelectorAll('#page-tasks th[data-sort]').forEach(th => {
+        th.addEventListener('click', () => {
+          const col = th.getAttribute('data-sort');
+          if (state.taskSortColumn === col) {
+            state.taskSortDirection = state.taskSortDirection === 'asc' ? 'desc' : 'asc';
+          } else {
+            state.taskSortColumn = col;
+            state.taskSortDirection = 'asc';
+          }
+          const searchTerm = tasksSearchInput ? tasksSearchInput.value : '';
+          renderTasksList(searchTerm);
         });
       });
 
@@ -4145,6 +4455,7 @@
 
       if (btnOpenAddModal) btnOpenAddModal.addEventListener('click', () => openAddModal(null));
       if (btnHierarchyAddRoot) btnHierarchyAddRoot.addEventListener('click', () => openAddModal(null));
+      if (btnOpenTaskModal) btnOpenTaskModal.addEventListener('click', () => openTaskModal(null));
 
       if (btnToggleSidebar && sidebar) {
         btnToggleSidebar.addEventListener('click', () => {
@@ -4159,9 +4470,45 @@
       if (navCanvas) navCanvas.addEventListener('click', () => switchPage('canvas'));
       if (navHierarchy) navHierarchy.addEventListener('click', () => switchPage('hierarchy'));
       if (navInventory) navInventory.addEventListener('click', () => switchPage('inventory'));
+      if (navTasks) navTasks.addEventListener('click', () => switchPage('tasks'));
 
       if (btnCloseModal && modalEl) btnCloseModal.addEventListener('click', () => modalEl.classList.add('hidden'));
       if (btnCancelModal && modalEl) btnCancelModal.addEventListener('click', () => modalEl.classList.add('hidden'));
+
+      if (btnCloseTaskModal && taskModalEl) btnCloseTaskModal.addEventListener('click', () => taskModalEl.classList.add('hidden'));
+      if (btnCancelTaskModal && taskModalEl) btnCancelTaskModal.addEventListener('click', () => taskModalEl.classList.add('hidden'));
+
+      if (btnConfirmTask) {
+        btnConfirmTask.addEventListener('click', () => {
+          const descInput = document.getElementById('task-desc-input');
+          const dateInput = document.getElementById('task-date-input');
+          const nodeSelect = document.getElementById('task-node-select');
+          if (!descInput || !dateInput || !nodeSelect) return;
+
+          const desc = descInput.value.trim();
+          const dueDate = dateInput.value;
+          const nodeId = nodeSelect.value;
+
+          if (!desc) {
+            showToast("Please enter a task description.");
+            return;
+          }
+
+          pushHistory();
+          state.tasks.push({
+            id: 'task_' + Date.now(),
+            description: desc,
+            dueDate: dueDate,
+            nodeId: nodeId,
+            completed: false
+          });
+
+          commitState(true, true);
+          taskModalEl.classList.add('hidden');
+          renderTasksList(taskSearchQuery());
+          showToast("Task created successfully!");
+        });
+      }
 
       if (btnConfirmAdd) {
         btnConfirmAdd.addEventListener('click', () => {
@@ -4244,6 +4591,7 @@
           renderBoard();
           if (state.currentPage === 'hierarchy') renderHierarchyTree();
           if (state.currentPage === 'inventory') renderInventoryList(searchQuery());
+          if (state.currentPage === 'tasks') renderTasksList(taskSearchQuery());
           showToast(`Added "${text}"`);
           state.modalParentNodeId = null;
         });
@@ -4641,12 +4989,14 @@
               ...e,
               directed: !!e.directed
             }));
+            state.tasks = Array.isArray(cloudData.tasks) ? cloudData.tasks : [];
             state.lastModified = cloudTimestamp;
 
             try {
               localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({
                 nodes: state.nodes,
                 edges: state.edges,
+                tasks: state.tasks,
                 view: state.view,
                 lastModified: state.lastModified
               }));
@@ -4655,6 +5005,7 @@
             renderBoard();
             if (state.currentPage === 'hierarchy') renderHierarchyTree();
             if (state.currentPage === 'inventory') renderInventoryList(searchQuery());
+            if (state.currentPage === 'tasks') renderTasksList(taskSearchQuery());
             isIncomingSync = false;
             setSaveStatus('synced', cloudTimestamp);
 
