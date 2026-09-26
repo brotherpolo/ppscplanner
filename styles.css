@@ -78,6 +78,11 @@ body.theme-black #splash-screen {
   padding-right: 0 !important;
 }
 
+.sidebar-item {
+  cursor: pointer;
+  pointer-events: auto;
+}
+
 #main-content {
   flex: 1;
   height: 100%;
