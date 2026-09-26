@@ -187,7 +187,8 @@ const state = {
   inventorySortColumn: 'label',
   inventorySortDirection: 'asc',
   taskSortColumn: 'date',
-  taskSortDirection: 'asc'
+  taskSortDirection: 'asc',
+  hideCompletedTasks: false
 };
 
 const historyStack = [];
@@ -2382,6 +2383,8 @@ function renderTasksList(searchFilter = '') {
   const query = searchFilter.toLowerCase().trim();
 
   const filteredTasks = state.tasks.filter(task => {
+    if (state.hideCompletedTasks && task.completed) return false;
+
     if (!query) return true;
     const descText = (task.description || '').toLowerCase();
     const dateText = (task.dueDate || '').toLowerCase();
@@ -2428,7 +2431,7 @@ function renderTasksList(searchFilter = '') {
 
   if (filteredTasks.length === 0) {
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td colspan="5" class="p-6 text-center opacity-50 italic">No tasks created yet</td>`;
+    tr.innerHTML = `<td colspan="5" class="p-6 text-center opacity-50 italic">${state.hideCompletedTasks ? 'No active tasks found' : 'No tasks created yet'}</td>`;
     tbody.appendChild(tr);
     return;
   }
@@ -2989,6 +2992,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnSaveCompletion = document.getElementById('btn-save-completion');
   const btnDeleteCompletionTask = document.getElementById('btn-delete-completion-task');
 
+  const btnToggleCompletedTasks = document.getElementById('btn-toggle-completed-tasks');
+  const toggleCompletedTasksText = document.getElementById('toggle-completed-tasks-text');
+
   const btnSignOut = document.getElementById('btn-sign-out');
   const loginBtn = document.getElementById('btn-login-submit');
   const loginPassword = document.getElementById('login-password');
@@ -3002,6 +3008,25 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnModalItalic = document.getElementById('btn-modal-italic');
   const btnModalUnderline = document.getElementById('btn-modal-underline');
   const selectModalFontsize = document.getElementById('select-modal-fontsize');
+
+  if (btnToggleCompletedTasks) {
+    btnToggleCompletedTasks.addEventListener('click', () => {
+      state.hideCompletedTasks = !state.hideCompletedTasks;
+      const icon = btnToggleCompletedTasks.querySelector('i');
+
+      if (state.hideCompletedTasks) {
+        if (toggleCompletedTasksText) toggleCompletedTasksText.textContent = 'Show Completed';
+        if (icon) icon.className = 'fa-regular fa-eye text-xs';
+        btnToggleCompletedTasks.classList.add('bg-indigo-500/10', 'text-indigo-600', 'border-indigo-500/30');
+      } else {
+        if (toggleCompletedTasksText) toggleCompletedTasksText.textContent = 'Hide Completed';
+        if (icon) icon.className = 'fa-regular fa-eye-slash text-xs';
+        btnToggleCompletedTasks.classList.remove('bg-indigo-500/10', 'text-indigo-600', 'border-indigo-500/30');
+      }
+
+      renderTasksList(taskSearchQuery());
+    });
+  }
 
   if (btnModalBold) {
     btnModalBold.addEventListener('click', () => {
