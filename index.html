@@ -65,28 +65,27 @@
         </div>
 
         <div class="p-3 flex flex-col gap-1.5">
-          <button id="nav-canvas" class="sidebar-item active w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-xs transition-all cursor-pointer">
+          <button id="nav-canvas" class="sidebar-item active w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-xs transition-all">
             <i class="fa-solid fa-circle-nodes text-base shrink-0"></i>
             <span class="sidebar-label">Canvas View</span>
           </button>
 
-          <button id="nav-hierarchy" class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-xs transition-all cursor-pointer">
+          <button id="nav-hierarchy" class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-xs transition-all">
             <i class="fa-solid fa-sitemap text-base shrink-0"></i>
             <span class="sidebar-label">Hierarchy View</span>
           </button>
 
-          <button id="nav-inventory" class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-xs transition-all cursor-pointer">
+          <button id="nav-inventory" class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-xs transition-all">
             <i class="fa-solid fa-table-list text-base shrink-0"></i>
             <span class="sidebar-label">Inventory List</span>
           </button>
 
-          <button id="nav-tasks" class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-xs transition-all cursor-pointer">
+          <button id="nav-tasks" class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-xs transition-all">
             <i class="fa-solid fa-list-check text-base shrink-0"></i>
             <span class="sidebar-label">Tasks</span>
           </button>
 
-          <!-- Navigation Calendar Button -->
-          <button id="nav-calendar" class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-xs transition-all cursor-pointer">
+          <button id="nav-calendar" class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold text-xs transition-all">
             <i class="fa-regular fa-calendar-days text-base shrink-0"></i>
             <span class="sidebar-label">Calendar</span>
           </button>
@@ -604,6 +603,50 @@
       <div class="flex justify-end gap-2 pt-2">
         <button id="btn-cancel-task-modal" class="modal-btn-cancel px-4 py-2 text-xs font-semibold rounded-xl transition-colors">Cancel</button>
         <button id="btn-confirm-task" class="px-5 py-2 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow">Save Task</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Task Completion / Detail Modal -->
+  <div id="task-completion-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="modal-box rounded-2xl p-5 sm:p-6 w-full max-w-sm flex flex-col gap-4">
+      <div class="flex items-center justify-between">
+        <h3 class="font-bold text-base">Task Details</h3>
+        <button id="btn-close-completion-modal" class="opacity-60 hover:opacity-100 p-1 transition-opacity">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div id="completion-modal-node-pill" class="flex items-center gap-2"></div>
+
+      <div class="flex flex-col gap-1">
+        <label class="modal-label text-xs font-semibold">Task Description</label>
+        <p id="completion-modal-desc" class="text-xs font-medium p-2.5 bg-slate-500/10 border border-slate-500/20 rounded-xl leading-relaxed"></p>
+      </div>
+
+      <div class="flex items-center justify-between p-2.5 bg-slate-500/10 border border-slate-500/20 rounded-xl">
+        <span class="text-xs font-semibold">Mark Completed</span>
+        <input type="checkbox" id="completion-status-checkbox" class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer" />
+      </div>
+
+      <div class="flex flex-col gap-1.5">
+        <label class="modal-label text-xs font-semibold">Completion Date & Time</label>
+        <input type="datetime-local" id="completion-time-input" class="modal-input w-full rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+      </div>
+
+      <div class="flex flex-col gap-1.5">
+        <label class="modal-label text-xs font-semibold">Completion Notes</label>
+        <textarea id="completion-notes-input" rows="3" class="modal-input w-full rounded-xl p-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Add resolution notes or comments..."></textarea>
+      </div>
+
+      <div class="flex items-center justify-between pt-2">
+        <button id="btn-delete-completion-task" class="px-3 py-1.5 text-xs font-semibold text-rose-500 hover:bg-rose-500/10 rounded-xl transition-colors">
+          <i class="fa-solid fa-trash-can mr-1"></i> Delete
+        </button>
+        <div class="flex gap-2">
+          <button id="btn-cancel-completion-modal" class="modal-btn-cancel px-4 py-2 text-xs font-semibold rounded-xl transition-colors">Cancel</button>
+          <button id="btn-save-completion" class="px-5 py-2 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow">Save Changes</button>
+        </div>
       </div>
     </div>
   </div>

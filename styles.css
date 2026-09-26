@@ -78,11 +78,6 @@ body.theme-black #splash-screen {
   padding-right: 0 !important;
 }
 
-.sidebar-item {
-  cursor: pointer;
-  pointer-events: auto;
-}
-
 #main-content {
   flex: 1;
   height: 100%;
@@ -359,10 +354,11 @@ svg#svg-layer {
   min-width: 290px;
 }
 
-/* Make Modal Headers Draggable */
+/* Draggable Header Handles */
 #node-inline-editor > div:first-child,
 #add-node-modal .modal-box > div:first-child,
-#task-modal .modal-box > div:first-child {
+#task-modal .modal-box > div:first-child,
+#task-completion-modal .modal-box > div:first-child {
   cursor: move;
   user-select: none;
 }
@@ -415,6 +411,7 @@ svg#svg-layer {
   }
 }
 
+/* Sidebar Navigation Items */
 body.theme-light .sidebar-item.active {
   background-color: #e0e7ff !important;
   color: #4338ca !important;
@@ -441,6 +438,7 @@ body.theme-black .sidebar-item.active i {
   color: #a5b4fc !important;
 }
 
+/* Modal Themes */
 .modal-box {
   transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
   position: absolute;
@@ -532,6 +530,7 @@ body.theme-black .modal-btn-cancel:hover {
   color: #ffffff;
 }
 
+/* Hierarchy & Surface Themes */
 body.theme-light .hierarchy-surface {
   background-color: #ffffff;
   border-color: #e2e8f0;
