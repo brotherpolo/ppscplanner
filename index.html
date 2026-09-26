@@ -1136,7 +1136,7 @@
         </div>
       </section>
 
-      <!-- New Inventory List Page Section -->
+      <!-- Inventory List Page Section -->
       <section id="page-inventory" class="app-page hidden overflow-y-auto p-4 sm:p-8">
         <div class="max-w-6xl mx-auto flex flex-col gap-6 pb-20 pt-10 sm:pt-4">
           <div class="hierarchy-surface flex flex-col sm:flex-row sm:items-center justify-between gap-4 border p-6 rounded-2xl shadow-sm transition-colors">
@@ -1157,11 +1157,21 @@
               <table class="w-full text-left border-collapse text-xs">
                 <thead>
                   <tr class="border-b border-slate-500/20 opacity-70 font-semibold uppercase tracking-wider text-[10px]">
-                    <th class="p-4">Node Label</th>
-                    <th class="p-4">Cluster / Color</th>
-                    <th class="p-4">Shape</th>
-                    <th class="p-4">Position (X, Y)</th>
-                    <th class="p-4">Link URL</th>
+                    <th class="p-4 cursor-pointer hover:text-indigo-500 transition-colors select-none" data-sort="label">
+                      Node Label <i class="fa-solid fa-sort ml-1 opacity-50"></i>
+                    </th>
+                    <th class="p-4 cursor-pointer hover:text-indigo-500 transition-colors select-none" data-sort="color">
+                      Cluster / Color <i class="fa-solid fa-sort ml-1 opacity-50"></i>
+                    </th>
+                    <th class="p-4 cursor-pointer hover:text-indigo-500 transition-colors select-none" data-sort="shape">
+                      Shape <i class="fa-solid fa-sort ml-1 opacity-50"></i>
+                    </th>
+                    <th class="p-4 cursor-pointer hover:text-indigo-500 transition-colors select-none" data-sort="position">
+                      Position (X, Y) <i class="fa-solid fa-sort ml-1 opacity-50"></i>
+                    </th>
+                    <th class="p-4 cursor-pointer hover:text-indigo-500 transition-colors select-none" data-sort="url">
+                      Link URL <i class="fa-solid fa-sort ml-1 opacity-50"></i>
+                    </th>
                     <th class="p-4 text-right">Action</th>
                   </tr>
                 </thead>
@@ -1467,7 +1477,9 @@
       modalParentNodeId: null,
       contextClickPos: null,
       clusterColorTargetRootId: null,
-      theme: localStorage.getItem(THEME_STORAGE_KEY) || 'light'
+      theme: localStorage.getItem(THEME_STORAGE_KEY) || 'light',
+      inventorySortColumn: 'label',
+      inventorySortDirection: 'asc'
     };
 
     const historyStack = [];
@@ -3377,6 +3389,46 @@
         return labelText.includes(query) || colorText.includes(query) || shapeText.includes(query);
       });
 
+      filteredNodes.sort((a, b) => {
+        let valA, valB;
+        if (state.inventorySortColumn === 'label') {
+          valA = cleanClusterLabel(a.linkCaption || a.label).toLowerCase();
+          valB = cleanClusterLabel(b.linkCaption || b.label).toLowerCase();
+        } else if (state.inventorySortColumn === 'color') {
+          valA = (a.color || '').toLowerCase();
+          valB = (b.color || '').toLowerCase();
+        } else if (state.inventorySortColumn === 'shape') {
+          valA = (a.shape || 'pill').toLowerCase();
+          valB = (b.shape || 'pill').toLowerCase();
+        } else if (state.inventorySortColumn === 'position') {
+          valA = (a.y * 10000) + a.x;
+          valB = (b.y * 10000) + b.x;
+        } else if (state.inventorySortColumn === 'url') {
+          valA = (a.linkUrl || '').toLowerCase();
+          valB = (b.linkUrl || '').toLowerCase();
+        }
+
+        if (valA < valB) return state.inventorySortDirection === 'asc' ? -1 : 1;
+        if (valA > valB) return state.inventorySortDirection === 'asc' ? 1 : -1;
+        return 0;
+      });
+
+      document.querySelectorAll('#page-inventory th[data-sort]').forEach(th => {
+        const col = th.getAttribute('data-sort');
+        const icon = th.querySelector('i');
+        if (col === state.inventorySortColumn) {
+          th.classList.add('text-indigo-500');
+          if (icon) {
+            icon.className = state.inventorySortDirection === 'asc' ? 'fa-solid fa-sort-up ml-1 text-indigo-500' : 'fa-solid fa-sort-down ml-1 text-indigo-500';
+          }
+        } else {
+          th.classList.remove('text-indigo-500');
+          if (icon) {
+            icon.className = 'fa-solid fa-sort ml-1 opacity-50';
+          }
+        }
+      });
+
       if (filteredNodes.length === 0) {
         const tr = document.createElement('tr');
         tr.innerHTML = `<td colspan="6" class="p-6 text-center opacity-50 italic">No inventory nodes found</td>`;
@@ -3937,6 +3989,20 @@
           renderInventoryList(e.target.value);
         });
       }
+
+      document.querySelectorAll('#page-inventory th[data-sort]').forEach(th => {
+        th.addEventListener('click', () => {
+          const col = th.getAttribute('data-sort');
+          if (state.inventorySortColumn === col) {
+            state.inventorySortDirection = state.inventorySortDirection === 'asc' ? 'desc' : 'asc';
+          } else {
+            state.inventorySortColumn = col;
+            state.inventorySortDirection = 'asc';
+          }
+          const searchTerm = inventorySearchInput ? inventorySearchInput.value : '';
+          renderInventoryList(searchTerm);
+        });
+      });
 
       if (btnSelectMode) btnSelectMode.addEventListener('click', () => setAppMode('select'));
       if (btnConnectMode) btnConnectMode.addEventListener('click', () => setAppMode('connect'));
