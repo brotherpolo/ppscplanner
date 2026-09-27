@@ -3551,6 +3551,11 @@ document.addEventListener("DOMContentLoaded", () => {
         closeInlineEditor(true);
       }
 
+      // DO NOT PAN ON RIGHT-CLICK (e.button === 2). Let contextmenu handle right-clicks!
+      if (e.button === 2) {
+        return;
+      }
+
       if (e.button === 1 || state.mode === 'pan' || (e.button === 0 && e.spaceKey)) {
         state.isPanning = true;
         state.panStart = { x: e.clientX - state.view.x, y: e.clientY - state.view.y };
