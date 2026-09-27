@@ -1575,26 +1575,27 @@ function createIsolatedGroup() {
 function getPillMarkup(node, isDark, compact = false) {
   if (!node) return '<span class="opacity-40 italic">Unassigned</span>';
   const hex = COLOR_HEX_MAP[node.color] || '#64748b';
-  const hubMarkup = node.isHub ? `<span class="text-[8px] font-bold uppercase tracking-wider text-indigo-500 bg-indigo-500/10 border border-indigo-500/30 px-1 py-0.2 rounded">Hub</span>` : '';
+  const hubMarkup = node.isHub ? `<span class="text-[8px] font-bold uppercase tracking-wider text-indigo-500 bg-indigo-500/10 border border-indigo-500/30 px-1 py-0.2 rounded shrink-0">Hub</span>` : '';
   
   const bgHex = node.bgColor && COLOR_HEX_MAP[node.bgColor] ? COLOR_HEX_MAP[node.bgColor] : hex;
   const bg = isDark ? `${bgHex}FA` : `${bgHex}FA`;
   const border = isDark ? `${hex}60` : `${hex}45`;
   const color = node.textColor === 'black' ? '#000000' : (node.textColor === 'white' ? '#ffffff' : (isDark ? '#ffffff' : hex));
   
-  // Force a small 10px font size on table list views regardless of how node is configured on canvas
-  const fontStyle = compact ? 'font-size: 10px;' : (node.fontSize ? `font-size: ${node.fontSize};` : '');
+  const fontStyle = compact ? 'font-size: 10px; line-height: 1.25;' : (node.fontSize ? `font-size: ${node.fontSize};` : '');
   const weightStyle = node.isBold ? `font-weight: bold;` : '';
   const italicStyle = node.isItalic ? `font-style: italic;` : '';
   const underlineStyle = node.isUnderline ? `text-decoration: underline;` : '';
 
   const sizeClasses = compact 
-    ? "px-2 py-0.5 text-[10px] max-w-[130px]" 
-    : "px-3 py-1 text-xs max-w-[200px]";
+    ? "px-2.5 py-1 text-[10px] max-w-[220px]" 
+    : "px-3 py-1 text-xs max-w-[260px]";
+
+  const roundedClasses = compact ? "rounded-xl" : "rounded-full";
 
   return `
-    <div style="background-color: ${bg}; border-color: ${border}; color: ${color}; ${fontStyle} ${weightStyle} ${italicStyle} ${underlineStyle}" class="${sizeClasses} font-semibold rounded-full border shadow-xs inline-flex items-center justify-center text-center gap-1 mx-auto w-max">
-      <span class="truncate">${renderFormattedLabel(node.linkCaption || node.label).replace(/<br\/?>/g, ' ')}</span>
+    <div style="background-color: ${bg}; border-color: ${border}; color: ${color}; ${fontStyle} ${weightStyle} ${italicStyle} ${underlineStyle}" class="${sizeClasses} ${roundedClasses} font-semibold border shadow-xs inline-flex items-center justify-center text-center gap-1 mx-auto w-max">
+      <span class="whitespace-normal break-words text-center">${renderFormattedLabel(node.linkCaption || node.label).replace(/<br\s*\/?>/gi, ' ')}</span>
     </div>
     ${hubMarkup}
   `;
