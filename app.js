@@ -2898,6 +2898,94 @@ document.addEventListener('click', (e) => {
   }
 });
 
+function openAddModal(parentNodeId = null) {
+  state.modalParentNodeId = parentNodeId;
+
+  const modalEl = document.getElementById('add-node-modal');
+  const modalBox = modalEl ? modalEl.querySelector('.modal-box') : null;
+  const modalTitleEl = document.getElementById('add-modal-title');
+  const labelInput = document.getElementById('node-label-input');
+  const searchInput = document.getElementById('parent-search-input');
+  const dropdownMenu = document.getElementById('parent-dropdown-menu');
+  const selectModalFontsize = document.getElementById('select-modal-fontsize');
+  const modalUrlEl = document.getElementById('node-modal-url');
+  const modalCaptionEl = document.getElementById('node-modal-caption');
+  const btnModalBold = document.getElementById('btn-modal-bold');
+  const btnModalItalic = document.getElementById('btn-modal-italic');
+  const btnModalUnderline = document.getElementById('btn-modal-underline');
+
+  if (!modalEl || !labelInput) return;
+
+  modalEl.classList.remove('hidden');
+
+  if (modalBox) {
+    modalBox.style.transform = 'none';
+    modalBox.style.position = 'absolute';
+    modalBox.style.left = `${(window.innerWidth - modalBox.offsetWidth) / 2}px`;
+    modalBox.style.top = `${(window.innerHeight - modalBox.offsetHeight) / 2}px`;
+  }
+
+  if (searchInput) searchInput.value = '';
+  if (dropdownMenu) dropdownMenu.classList.add('hidden');
+
+  populateParentDropdown(parentNodeId, '');
+
+  if (parentNodeId) {
+    const parentNode = state.nodes.find(n => n.id === parentNodeId);
+    const parentName = parentNode ? cleanClusterLabel(parentNode.linkCaption || parentNode.label) : 'Item';
+    if (modalTitleEl) modalTitleEl.textContent = `Add Child to "${parentName}"`;
+    state.selectedModalColor = parentNode ? parentNode.color : 'red';
+    state.selectedModalShape = parentNode ? (parentNode.shape || 'pill') : 'pill';
+    state.selectedModalFontSize = parentNode ? (parentNode.fontSize || '') : '';
+    state.selectedModalBgColor = parentNode ? (parentNode.bgColor || '') : '';
+    state.selectedModalTextColor = parentNode ? (parentNode.textColor || '') : '';
+    state.selectedModalBold = parentNode ? !!parentNode.isBold : false;
+    state.selectedModalItalic = parentNode ? !!parentNode.isItalic : false;
+    state.selectedModalUnderline = parentNode ? !!parentNode.isUnderline : false;
+  } else {
+    if (modalTitleEl) modalTitleEl.textContent = 'Create New Node';
+    state.selectedModalColor = 'red';
+    state.selectedModalShape = 'pill';
+    state.selectedModalFontSize = '';
+    state.selectedModalBgColor = '';
+    state.selectedModalTextColor = '';
+    state.selectedModalBold = false;
+    state.selectedModalItalic = false;
+    state.selectedModalUnderline = false;
+  }
+
+  if (selectModalFontsize) selectModalFontsize.value = state.selectedModalFontSize;
+  if (modalUrlEl) modalUrlEl.value = '';
+  if (modalCaptionEl) modalCaptionEl.value = '';
+
+  if (btnModalBold) {
+    btnModalBold.classList.toggle('bg-indigo-600', state.selectedModalBold);
+    btnModalBold.classList.toggle('text-white', state.selectedModalBold);
+  }
+  if (btnModalItalic) {
+    btnModalItalic.classList.toggle('bg-indigo-600', state.selectedModalItalic);
+    btnModalItalic.classList.toggle('text-white', state.selectedModalItalic);
+  }
+  if (btnModalUnderline) {
+    btnModalUnderline.classList.toggle('bg-indigo-600', state.selectedModalUnderline);
+    btnModalUnderline.classList.toggle('text-white', state.selectedModalUnderline);
+  }
+
+  renderModalColorChoices();
+  renderModalBgColorChoices();
+  renderModalTextColorChoices();
+  renderModalShapeChoices();
+
+  labelInput.value = '';
+  setTimeout(() => {
+    if (modalBox) {
+      modalBox.style.left = `${(window.innerWidth - modalBox.offsetWidth) / 2}px`;
+      modalBox.style.top = `${(window.innerHeight - modalBox.offsetHeight) / 2}px`;
+    }
+    labelInput.focus();
+  }, 30);
+}
+
 function makeModalDraggable(modalBoxEl, handleEl) {
   handleEl.addEventListener('mousedown', (e) => {
     if (e.button !== 0 || e.target.closest('button')) return;
