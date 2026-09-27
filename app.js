@@ -1601,120 +1601,6 @@ function getPillMarkup(node, isDark, compact = false) {
   `;
 }
 
-function renderTasksList(searchFilter = '') {
-  const tbody = document.getElementById('tasks-table-body');
-  if (!tbody) return;
-  tbody.innerHTML = '';
-
-  const isDark = state.theme === 'dark' || state.theme === 'black';
-  const query = searchFilter.toLowerCase().trim();
-
-  const filteredTasks = state.tasks.filter(task => {
-    if (state.hideCompletedTasks && task.completed) return false;
-
-    if (!query) return true;
-    const descText = (task.description || '').toLowerCase();
-    const dateText = (task.dueDate || '').toLowerCase();
-    const node = state.nodes.find(n => n.id === task.nodeId);
-    const nodeText = node ? cleanClusterLabel(node.linkCaption || node.label).toLowerCase() : '';
-    return descText.includes(query) || dateText.includes(query) || nodeText.includes(query);
-  });
-
-  filteredTasks.sort((a, b) => {
-    let valA, valB;
-    if (state.taskSortColumn === 'desc') {
-      valA = (a.description || '').toLowerCase();
-      valB = (b.description || '').toLowerCase();
-    } else if (state.taskSortColumn === 'date') {
-      valA = a.dueDate || '';
-      valB = b.dueDate || '';
-    } else if (state.taskSortColumn === 'node') {
-      const nodeA = state.nodes.find(n => n.id === a.nodeId);
-      const nodeB = state.nodes.find(n => n.id === b.nodeId);
-      valA = nodeA ? cleanClusterLabel(nodeA.linkCaption || nodeA.label).toLowerCase() : '';
-      valB = nodeB ? cleanClusterLabel(nodeB.linkCaption || nodeB.label).toLowerCase() : '';
-    }
-
-    if (valA < valB) return state.taskSortDirection === 'asc' ? -1 : 1;
-    if (valA > valB) return state.taskSortDirection === 'asc' ? 1 : -1;
-    return 0;
-  });
-
-  document.querySelectorAll('#page-tasks th[data-sort]').forEach(th => {
-    const col = th.getAttribute('data-sort');
-    const icon = th.querySelector('i');
-    if (col === state.taskSortColumn) {
-      th.classList.add('text-indigo-500');
-      if (icon) {
-        icon.className = state.taskSortDirection === 'asc' ? 'fa-solid fa-sort-up ml-1 text-indigo-500' : 'fa-solid fa-sort-down ml-1 text-indigo-500';
-      }
-    } else {
-      th.classList.remove('text-indigo-500');
-      if (icon) {
-        icon.className = 'fa-solid fa-sort ml-1 opacity-50';
-      }
-    }
-  });
-
-  if (filteredTasks.length === 0) {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td colspan="5" class="p-6 text-center opacity-50 italic">${state.hideCompletedTasks ? 'No active tasks found' : 'No tasks created yet'}</td>`;
-    tbody.appendChild(tr);
-    return;
-  }
-
-  filteredTasks.forEach(task => {
-    const tr = document.createElement('tr');
-    tr.className = isDark ? 'hover:bg-slate-800/40 transition-colors' : 'hover:bg-slate-50 transition-colors';
-
-    const linkedNode = state.nodes.find(n => n.id === task.nodeId);
-    // Pass true for compact = true to render a small pill
-    const pillHTML = getPillMarkup(linkedNode, isDark, true);
-
-    tr.innerHTML = `
-      <td class="p-4 text-center align-middle">
-        <input type="checkbox" class="task-checkbox w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer" ${task.completed ? 'checked' : ''} />
-      </td>
-      <td class="p-4 font-medium align-middle ${task.completed ? 'line-through opacity-50' : ''}">
-        ${task.description.replace(/\n/g, '<br/>')}
-      </td>
-      <td class="p-4 align-middle">
-        ${pillHTML}
-      </td>
-      <td class="p-4 font-mono text-[11px] opacity-75 align-middle">
-        ${task.dueDate || 'No due date'}
-      </td>
-      <td class="p-4 text-right align-middle">
-        <button class="btn-delete-task px-2 py-1 text-xs font-semibold text-rose-500 hover:bg-rose-500/10 rounded-lg transition-all cursor-pointer" title="Delete Task">
-          <i class="fa-solid fa-trash-can"></i>
-        </button>
-      </td>
-    `;
-
-    const checkbox = tr.querySelector('.task-checkbox');
-    checkbox.addEventListener('change', () => {
-      pushHistory();
-      task.completed = checkbox.checked;
-      if (task.completed && !task.completedAt) {
-        task.completedAt = getLocalDateTimeString();
-      }
-      commitState(true, true);
-      renderTasksList(taskSearchQuery());
-    });
-
-    const deleteBtn = tr.querySelector('.btn-delete-task');
-    deleteBtn.addEventListener('click', () => {
-      pushHistory();
-      state.tasks = state.tasks.filter(t => t.id !== task.id);
-      commitState(true, true);
-      renderTasksList(taskSearchQuery());
-      showToast("Task deleted.");
-    });
-
-    tbody.appendChild(tr);
-  });
-}
-
 function getHierarchyPillMarkup(node, isDark) {
   const hex = COLOR_HEX_MAP[node.color] || '#64748b';
   const hubMarkup = node.isHub ? `<span class="text-[9px] font-bold uppercase tracking-wider text-indigo-500 bg-indigo-500/10 border border-indigo-500/30 px-1.5 py-0.2 rounded">Hub</span>` : '';
@@ -2562,7 +2448,7 @@ function renderTasksList(searchFilter = '') {
     tr.className = isDark ? 'hover:bg-slate-800/40 transition-colors' : 'hover:bg-slate-50 transition-colors';
 
     const linkedNode = state.nodes.find(n => n.id === task.nodeId);
-    const pillHTML = getPillMarkup(linkedNode, isDark);
+    const pillHTML = getPillMarkup(linkedNode, isDark, true);
 
     tr.innerHTML = `
       <td class="p-4 text-center align-middle">
@@ -3831,6 +3717,19 @@ document.addEventListener("DOMContentLoaded", () => {
     viewportEl.addEventListener('touchend', (e) => {
       if (e.touches.length < 2) initialTouchDistance = 0;
       if (e.touches.length === 0) state.isPanning = false;
+    });
+
+    viewportEl.addEventListener('contextmenu', (e) => {
+      if (e.target.closest('.node')) return;
+      e.preventDefault();
+      e.stopPropagation();
+
+      state.selectedNodeIds.clear();
+      state.selectedEdgeId = null;
+      updateSelectionVisuals();
+
+      state.contextClickPos = screenToWorld(e.clientX, e.clientY);
+      openAddModal(null);
     });
   }
 
