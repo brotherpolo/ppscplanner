@@ -3546,19 +3546,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (viewportEl) {
-    viewportEl.addEventListener('contextmenu', (e) => {
-      if (e.target.closest('.node')) return;
-      e.preventDefault();
-      e.stopPropagation();
-
-      state.selectedNodeIds.clear();
-      state.selectedEdgeId = null;
-      updateSelectionVisuals();
-
-      state.contextClickPos = screenToWorld(e.clientX, e.clientY);
-      openAddModal(null);
-    });
-
     viewportEl.addEventListener('mousedown', (e) => {
       if (state.editingNodeId && !e.target.closest('#node-inline-editor')) {
         closeInlineEditor(true);
@@ -3720,12 +3707,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     viewportEl.addEventListener('contextmenu', (e) => {
-      if (e.target.closest('.node')) return;
+      if (e.target.closest('.node') || e.target.closest('.modal-box')) return;
       e.preventDefault();
       e.stopPropagation();
 
       state.selectedNodeIds.clear();
       state.selectedEdgeId = null;
+      state.connectSourceId = null;
       updateSelectionVisuals();
 
       state.contextClickPos = screenToWorld(e.clientX, e.clientY);
