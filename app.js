@@ -548,22 +548,19 @@ function openInlineEditor(nodeId) {
   if (btnInlineUnderline) btnInlineUnderline.classList.toggle('bg-indigo-600', !!node.isUnderline);
   if (btnInlineUnderline) btnInlineUnderline.classList.toggle('text-white', !!node.isUnderline);
 
-  const screenPos = worldToScreen(node.x, node.y);
-  
+  // Position modal directly in the center of the viewport
   inlineEditorEl.style.display = 'flex';
   inlineEditorEl.style.transform = 'none';
-  inlineEditorEl.style.position = 'absolute';
+  inlineEditorEl.style.position = 'fixed';
 
-  const boxWidth = 310;
-  const boxHeight = 450;
-  let leftPos = screenPos.x - (boxWidth / 2);
-  let topPos = screenPos.y + 25;
+  const boxWidth = inlineEditorEl.offsetWidth || 310;
+  const boxHeight = inlineEditorEl.offsetHeight || 450;
+  
+  const leftPos = Math.round((window.innerWidth - boxWidth) / 2);
+  const topPos = Math.round((window.innerHeight - boxHeight) / 2);
 
-  leftPos = Math.max(20, Math.min(window.innerWidth - boxWidth - 20, leftPos));
-  topPos = Math.max(20, Math.min(window.innerHeight - boxHeight - 20, topPos));
-
-  inlineEditorEl.style.left = `${leftPos}px`;
-  inlineEditorEl.style.top = `${topPos}px`;
+  inlineEditorEl.style.left = `${Math.max(20, leftPos)}px`;
+  inlineEditorEl.style.top = `${Math.max(20, topPos)}px`;
 
   const hex = COLOR_HEX_MAP[node.color] || '#3b82f6';
   inlineEditorEl.style.boxShadow = `0 18px 40px -6px rgba(0, 0, 0, 0.35), 0 0 0 2px ${hex}`;
@@ -578,7 +575,6 @@ function openInlineEditor(nodeId) {
     inlineTextareaEl.select();
   }, 50);
 }
-
 function closeInlineEditor(save = true) {
   const inlineEditorEl = document.getElementById('node-inline-editor');
   const inlineTextareaEl = document.getElementById('node-inline-textarea');
