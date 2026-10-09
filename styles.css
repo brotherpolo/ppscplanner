@@ -441,7 +441,7 @@ body.theme-black .sidebar-item.active i {
 /* Modal Themes */
 .modal-box {
   transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-  position: absolute;
+  position: relative;
 }
 body.theme-light .modal-box {
   background-color: #ffffff;
