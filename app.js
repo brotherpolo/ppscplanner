@@ -575,6 +575,7 @@ function openInlineEditor(nodeId) {
     inlineTextareaEl.select();
   }, 50);
 }
+
 function closeInlineEditor(save = true) {
   const inlineEditorEl = document.getElementById('node-inline-editor');
   const inlineTextareaEl = document.getElementById('node-inline-textarea');
@@ -921,37 +922,6 @@ function setupNodeEvents(nodeEl, nodeData) {
     });
     return true;
   };
-
-  const handlePointerMove = (clientX, clientY) => {
-    if (!isMouseDown) return;
-
-    const dist = Math.hypot(clientX - startClientX, clientY - startClientY);
-    if (!hasDragged && dist > DRAG_THRESHOLD) {
-      hasDragged = true;
-      state.isDraggingGroup = true;
-      pushHistory();
-    }
-
-    if (hasDragged && state.isDraggingGroup) {
-      const currentWorld = screenToWorld(clientX, clientY);
-      const dx = currentWorld.x - state.dragStartWorld.x;
-      const dy = currentWorld.y - state.dragStartWorld.y;
-
-      state.selectedNodeIds.forEach(id => {
-        const initialPos = state.nodeInitialPositions.get(id);
-        const n = state.nodes.find(item => item.id === id);
-        if (initialPos && n) {
-          n.x = Math.round(initialPos.x + dx);
-          n.y = Math.round(initialPos.y + dy);
-          const el = document.getElementById(`node-${n.id}`);
-          if (el) {
-            el.style.left = `${n.x}px`;
-            el.style.top = `${n.y}px`;
-          }
-        }
-      });
-
-      updateEdgeCoordinates();
 
   const handlePointerMove = (clientX, clientY) => {
     if (!isMouseDown) return;
