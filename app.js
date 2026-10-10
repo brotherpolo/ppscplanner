@@ -953,17 +953,36 @@ function setupNodeEvents(nodeEl, nodeData) {
 
       updateEdgeCoordinates();
 
-      if (state.editingNodeId) {
-        const editingNode = state.nodes.find(n => n.id === state.editingNodeId);
-        const inlineEditorEl = document.getElementById('node-inline-editor');
-        if (editingNode && inlineEditorEl) {
-          const screenPos = worldToScreen(editingNode.x, editingNode.y);
-          const boxW = inlineEditorEl.offsetWidth || 310;
-          const boxH = inlineEditorEl.offsetHeight || 450;
-          inlineEditorEl.style.left = `${Math.max(20, Math.min(window.innerWidth - boxW - 20, screenPos.x - (boxW / 2)))}px`;
-          inlineEditorEl.style.top = `${Math.max(20, Math.min(window.innerHeight - boxH - 20, screenPos.y + 25))}px`;
+  const handlePointerMove = (clientX, clientY) => {
+    if (!isMouseDown) return;
+
+    const dist = Math.hypot(clientX - startClientX, clientY - startClientY);
+    if (!hasDragged && dist > DRAG_THRESHOLD) {
+      hasDragged = true;
+      state.isDraggingGroup = true;
+      pushHistory();
+    }
+
+    if (hasDragged && state.isDraggingGroup) {
+      const currentWorld = screenToWorld(clientX, clientY);
+      const dx = currentWorld.x - state.dragStartWorld.x;
+      const dy = currentWorld.y - state.dragStartWorld.y;
+
+      state.selectedNodeIds.forEach(id => {
+        const initialPos = state.nodeInitialPositions.get(id);
+        const n = state.nodes.find(item => item.id === id);
+        if (initialPos && n) {
+          n.x = Math.round(initialPos.x + dx);
+          n.y = Math.round(initialPos.y + dy);
+          const el = document.getElementById(`node-${n.id}`);
+          if (el) {
+            el.style.left = `${n.x}px`;
+            el.style.top = `${n.y}px`;
+          }
         }
-      }
+      });
+
+      updateEdgeCoordinates();
     }
   };
 
